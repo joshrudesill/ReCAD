@@ -4,6 +4,7 @@ const initialState = {
   virtualGeometryBeingDrawn: false,
   virtualGeometry: {},
   realGeometry: [],
+  stageOffset: { x: 0, y: 0 },
 };
 
 /* vitrual geometry 
@@ -47,7 +48,16 @@ export const drawingControlSlice = createSlice({
     addRealGeometry: (state, action) => {
       state.virtualGeometryBeingDrawn = false;
       state.virtualGeometry = {};
-      state.realGeometry.push(action.payload);
+      state.realGeometry.push({
+        ...action.payload,
+        key: state.realGeometry.length + 1,
+      });
+    },
+    updateStageOffset: (state, action) => {
+      state.stageOffset = {
+        x: -action.payload.x,
+        y: -action.payload.y,
+      };
     },
   },
 });
@@ -57,6 +67,7 @@ export const {
   updateVirtualGeometry,
   startDrawingVirtualGeometry,
   addRealGeometry,
+  updateStageOffset,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

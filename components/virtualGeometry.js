@@ -2,15 +2,14 @@ import { Line, Rect } from "react-konva";
 import { useSelector } from "react-redux";
 
 export default function VirtualGeometry() {
-  const { virtualGeometryBeingDrawn, virtualGeometry } = useSelector(
-    (state) => state.drawingControl
-  );
+  const { virtualGeometryBeingDrawn, virtualGeometry, stageOffset } =
+    useSelector((state) => state.drawingControl);
   if (virtualGeometryBeingDrawn) {
     if (virtualGeometry.gType === 1) {
       return (
         <Line
-          x={0}
-          y={0}
+          x={stageOffset.x}
+          y={stageOffset.y}
           points={[
             virtualGeometry.startingX,
             virtualGeometry.startingY,
@@ -25,8 +24,8 @@ export default function VirtualGeometry() {
     if (virtualGeometry.gType === 2) {
       return (
         <Rect
-          x={virtualGeometry.startingX}
-          y={virtualGeometry.startingY}
+          x={virtualGeometry.startingX + stageOffset.x}
+          y={virtualGeometry.startingY + stageOffset.y}
           width={-(virtualGeometry.startingX - virtualGeometry.currentX)}
           height={-(virtualGeometry.startingY - virtualGeometry.currentY)}
           closed
