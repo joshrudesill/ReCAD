@@ -4,6 +4,7 @@ import {
   addRealGeometry,
   startDrawingVirtualGeometry,
   updateStageOffset,
+  updateStageZoomScale,
   updateVirtualGeometry,
 } from "@/features/drawingControlSlice";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -19,8 +20,12 @@ export default function Home() {
   // none - 0
   const [activatedDrawingTool, setActivatedDrawingTool] = useState(0);
   const activateDrawingTool = (tool) => setActivatedDrawingTool(tool);
-  const { virtualGeometryBeingDrawn, virtualGeometry, stageOffset } =
-    useSelector((state) => state.drawingControl);
+  const {
+    virtualGeometryBeingDrawn,
+    virtualGeometry,
+    stageOffset,
+    stageZoomScale,
+  } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
     e.evt.preventDefault();
@@ -32,12 +37,12 @@ export default function Home() {
       if (virtualGeometryBeingDrawn) {
         // add real geo
         const geometry = {
-          startingX: virtualGeometry.startingX,
-          startingY: virtualGeometry.startingY,
-          endingX: virtualGeometry.currentX,
-          endingY: virtualGeometry.currentY,
-          stageX: stageOffset.x,
-          stageY: stageOffset.y,
+          startingX: virtualGeometry.startingX * (1 / stageZoomScale),
+          startingY: virtualGeometry.startingY * (1 / stageZoomScale),
+          endingX: virtualGeometry.currentX * (1 / stageZoomScale),
+          endingY: virtualGeometry.currentY * (1 / stageZoomScale),
+          stageX: stageOffset.x * (1 / stageZoomScale),
+          stageY: stageOffset.y * (1 / stageZoomScale),
           gType: virtualGeometry.gType,
         };
         setActivatedDrawingTool(0);
@@ -55,12 +60,14 @@ export default function Home() {
 
   const handleDragInteractionWithStage = (e) => {
     e.evt.preventDefault();
+
     if (virtualGeometryBeingDrawn) {
       const { x, y } = e.evt;
       dispatch(updateVirtualGeometry({ x: x, y: y }));
     }
   };
-  const [zoom, setZoom] = useState(1);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [o, setO] = useState({ x: 0, y: 0 });
   const stageRef = useRef(null);
 
   const handleWheel = (e) => {
@@ -87,7 +94,9 @@ export default function Home() {
       x: pointer.x - mousePointTo.x * scale,
       y: pointer.y - mousePointTo.y * scale,
     };
+    dispatch(updateStageZoomScale(scale));
 
+    dispatch(updateStageOffset(newPos));
     stage.scale({ x: scale, y: scale });
     stage.position(newPos);
   };
@@ -134,25 +143,16 @@ export default function Home() {
         >
           Clear
         </button>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2'
-          onClick={() => setZoom(zoom + 0.1)}
-        >
-          zoom
-        </button>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2'
-          onClick={() => setZoom(zoom - 0.1)}
-        >
-          zoom-
-        </button>
-        <p>Geo: {JSON.stringify(stageOffset)}</p>
+
+        <p>so: {JSON.stringify(stageOffset)}</p>
+        <p>z: {JSON.stringify(stageZoomScale)}</p>
       </div>
     </>
   );
 }
 /**<p>Tool: {activatedDrawingTool}</p>
-        <p>Geo: {JSON.stringify(realGeometry)}</p>
+ <p>Geo: {JSON.stringify(realGeometry)}</p>
+ <p>Geo: {JSON.stringify(stageOffset)}</p>
         <p>VD: {JSON.stringify(virtualGeometryBeingDrawn)}</p>
         <p>VD: {JSON.stringify(virtualGeometry)}</p>
  * 

@@ -5,6 +5,7 @@ const initialState = {
   virtualGeometry: {},
   realGeometry: [],
   stageOffset: { x: 0, y: 0 },
+  stageZoomScale: 1,
 };
 
 /* vitrual geometry 
@@ -59,6 +60,9 @@ export const drawingControlSlice = createSlice({
         y: -action.payload.y,
       };
     },
+    updateStageZoomScale: (state, action) => {
+      state.stageZoomScale = action.payload;
+    },
   },
 });
 
@@ -68,6 +72,7 @@ export const {
   startDrawingVirtualGeometry,
   addRealGeometry,
   updateStageOffset,
+  updateStageZoomScale,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;
