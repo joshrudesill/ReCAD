@@ -60,12 +60,44 @@ export default function Home() {
       dispatch(updateVirtualGeometry({ x: x, y: y }));
     }
   };
+  const [zoom, setZoom] = useState(1);
+  const stageRef = useRef(null);
 
+  const handleWheel = (e) => {
+    e.evt.preventDefault();
+
+    const stage = stageRef.current;
+    const oldScale = stage.scaleX();
+
+    const scaleBy = 1.05;
+    const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    const minScale = 0.1;
+    const maxScale = 10;
+    const scale = Math.max(minScale, Math.min(maxScale, newScale));
+
+    const pointer = stage.getPointerPosition();
+
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    const newPos = {
+      x: pointer.x - mousePointTo.x * scale,
+      y: pointer.y - mousePointTo.y * scale,
+    };
+
+    stage.scale({ x: scale, y: scale });
+    stage.position(newPos);
+  };
   return (
     <>
       <Stage
         width={1000}
         height={1000}
+        ref={stageRef}
+        onWheel={handleWheel}
         onMouseDown={handleClickInteractionWithStage}
         onMouseMove={handleDragInteractionWithStage}
         onContextMenu={(e) => e.evt.preventDefault()}
@@ -101,6 +133,18 @@ export default function Home() {
           onClick={() => activateDrawingTool(0)}
         >
           Clear
+        </button>
+        <button
+          className='px-2 py-1 bg-slate-400 ml-2'
+          onClick={() => setZoom(zoom + 0.1)}
+        >
+          zoom
+        </button>
+        <button
+          className='px-2 py-1 bg-slate-400 ml-2'
+          onClick={() => setZoom(zoom - 0.1)}
+        >
+          zoom-
         </button>
         <p>Geo: {JSON.stringify(stageOffset)}</p>
       </div>
