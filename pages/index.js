@@ -60,14 +60,37 @@ export default function Home() {
 
   const handleDragInteractionWithStage = (e) => {
     e.evt.preventDefault();
-
     if (virtualGeometryBeingDrawn) {
       const { x, y } = e.evt;
-      dispatch(updateVirtualGeometry({ x: x, y: y }));
+      let slope;
+      if (e.evt.shiftKey) {
+        const { startingX, startingY } = virtualGeometry;
+        if (Math.abs(startingX - x) < 10) {
+          slope = 0;
+        } else if (Math.abs(startingY - y) < 10) {
+          slope = 1000;
+        } else {
+          const s = (x - startingX) / (y - startingY);
+          slope = s;
+        }
+        slope = Math.abs(slope);
+        if (slope === 1000) {
+          dispatch(updateVirtualGeometry({ x: x, y: startingY }));
+        } else if (slope === 0) {
+          dispatch(updateVirtualGeometry({ x: startingX, y: y }));
+        } else if (slope > 0 && slope < 1) {
+          dispatch(updateVirtualGeometry({ x: startingX, y: y }));
+        } else if (slope > 1 && slope < 1000) {
+          dispatch(updateVirtualGeometry({ x: x, y: startingY }));
+        }
+      } else {
+        dispatch(updateVirtualGeometry({ x: x, y: y }));
+      }
     }
   };
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [o, setO] = useState({ x: 0, y: 0 });
+  const [o, setO] = useState(0);
+  const [z, setZ] = useState("n");
   const stageRef = useRef(null);
 
   const handleWheel = (e) => {
@@ -144,8 +167,9 @@ export default function Home() {
           Clear
         </button>
 
-        <p>so: {JSON.stringify(stageOffset)}</p>
-        <p>z: {JSON.stringify(stageZoomScale)}</p>
+        <p>m: {JSON.stringify(mouse)}</p>
+        <p>slope: {JSON.stringify(o)}</p>
+        <p>z: {JSON.stringify(z)}</p>
       </div>
     </>
   );
