@@ -1,24 +1,36 @@
-import { Line, Rect } from "react-konva";
-import { useSelector } from "react-redux";
+import { addSelectedGeometry } from "@/features/drawingControlSlice";
+import { Line, Rect, Circle } from "react-konva";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Geometry() {
-  const realGeometry = useSelector(
-    (state) => state.drawingControl.realGeometry
+  const { realGeometry, selectedGeometry, stageZoomScale } = useSelector(
+    (state) => state.drawingControl
   );
+  const dispatch = useDispatch();
   return (
     realGeometry.length > 0 &&
     realGeometry.map((geo) => {
       if (geo.gType === 1) {
         return (
-          <Line
-            points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
-            x={geo.stageX}
-            y={geo.stageY}
-            closed
-            strokeWidth={0.5}
-            stroke='black'
-            key={geo.key}
-          />
+          <>
+            <Line
+              points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
+              x={geo.stageX}
+              y={geo.stageY}
+              closed
+              strokeWidth={0.5}
+              stroke={
+                selectedGeometry.length > 0
+                  ? selectedGeometry.includes(geo.key)
+                    ? "red"
+                    : "black"
+                  : "black"
+              }
+              hitStrokeWidth={10 * (1 / stageZoomScale)}
+              key={geo.key}
+              onClick={() => dispatch(addSelectedGeometry(geo.key))}
+            />
+          </>
         );
       }
       if (geo.gType === 2) {
@@ -30,8 +42,15 @@ export default function Geometry() {
             height={-(geo.startingY - geo.endingY)}
             strokeWidth={0.5}
             closed
-            stroke='black'
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.includes(geo.key)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
             key={geo.key}
+            onClick={() => dispatch(addSelectedGeometry(geo.key))}
           />
         );
       }

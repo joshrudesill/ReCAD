@@ -2,7 +2,9 @@ import Geometry from "@/components/geometry";
 import VirtualGeometry from "@/components/virtualGeometry";
 import {
   addRealGeometry,
+  resetSelectedGeometry,
   startDrawingVirtualGeometry,
+  updateCursorPosition,
   updateStageOffset,
   updateStageZoomScale,
   updateVirtualGeometry,
@@ -11,6 +13,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
+import Grid from "@/components/grid";
+import CustomCursor from "@/components/customCursor";
 Konva.dragButtons = [2];
 export default function Home() {
   const dispatch = useDispatch();
@@ -25,6 +29,7 @@ export default function Home() {
     virtualGeometry,
     stageOffset,
     stageZoomScale,
+    cursorPosition,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -55,13 +60,16 @@ export default function Home() {
         };
         dispatch(startDrawingVirtualGeometry(geometry));
       }
+    } else {
+      dispatch(resetSelectedGeometry());
     }
   };
 
   const handleDragInteractionWithStage = (e) => {
     e.evt.preventDefault();
+    const { x, y } = e.evt;
+    dispatch(updateCursorPosition({ x, y }));
     if (virtualGeometryBeingDrawn) {
-      const { x, y } = e.evt;
       let slope;
       if (e.evt.shiftKey) {
         const { startingX, startingY } = virtualGeometry;
@@ -91,6 +99,7 @@ export default function Home() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [o, setO] = useState(0);
   const [z, setZ] = useState("n");
+
   const stageRef = useRef(null);
 
   const handleWheel = (e) => {
@@ -124,10 +133,13 @@ export default function Home() {
     stage.position(newPos);
   };
   return (
-    <>
+    <div className='flex-row flex m-3 gap-2'>
       <Stage
-        width={1000}
-        height={1000}
+        width={1500}
+        height={900}
+        className='cursor-none'
+        x={100}
+        y={800}
         ref={stageRef}
         onWheel={handleWheel}
         onMouseDown={handleClickInteractionWithStage}
@@ -139,15 +151,19 @@ export default function Home() {
           return pos;
         }}
       >
+        <Layer name='env'>
+          <Rect height={10000} width={10000} fill='grey' x={-5000} y={-5000} />
+          <Grid />
+          <CustomCursor mouse={mouse} />
+        </Layer>
         <Layer name='realgeo'>
-          <Rect height={10000} width={10000} fill='grey' />
           <Geometry />
         </Layer>
         <Layer name='virtualgeo'>
           {virtualGeometryBeingDrawn && <VirtualGeometry />}
         </Layer>
       </Stage>
-      <div className='flex gap-2'>
+      <div className='flex gap-2 flex-col'>
         <button
           className='px-2 py-1 bg-slate-400 ml-2'
           onClick={() => activateDrawingTool(1)}
@@ -166,12 +182,14 @@ export default function Home() {
         >
           Clear
         </button>
+        <input placeholder='x' />
+        <input placeholder='y' />
 
-        <p>m: {JSON.stringify(mouse)}</p>
+        <p>m: {JSON.stringify(cursorPosition)}</p>
         <p>slope: {JSON.stringify(o)}</p>
         <p>z: {JSON.stringify(z)}</p>
       </div>
-    </>
+    </div>
   );
 }
 /**<p>Tool: {activatedDrawingTool}</p>

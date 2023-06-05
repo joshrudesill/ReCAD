@@ -4,8 +4,10 @@ const initialState = {
   virtualGeometryBeingDrawn: false,
   virtualGeometry: {},
   realGeometry: [],
-  stageOffset: { x: 0, y: 0 },
+  stageOffset: { x: -100, y: -800 },
   stageZoomScale: 1,
+  selectedGeometry: [],
+  cursorPosition: { x: 0, y: 0 },
 };
 
 /* vitrual geometry 
@@ -63,6 +65,16 @@ export const drawingControlSlice = createSlice({
     updateStageZoomScale: (state, action) => {
       state.stageZoomScale = action.payload;
     },
+    addSelectedGeometry: (state, action) => {
+      state.selectedGeometry.push(action.payload);
+    },
+    resetSelectedGeometry: (state) => {
+      state.selectedGeometry = [];
+    },
+
+    updateCursorPosition: (state, action) => {
+      state.cursorPosition = action.payload;
+    },
   },
 });
 
@@ -73,6 +85,9 @@ export const {
   addRealGeometry,
   updateStageOffset,
   updateStageZoomScale,
+  resetSelectedGeometry,
+  updateCursorPosition,
+  addSelectedGeometry,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;
