@@ -2,10 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   virtualGeometryBeingDrawn: false,
+  virtualGeometryBeingAltered: false,
   virtualGeometry: {},
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
   stageZoomScale: 1,
+  stageZoomScaleInverse: 1,
   selectedGeometry: [],
   cursorPosition: { x: 0, y: 0 },
 };
@@ -64,6 +66,7 @@ export const drawingControlSlice = createSlice({
     },
     updateStageZoomScale: (state, action) => {
       state.stageZoomScale = action.payload;
+      state.stageZoomScaleInverse = 1 / action.payload;
     },
     addSelectedGeometry: (state, action) => {
       state.selectedGeometry.push(action.payload);

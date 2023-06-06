@@ -3,9 +3,12 @@ import { Line, Rect, Circle } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Geometry() {
-  const { realGeometry, selectedGeometry, stageZoomScale } = useSelector(
-    (state) => state.drawingControl
-  );
+  const {
+    realGeometry,
+    selectedGeometry,
+    stageZoomScale,
+    stageZoomScaleInverse,
+  } = useSelector((state) => state.drawingControl);
   const dispatch = useDispatch();
   return (
     realGeometry.length > 0 &&
@@ -26,7 +29,7 @@ export default function Geometry() {
                     : "black"
                   : "black"
               }
-              hitStrokeWidth={10 * (1 / stageZoomScale)}
+              hitStrokeWidth={10 * stageZoomScaleInverse}
               key={geo.key}
               onClick={() => dispatch(addSelectedGeometry(geo.key))}
             />

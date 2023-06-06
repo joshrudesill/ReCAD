@@ -9,7 +9,7 @@ import {
   updateStageZoomScale,
   updateVirtualGeometry,
 } from "@/features/drawingControlSlice";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
@@ -23,13 +23,22 @@ export default function Home() {
   // rect - 2
   // none - 0
   const [activatedDrawingTool, setActivatedDrawingTool] = useState(0);
-  const activateDrawingTool = (tool) => setActivatedDrawingTool(tool);
+  const activateDrawingTool = (tool) => {
+    setActivatedAugmentationTool(0);
+    setActivatedDrawingTool(tool);
+  };
+  const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(0);
+  const activateAugmentationTool = (tool) => {
+    setActivatedDrawingTool(0);
+    setActivatedAugmentationTool(tool);
+  };
   const {
     virtualGeometryBeingDrawn,
     virtualGeometry,
     stageOffset,
     stageZoomScale,
     cursorPosition,
+    stageZoomScaleInverse,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -37,25 +46,25 @@ export default function Home() {
     if (e.evt.button !== 0) {
       return;
     }
-    const { x, y } = e.evt;
+    const { offsetX, offsetY } = e.evt;
     if (activatedDrawingTool !== 0) {
       if (virtualGeometryBeingDrawn) {
         // add real geo
         const geometry = {
-          startingX: virtualGeometry.startingX * (1 / stageZoomScale),
-          startingY: virtualGeometry.startingY * (1 / stageZoomScale),
-          endingX: virtualGeometry.currentX * (1 / stageZoomScale),
-          endingY: virtualGeometry.currentY * (1 / stageZoomScale),
-          stageX: stageOffset.x * (1 / stageZoomScale),
-          stageY: stageOffset.y * (1 / stageZoomScale),
+          startingX: virtualGeometry.startingX * stageZoomScaleInverse,
+          startingY: virtualGeometry.startingY * stageZoomScaleInverse,
+          endingX: virtualGeometry.currentX * stageZoomScaleInverse,
+          endingY: virtualGeometry.currentY * stageZoomScaleInverse,
+          stageX: stageOffset.x * stageZoomScaleInverse,
+          stageY: stageOffset.y * stageZoomScaleInverse,
           gType: virtualGeometry.gType,
         };
         setActivatedDrawingTool(0);
         dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
-          startingX: x,
-          startingY: y,
+          startingX: offsetX,
+          startingY: offsetY,
           gType: activatedDrawingTool,
         };
         dispatch(startDrawingVirtualGeometry(geometry));
@@ -67,32 +76,32 @@ export default function Home() {
 
   const handleDragInteractionWithStage = (e) => {
     e.evt.preventDefault();
-    const { x, y } = e.evt;
-    dispatch(updateCursorPosition({ x, y }));
+    const { offsetX, offsetY } = e.evt;
+    dispatch(updateCursorPosition({ offsetX, offsetY }));
     if (virtualGeometryBeingDrawn) {
       let slope;
       if (e.evt.shiftKey) {
         const { startingX, startingY } = virtualGeometry;
-        if (Math.abs(startingX - x) < 10) {
+        if (Math.abs(startingX - offsetX) < 10) {
           slope = 0;
-        } else if (Math.abs(startingY - y) < 10) {
+        } else if (Math.abs(startingY - offsetY) < 10) {
           slope = 1000;
         } else {
-          const s = (x - startingX) / (y - startingY);
+          const s = (offsetX - startingX) / (offsetY - startingY);
           slope = s;
         }
         slope = Math.abs(slope);
         if (slope === 1000) {
-          dispatch(updateVirtualGeometry({ x: x, y: startingY }));
+          dispatch(updateVirtualGeometry({ x: offsetX, y: startingY }));
         } else if (slope === 0) {
-          dispatch(updateVirtualGeometry({ x: startingX, y: y }));
+          dispatch(updateVirtualGeometry({ x: startingX, y: offsetY }));
         } else if (slope > 0 && slope < 1) {
-          dispatch(updateVirtualGeometry({ x: startingX, y: y }));
+          dispatch(updateVirtualGeometry({ x: startingX, y: offsetY }));
         } else if (slope > 1 && slope < 1000) {
-          dispatch(updateVirtualGeometry({ x: x, y: startingY }));
+          dispatch(updateVirtualGeometry({ x: offsetX, y: startingY }));
         }
       } else {
-        dispatch(updateVirtualGeometry({ x: x, y: y }));
+        dispatch(updateVirtualGeometry({ x: offsetX, y: offsetY }));
       }
     }
   };
@@ -137,7 +146,6 @@ export default function Home() {
       <Stage
         width={1500}
         height={900}
-        className='cursor-none'
         x={100}
         y={800}
         ref={stageRef}
@@ -154,7 +162,6 @@ export default function Home() {
         <Layer name='env'>
           <Rect height={10000} width={10000} fill='grey' x={-5000} y={-5000} />
           <Grid />
-          <CustomCursor mouse={mouse} />
         </Layer>
         <Layer name='realgeo'>
           <Geometry />
@@ -177,6 +184,12 @@ export default function Home() {
           Rect
         </button>
         <button
+          className='px-2 py-1 bg-teal-400 ml-2'
+          onClick={() => activateAugmentationTool(1)}
+        >
+          Move
+        </button>
+        <button
           className='px-2 py-1 bg-slate-400 ml-2'
           onClick={() => activateDrawingTool(0)}
         >
@@ -185,7 +198,6 @@ export default function Home() {
         <input placeholder='x' />
         <input placeholder='y' />
 
-        <p>m: {JSON.stringify(cursorPosition)}</p>
         <p>slope: {JSON.stringify(o)}</p>
         <p>z: {JSON.stringify(z)}</p>
       </div>

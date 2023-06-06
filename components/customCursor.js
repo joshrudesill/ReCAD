@@ -2,14 +2,13 @@ import { Rect, Circle, Group, Line } from "react-konva";
 import { useSelector } from "react-redux";
 
 export default function CustomCursor() {
-  const { cursorPosition, stageOffset, stageZoomScale } = useSelector(
-    (state) => state.drawingControl
-  );
+  const { cursorPosition, stageOffset, stageZoomScale, stageZoomScaleInverse } =
+    useSelector((state) => state.drawingControl);
   return (
     <Group>
       <Circle
-        x={(cursorPosition.x + stageOffset.x - 11) * (1 / stageZoomScale)}
-        y={(cursorPosition.y + stageOffset.y - 11) * (1 / stageZoomScale)}
+        x={(cursorPosition.x + stageOffset.x - 11) * stageZoomScaleInverse}
+        y={(cursorPosition.y + stageOffset.y - 11) * stageZoomScaleInverse}
         radius={4}
         stroke='red'
         hitStrokeWidth={0}
@@ -18,8 +17,8 @@ export default function CustomCursor() {
         scale={{ x: 1 / stageZoomScale, y: 1 / stageZoomScale }}
       />
       <Line
-        x={(cursorPosition.x + stageOffset.x - 11) * (1 / stageZoomScale)}
-        y={(cursorPosition.y + stageOffset.y - 11) * (1 / stageZoomScale)}
+        x={(cursorPosition.x + stageOffset.x - 11) * stageZoomScaleInverse}
+        y={(cursorPosition.y + stageOffset.y - 11) * stageZoomScaleInverse}
         points={[0, 7, 0, 30]}
         closed
         stroke='black'
@@ -30,8 +29,8 @@ export default function CustomCursor() {
         scale={{ x: 1 / stageZoomScale, y: 1 / stageZoomScale }}
       />
       <Line
-        x={(cursorPosition.x + stageOffset.x - 11) * (1 / stageZoomScale)}
-        y={(cursorPosition.y + stageOffset.y - 11) * (1 / stageZoomScale)}
+        x={(cursorPosition.x + stageOffset.x - 11) * stageZoomScaleInverse}
+        y={(cursorPosition.y + stageOffset.y - 11) * stageZoomScaleInverse}
         points={[0, -7, 0, -30]}
         closed
         stroke='black'
@@ -42,8 +41,8 @@ export default function CustomCursor() {
         scale={{ x: 1 / stageZoomScale, y: 1 / stageZoomScale }}
       />
       <Line
-        x={(cursorPosition.x + stageOffset.x - 11) * (1 / stageZoomScale)}
-        y={(cursorPosition.y + stageOffset.y - 11) * (1 / stageZoomScale)}
+        x={(cursorPosition.x + stageOffset.x - 11) * stageZoomScaleInverse}
+        y={(cursorPosition.y + stageOffset.y - 11) * stageZoomScaleInverse}
         points={[7, 0, 30, 0]}
         closed
         stroke='black'
@@ -54,8 +53,8 @@ export default function CustomCursor() {
         scale={{ x: 1 / stageZoomScale, y: 1 / stageZoomScale }}
       />
       <Line
-        x={(cursorPosition.x + stageOffset.x - 11) * (1 / stageZoomScale)}
-        y={(cursorPosition.y + stageOffset.y - 11) * (1 / stageZoomScale)}
+        x={(cursorPosition.x + stageOffset.x - 11) * stageZoomScaleInverse}
+        y={(cursorPosition.y + stageOffset.y - 11) * stageZoomScaleInverse}
         points={[-7, 0, -30, 0]}
         closed
         stroke='black'

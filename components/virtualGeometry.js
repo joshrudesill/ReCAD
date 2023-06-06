@@ -6,42 +6,96 @@ export default function VirtualGeometry() {
     virtualGeometryBeingDrawn,
     virtualGeometry,
     stageOffset,
-    stageZoomScale,
+    stageZoomScaleInverse,
+    virtualGeometryBeingAltered,
   } = useSelector((state) => state.drawingControl);
+  //replace^
   if (virtualGeometryBeingDrawn) {
-    if (virtualGeometry.gType === 1) {
-      return (
-        <Line
-          x={stageOffset.x * (1 / stageZoomScale)}
-          y={stageOffset.y * (1 / stageZoomScale)}
-          points={[
-            virtualGeometry.startingX * (1 / stageZoomScale),
-            virtualGeometry.startingY * (1 / stageZoomScale),
-            virtualGeometry.currentX * (1 / stageZoomScale),
-            virtualGeometry.currentY * (1 / stageZoomScale),
-          ]}
-          closed
-          stroke='black'
-        />
-      );
-    }
-    if (virtualGeometry.gType === 2) {
-      return (
-        <Rect
-          x={(virtualGeometry.startingX + stageOffset.x) * (1 / stageZoomScale)}
-          y={(virtualGeometry.startingY + stageOffset.y) * (1 / stageZoomScale)}
-          width={
-            -(virtualGeometry.startingX - virtualGeometry.currentX) *
-            (1 / stageZoomScale)
-          }
-          height={
-            -(virtualGeometry.startingY - virtualGeometry.currentY) *
-            (1 / stageZoomScale)
-          }
-          closed
-          stroke='black'
-        />
-      );
+    if (virtualGeometryBeingAltered) {
+      /*
+      augStart, augCurrent
+       */
+      if (virtualGeometry.gType === 1) {
+        return (
+          <Line
+            x={stageOffset.x * stageZoomScaleInverse}
+            y={stageOffset.y * stageZoomScaleInverse}
+            points={[
+              virtualGeometry.startingX * stageZoomScaleInverse,
+              virtualGeometry.startingY * stageZoomScaleInverse,
+              virtualGeometry.currentX * stageZoomScaleInverse,
+              virtualGeometry.currentY * stageZoomScaleInverse,
+            ]}
+            closed
+            stroke='black'
+          />
+        );
+      }
+      if (virtualGeometry.gType === 2) {
+        return (
+          <Rect
+            x={
+              (virtualGeometry.startingX + stageOffset.x) *
+              stageZoomScaleInverse
+            }
+            y={
+              (virtualGeometry.startingY + stageOffset.y) *
+              stageZoomScaleInverse
+            }
+            width={
+              -(virtualGeometry.startingX - virtualGeometry.currentX) *
+              stageZoomScaleInverse
+            }
+            height={
+              -(virtualGeometry.startingY - virtualGeometry.currentY) *
+              stageZoomScaleInverse
+            }
+            closed
+            stroke='black'
+          />
+        );
+      }
+    } else {
+      if (virtualGeometry.gType === 1) {
+        return (
+          <Line
+            x={stageOffset.x * stageZoomScaleInverse}
+            y={stageOffset.y * stageZoomScaleInverse}
+            points={[
+              virtualGeometry.startingX * stageZoomScaleInverse,
+              virtualGeometry.startingY * stageZoomScaleInverse,
+              virtualGeometry.currentX * stageZoomScaleInverse,
+              virtualGeometry.currentY * stageZoomScaleInverse,
+            ]}
+            closed
+            stroke='black'
+          />
+        );
+      }
+      if (virtualGeometry.gType === 2) {
+        return (
+          <Rect
+            x={
+              (virtualGeometry.startingX + stageOffset.x) *
+              stageZoomScaleInverse
+            }
+            y={
+              (virtualGeometry.startingY + stageOffset.y) *
+              stageZoomScaleInverse
+            }
+            width={
+              -(virtualGeometry.startingX - virtualGeometry.currentX) *
+              stageZoomScaleInverse
+            }
+            height={
+              -(virtualGeometry.startingY - virtualGeometry.currentY) *
+              stageZoomScaleInverse
+            }
+            closed
+            stroke='black'
+          />
+        );
+      }
     }
   }
 }
