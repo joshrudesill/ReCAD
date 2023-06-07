@@ -15,25 +15,26 @@ export default function Geometry() {
     realGeometry.map((geo) => {
       if (geo.gType === 1) {
         return (
-          <>
-            <Line
-              points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
-              x={geo.stageX}
-              y={geo.stageY}
-              closed
-              strokeWidth={0.5}
-              stroke={
-                selectedGeometry.length > 0
-                  ? selectedGeometry.includes(geo.key)
-                    ? "red"
-                    : "black"
+          <Line
+            points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
+            x={geo.stageX}
+            y={geo.stageY}
+            closed
+            strokeWidth={0.5}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === geo.key)
+                  ? "red"
                   : "black"
-              }
-              hitStrokeWidth={10 * stageZoomScaleInverse}
-              key={geo.key}
-              onClick={() => dispatch(addSelectedGeometry(geo.key))}
-            />
-          </>
+                : "black"
+            }
+            hitStrokeWidth={10 * stageZoomScaleInverse}
+            key={geo.key}
+            onClick={() => {
+              console.log("geo");
+              dispatch(addSelectedGeometry(geo));
+            }}
+          />
         );
       }
       if (geo.gType === 2) {
@@ -47,13 +48,13 @@ export default function Geometry() {
             closed
             stroke={
               selectedGeometry.length > 0
-                ? selectedGeometry.includes(geo.key)
+                ? selectedGeometry.some((g) => g.key === geo.key)
                   ? "red"
                   : "black"
                 : "black"
             }
             key={geo.key}
-            onClick={() => dispatch(addSelectedGeometry(geo.key))}
+            onClick={() => dispatch(addSelectedGeometry(geo))}
           />
         );
       }

@@ -3,11 +3,13 @@ import VirtualGeometry from "@/components/virtualGeometry";
 import {
   addRealGeometry,
   resetSelectedGeometry,
+  startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
   updateCursorPosition,
   updateStageOffset,
   updateStageZoomScale,
   updateVirtualGeometry,
+  updateVirtualGeometryAugment,
 } from "@/features/drawingControlSlice";
 import { useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
@@ -39,6 +41,10 @@ export default function Home() {
     stageZoomScale,
     cursorPosition,
     stageZoomScaleInverse,
+    selectedGeometry,
+    realGeometry,
+    virtualGeometryBeingAltered,
+    geometryAugment,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -68,6 +74,12 @@ export default function Home() {
           gType: activatedDrawingTool,
         };
         dispatch(startDrawingVirtualGeometry(geometry));
+      }
+    } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
+      if (!virtualGeometryBeingAltered) {
+        dispatch(startAugmentingVirtualGeometry({ offsetX, offsetY }));
+      } else {
+        //finish
       }
     } else {
       dispatch(resetSelectedGeometry());
@@ -103,6 +115,8 @@ export default function Home() {
       } else {
         dispatch(updateVirtualGeometry({ x: offsetX, y: offsetY }));
       }
+    } else if (virtualGeometryBeingAltered) {
+      dispatch(updateVirtualGeometryAugment({ offsetX, offsetY }));
     }
   };
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -167,7 +181,11 @@ export default function Home() {
           <Geometry />
         </Layer>
         <Layer name='virtualgeo'>
-          {virtualGeometryBeingDrawn && <VirtualGeometry />}
+          {virtualGeometryBeingDrawn || virtualGeometryBeingAltered ? (
+            <VirtualGeometry />
+          ) : (
+            <></>
+          )}
         </Layer>
       </Stage>
       <div className='flex gap-2 flex-col'>
@@ -186,6 +204,7 @@ export default function Home() {
         <button
           className='px-2 py-1 bg-teal-400 ml-2'
           onClick={() => activateAugmentationTool(1)}
+          disabled={selectedGeometry.length === 0}
         >
           Move
         </button>
@@ -198,7 +217,9 @@ export default function Home() {
         <input placeholder='x' />
         <input placeholder='y' />
 
-        <p>slope: {JSON.stringify(o)}</p>
+        <p>vda: {virtualGeometryBeingAltered ? "t" : "f"}</p>
+        <p>vdd: {virtualGeometryBeingDrawn ? "t" : "f"}</p>
+        <p>vda: {JSON.stringify(geometryAugment)}</p>
         <p>z: {JSON.stringify(z)}</p>
       </div>
     </div>

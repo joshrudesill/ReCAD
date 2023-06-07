@@ -4,6 +4,7 @@ const initialState = {
   virtualGeometryBeingDrawn: false,
   virtualGeometryBeingAltered: false,
   virtualGeometry: {},
+  geometryAugment: { start: { x: 0, y: 0 }, current: { x: 0, y: 0 } },
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
   stageZoomScale: 1,
@@ -35,13 +36,15 @@ export const drawingControlSlice = createSlice({
      */
 
     startDrawingVirtualGeometry: (state, action) => {
-      const { startingX, startingY, gType } = action.payload;
+      const { startingX, startingY, gType, stageX, stageY } = action.payload;
       state.virtualGeometryBeingDrawn = true;
       state.virtualGeometry = {
         startingX: startingX,
         startingY: startingY,
         currentX: startingX,
         currentY: startingY,
+        stageX: stageX,
+        stageY: stageY,
         gType: gType,
       };
     },
@@ -49,6 +52,16 @@ export const drawingControlSlice = createSlice({
       const { x, y } = action.payload;
       state.virtualGeometry.currentX = x;
       state.virtualGeometry.currentY = y;
+    },
+    startAugmentingVirtualGeometry: (state, action) => {
+      const { offsetX, offsetY } = action.payload;
+      state.virtualGeometryBeingAltered = true;
+      state.geometryAugment.start = { offsetX, offsetY };
+      state.geometryAugment.current = { offsetX, offsetY };
+    },
+    updateVirtualGeometryAugment: (state, action) => {
+      const { offsetX, offsetY } = action.payload;
+      state.geometryAugment.current = { offsetX, offsetY };
     },
     addRealGeometry: (state, action) => {
       state.virtualGeometryBeingDrawn = false;
@@ -86,6 +99,8 @@ export const {
   updateVirtualGeometry,
   startDrawingVirtualGeometry,
   addRealGeometry,
+  updateVirtualGeometryAugment,
+  startAugmentingVirtualGeometry,
   updateStageOffset,
   updateStageZoomScale,
   resetSelectedGeometry,
