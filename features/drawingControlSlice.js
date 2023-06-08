@@ -36,7 +36,8 @@ export const drawingControlSlice = createSlice({
      */
 
     startDrawingVirtualGeometry: (state, action) => {
-      const { startingX, startingY, gType, stageX, stageY } = action.payload;
+      const { startingX, startingY, gType, stageX, stageY, startingZoom } =
+        action.payload;
       state.virtualGeometryBeingDrawn = true;
       state.virtualGeometry = {
         startingX: startingX,
@@ -45,6 +46,7 @@ export const drawingControlSlice = createSlice({
         currentY: startingY,
         stageX: stageX,
         stageY: stageY,
+        startingZoom: startingZoom,
         gType: gType,
       };
     },
@@ -62,6 +64,23 @@ export const drawingControlSlice = createSlice({
     updateVirtualGeometryAugment: (state, action) => {
       const { offsetX, offsetY } = action.payload;
       state.geometryAugment.current = { offsetX, offsetY };
+    },
+    endAugment: (state, action) => {
+      state.virtualGeometryBeingAltered = false;
+      if (state.realGeometry.length === 1) {
+        state.realGeometry = action.payload;
+      } else {
+        //replace each matching key with new element with updated coordiantes
+        action.payload.forEach((g) =>
+          state.realGeometry.splice(
+            state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+            1, //delete 1
+            g //replace with new object
+          )
+        );
+      }
+
+      state.selectedGeometry = [];
     },
     addRealGeometry: (state, action) => {
       state.virtualGeometryBeingDrawn = false;
@@ -106,6 +125,7 @@ export const {
   resetSelectedGeometry,
   updateCursorPosition,
   addSelectedGeometry,
+  endAugment,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

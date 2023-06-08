@@ -2,6 +2,7 @@ import Geometry from "@/components/geometry";
 import VirtualGeometry from "@/components/virtualGeometry";
 import {
   addRealGeometry,
+  endAugment,
   resetSelectedGeometry,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
@@ -12,7 +13,7 @@ import {
   updateVirtualGeometryAugment,
 } from "@/features/drawingControlSlice";
 import { useRef, useState } from "react";
-import { Layer, Rect, Stage } from "react-konva";
+import { Layer, Line, Rect, Stage } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
 import Grid from "@/components/grid";
@@ -57,29 +58,60 @@ export default function Home() {
       if (virtualGeometryBeingDrawn) {
         // add real geo
         const geometry = {
-          startingX: virtualGeometry.startingX * stageZoomScaleInverse,
-          startingY: virtualGeometry.startingY * stageZoomScaleInverse,
-          endingX: virtualGeometry.currentX * stageZoomScaleInverse,
-          endingY: virtualGeometry.currentY * stageZoomScaleInverse,
-          stageX: stageOffset.x * stageZoomScaleInverse,
-          stageY: stageOffset.y * stageZoomScaleInverse,
+          startingX: virtualGeometry.startingX,
+          startingY: virtualGeometry.startingY,
+          endingX: virtualGeometry.currentX,
+          endingY: virtualGeometry.currentY,
+          stageX: 0,
+          stageY: 0,
           gType: virtualGeometry.gType,
         };
         setActivatedDrawingTool(0);
         dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
-          startingX: offsetX,
-          startingY: offsetY,
+          startingX:
+            (cursorPosition.offsetX + stageOffset.x) * stageZoomScaleInverse,
+          startingY:
+            (cursorPosition.offsetY + stageOffset.y) * stageZoomScaleInverse,
+          stageX: stageOffset.x * stageZoomScaleInverse,
+          stageY: stageOffset.y * stageZoomScaleInverse,
+          startingZoom: stageZoomScaleInverse,
           gType: activatedDrawingTool,
         };
+        setO(stageZoomScaleInverse);
         dispatch(startDrawingVirtualGeometry(geometry));
       }
     } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
       if (!virtualGeometryBeingAltered) {
-        dispatch(startAugmentingVirtualGeometry({ offsetX, offsetY }));
+        dispatch(
+          startAugmentingVirtualGeometry({
+            offsetX: (offsetX + stageOffset.x) * stageZoomScaleInverse,
+            offsetY: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+          })
+        );
       } else {
         //finish
+        const geometry = selectedGeometry.map((geo) => {
+          return {
+            ...geo,
+            startingX:
+              geo.startingX +
+              (geometryAugment.current.offsetX - geometryAugment.start.offsetX),
+            startingY:
+              geo.startingY +
+              (geometryAugment.current.offsetY - geometryAugment.start.offsetY),
+            endingX:
+              geo.endingX +
+              (geometryAugment.current.offsetX - geometryAugment.start.offsetX),
+            endingY:
+              geo.endingY +
+              (geometryAugment.current.offsetY - geometryAugment.start.offsetY),
+          };
+        });
+        setActivatedAugmentationTool(0);
+
+        dispatch(endAugment(geometry));
       }
     } else {
       dispatch(resetSelectedGeometry());
@@ -113,10 +145,20 @@ export default function Home() {
           dispatch(updateVirtualGeometry({ x: offsetX, y: startingY }));
         }
       } else {
-        dispatch(updateVirtualGeometry({ x: offsetX, y: offsetY }));
+        dispatch(
+          updateVirtualGeometry({
+            x: (offsetX + stageOffset.x) * stageZoomScaleInverse,
+            y: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+          })
+        );
       }
     } else if (virtualGeometryBeingAltered) {
-      dispatch(updateVirtualGeometryAugment({ offsetX, offsetY }));
+      dispatch(
+        updateVirtualGeometryAugment({
+          offsetX: (offsetX + stageOffset.x) * stageZoomScaleInverse,
+          offsetY: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+        })
+      );
     }
   };
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
@@ -167,7 +209,7 @@ export default function Home() {
         onMouseDown={handleClickInteractionWithStage}
         onMouseMove={handleDragInteractionWithStage}
         onContextMenu={(e) => e.evt.preventDefault()}
-        draggable={!virtualGeometryBeingDrawn}
+        draggable
         dragBoundFunc={(pos) => {
           dispatch(updateStageOffset({ x: pos.x, y: pos.y }));
           return pos;
@@ -217,10 +259,20 @@ export default function Home() {
         <input placeholder='x' />
         <input placeholder='y' />
 
-        <p>vda: {virtualGeometryBeingAltered ? "t" : "f"}</p>
-        <p>vdd: {virtualGeometryBeingDrawn ? "t" : "f"}</p>
-        <p>vda: {JSON.stringify(geometryAugment)}</p>
-        <p>z: {JSON.stringify(z)}</p>
+        <p>i: {JSON.stringify(o)}</p>
+        <p>c: {JSON.stringify(stageZoomScaleInverse)}</p>
+        <p>mouse: {JSON.stringify(cursorPosition)}</p>
+        <p>
+          relative:
+          {JSON.stringify({
+            x: (cursorPosition.offsetX + stageOffset.x) * stageZoomScaleInverse,
+            y: (cursorPosition.offsetY + stageOffset.y) * stageZoomScaleInverse,
+          })}
+        </p>
+        <p>
+          new:
+          {JSON.stringify(virtualGeometry)}
+        </p>
       </div>
     </div>
   );

@@ -17,8 +17,6 @@ export default function Geometry() {
         return (
           <Line
             points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
-            x={geo.stageX}
-            y={geo.stageY}
             closed
             strokeWidth={0.5}
             stroke={
@@ -40,8 +38,8 @@ export default function Geometry() {
       if (geo.gType === 2) {
         return (
           <Rect
-            x={geo.startingX + geo.stageX}
-            y={geo.startingY + geo.stageY}
+            x={geo.startingX}
+            y={geo.startingY}
             width={-(geo.startingX - geo.endingX)}
             height={-(geo.startingY - geo.endingY)}
             strokeWidth={0.5}

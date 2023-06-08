@@ -17,36 +17,44 @@ export default function VirtualGeometry() {
     if (virtualGeometry.gType === 1) {
       return (
         <Line
-          x={stageOffset.x * stageZoomScaleInverse}
-          y={stageOffset.y * stageZoomScaleInverse}
+          x={0}
+          y={0}
           points={[
-            virtualGeometry.startingX * stageZoomScaleInverse,
-            virtualGeometry.startingY * stageZoomScaleInverse,
-            virtualGeometry.currentX * stageZoomScaleInverse,
-            virtualGeometry.currentY * stageZoomScaleInverse,
+            virtualGeometry.startingX,
+            virtualGeometry.startingY,
+            virtualGeometry.currentX,
+            virtualGeometry.currentY,
           ]}
           closed
           stroke='black'
         />
       );
     }
+    //starting = 0.75
+    //inverse 1 / 0.75 = 1.33
+    //zoom out
+    // new scale = 0.5
+    //inverse = 2
+    //cursor at 50,50
+    //time initial scale 66, 66
+    //needs 100,100
+
+    //starting = 0.75
+    //inverse 1 / 0.75 = 1.33
+    //zoom out
+    // new scale = 0.7
+    //inverse = 1.43
+    //cursor at 50,50
+    //time initial scale 66, 66
+    //needs 71.43, 71.43
+    //1.0714
     if (virtualGeometry.gType === 2) {
       return (
         <Rect
-          x={
-            (virtualGeometry.startingX + stageOffset.x) * stageZoomScaleInverse
-          }
-          y={
-            (virtualGeometry.startingY + stageOffset.y) * stageZoomScaleInverse
-          }
-          width={
-            -(virtualGeometry.startingX - virtualGeometry.currentX) *
-            stageZoomScaleInverse
-          }
-          height={
-            -(virtualGeometry.startingY - virtualGeometry.currentY) *
-            stageZoomScaleInverse
-          }
+          x={virtualGeometry.startingX}
+          y={virtualGeometry.startingY}
+          width={-(virtualGeometry.startingX - virtualGeometry.currentX)}
+          height={-(virtualGeometry.startingY - virtualGeometry.currentY)}
           closed
           stroke='black'
         />
@@ -95,13 +103,11 @@ export default function VirtualGeometry() {
     return (
       <>
         <Line
-          x={stageOffset.x * stageZoomScaleInverse}
-          y={stageOffset.y * stageZoomScaleInverse}
           points={[
-            geometryAugment.start.offsetX * stageZoomScaleInverse,
-            geometryAugment.start.offsetY * stageZoomScaleInverse,
-            geometryAugment.current.offsetX * stageZoomScaleInverse,
-            geometryAugment.current.offsetY * stageZoomScaleInverse,
+            geometryAugment.start.offsetX,
+            geometryAugment.start.offsetY,
+            geometryAugment.current.offsetX,
+            geometryAugment.current.offsetY,
           ]}
           closed
           stroke='black'
@@ -110,20 +116,16 @@ export default function VirtualGeometry() {
         />
         <Group
           offsetX={
-            (geometryAugment.start.offsetX - geometryAugment.current.offsetX) *
-            stageZoomScaleInverse
+            geometryAugment.start.offsetX - geometryAugment.current.offsetX
           }
           offsetY={
-            (geometryAugment.start.offsetY - geometryAugment.current.offsetY) *
-            stageZoomScaleInverse
+            geometryAugment.start.offsetY - geometryAugment.current.offsetY
           }
         >
           {selectedGeometry.map((geo) => {
             if (geo.gType === 1) {
               return (
                 <Line
-                  x={geo.stageX}
-                  y={geo.stageY}
                   points={[
                     geo.startingX,
                     geo.startingY,
@@ -138,8 +140,8 @@ export default function VirtualGeometry() {
             if (geo.gType === 2) {
               return (
                 <Rect
-                  x={geo.stageX}
-                  y={geo.stageY}
+                  x={geo.startingX}
+                  y={geo.startingY}
                   width={-(geo.startingX - geo.endingX)}
                   height={-(geo.startingY - geo.endingY)}
                   closed
