@@ -1,4 +1,4 @@
-import { Group, Line, Rect } from "react-konva";
+import { Circle, Group, Line, Rect } from "react-konva";
 import { useSelector } from "react-redux";
 
 export default function VirtualGeometry() {
@@ -58,6 +58,42 @@ export default function VirtualGeometry() {
           closed
           stroke='black'
         />
+      );
+    }
+    if (virtualGeometry.gType === 3) {
+      return (
+        <Group>
+          <Line
+            x={0}
+            y={0}
+            points={[
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY,
+            ]}
+            closed
+            stroke='black'
+            dash={[10, 15]}
+          />
+          <Circle
+            x={virtualGeometry.startingX}
+            y={virtualGeometry.startingY}
+            radius={Math.abs(
+              Math.sqrt(
+                Math.pow(
+                  virtualGeometry.startingX - virtualGeometry.currentX,
+                  2
+                ) +
+                  Math.pow(
+                    virtualGeometry.startingY - virtualGeometry.currentY,
+                    2
+                  )
+              )
+            ).toFixed(3)}
+            stroke='black'
+          />
+        </Group>
       );
     }
   } else if (virtualGeometryBeingAltered) {
@@ -144,6 +180,22 @@ export default function VirtualGeometry() {
                   y={geo.startingY}
                   width={-(geo.startingX - geo.endingX)}
                   height={-(geo.startingY - geo.endingY)}
+                  closed
+                  stroke='black'
+                />
+              );
+            }
+            if (geo.gType === 3) {
+              return (
+                <Circle
+                  x={geo.startingX}
+                  y={geo.startingY}
+                  radius={Math.abs(
+                    Math.sqrt(
+                      Math.pow(geo.startingX - geo.endingX, 2) +
+                        Math.pow(geo.startingY - geo.endingY, 2)
+                    )
+                  )}
                   closed
                   stroke='black'
                 />

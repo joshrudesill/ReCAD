@@ -42,7 +42,8 @@ export default function Geometry() {
             y={geo.startingY}
             width={-(geo.startingX - geo.endingX)}
             height={-(geo.startingY - geo.endingY)}
-            strokeWidth={0.5}
+            strokeWidth={1}
+            hitStrokeWidth={10 * stageZoomScaleInverse}
             closed
             stroke={
               selectedGeometry.length > 0
@@ -53,6 +54,33 @@ export default function Geometry() {
             }
             key={geo.key}
             onClick={() => dispatch(addSelectedGeometry(geo))}
+            fillEnabled={false}
+          />
+        );
+      }
+      if (geo.gType === 3) {
+        return (
+          <Circle
+            x={geo.startingX}
+            y={geo.startingY}
+            radius={Math.abs(
+              Math.sqrt(
+                Math.pow(geo.startingX - geo.endingX, 2) +
+                  Math.pow(geo.startingY - geo.endingY, 2)
+              )
+            )}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === geo.key)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+            onClick={() => dispatch(addSelectedGeometry(geo))}
+            key={geo.key}
+            hitStrokeWidth={10 * stageZoomScaleInverse}
+            strokeWidth={1}
+            fillEnabled={false}
           />
         );
       }

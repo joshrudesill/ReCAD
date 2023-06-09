@@ -155,8 +155,12 @@ export default function Home() {
     } else if (virtualGeometryBeingAltered) {
       dispatch(
         updateVirtualGeometryAugment({
-          offsetX: (offsetX + stageOffset.x) * stageZoomScaleInverse,
-          offsetY: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+          offsetX: ((offsetX + stageOffset.x) * stageZoomScaleInverse).toFixed(
+            0
+          ),
+          offsetY: ((offsetY + stageOffset.y) * stageZoomScaleInverse).toFixed(
+            0
+          ),
         })
       );
     }
@@ -244,6 +248,12 @@ export default function Home() {
           Rect
         </button>
         <button
+          className='px-2 py-1 bg-slate-400 ml-2'
+          onClick={() => activateDrawingTool(3)}
+        >
+          Circle
+        </button>
+        <button
           className='px-2 py-1 bg-teal-400 ml-2'
           onClick={() => activateAugmentationTool(1)}
           disabled={selectedGeometry.length === 0}
@@ -261,18 +271,8 @@ export default function Home() {
 
         <p>i: {JSON.stringify(o)}</p>
         <p>c: {JSON.stringify(stageZoomScaleInverse)}</p>
-        <p>mouse: {JSON.stringify(cursorPosition)}</p>
-        <p>
-          relative:
-          {JSON.stringify({
-            x: (cursorPosition.offsetX + stageOffset.x) * stageZoomScaleInverse,
-            y: (cursorPosition.offsetY + stageOffset.y) * stageZoomScaleInverse,
-          })}
-        </p>
-        <p>
-          new:
-          {JSON.stringify(virtualGeometry)}
-        </p>
+
+        <p></p>
       </div>
     </div>
   );

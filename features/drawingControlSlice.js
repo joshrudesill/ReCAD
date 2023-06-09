@@ -98,7 +98,7 @@ export const drawingControlSlice = createSlice({
     },
     updateStageZoomScale: (state, action) => {
       state.stageZoomScale = action.payload;
-      state.stageZoomScaleInverse = 1 / action.payload;
+      state.stageZoomScaleInverse = (1 / action.payload).toFixed(2);
     },
     addSelectedGeometry: (state, action) => {
       state.selectedGeometry.push(action.payload);
