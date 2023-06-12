@@ -79,18 +79,20 @@ export default function VirtualGeometry() {
           <Circle
             x={virtualGeometry.startingX}
             y={virtualGeometry.startingY}
-            radius={Math.abs(
-              Math.sqrt(
-                Math.pow(
-                  virtualGeometry.startingX - virtualGeometry.currentX,
-                  2
-                ) +
+            radius={parseFloat(
+              Math.abs(
+                Math.sqrt(
                   Math.pow(
-                    virtualGeometry.startingY - virtualGeometry.currentY,
+                    virtualGeometry.startingX - virtualGeometry.currentX,
                     2
-                  )
-              )
-            ).toFixed(3)}
+                  ) +
+                    Math.pow(
+                      virtualGeometry.startingY - virtualGeometry.currentY,
+                      2
+                    )
+                )
+              ).toFixed(3)
+            )}
             stroke='black'
           />
         </Group>

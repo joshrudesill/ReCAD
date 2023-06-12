@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
 import Grid from "@/components/grid";
 import CustomCursor from "@/components/customCursor";
+import LineDialogue from "@/components/lineDialogue";
 Konva.dragButtons = [2];
 export default function Home() {
   const dispatch = useDispatch();
@@ -70,24 +71,35 @@ export default function Home() {
         dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
-          startingX:
-            (cursorPosition.offsetX + stageOffset.x) * stageZoomScaleInverse,
-          startingY:
-            (cursorPosition.offsetY + stageOffset.y) * stageZoomScaleInverse,
+          startingX: (
+            (cursorPosition.offsetX + stageOffset.x) *
+            stageZoomScaleInverse
+          ).toFixed(3),
+          startingY: (
+            (cursorPosition.offsetY + stageOffset.y) *
+            stageZoomScaleInverse
+          ).toFixed(3),
           stageX: stageOffset.x * stageZoomScaleInverse,
           stageY: stageOffset.y * stageZoomScaleInverse,
           startingZoom: stageZoomScaleInverse,
           gType: activatedDrawingTool,
         };
         setO(stageZoomScaleInverse);
+        console.log(geometry);
         dispatch(startDrawingVirtualGeometry(geometry));
       }
     } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
       if (!virtualGeometryBeingAltered) {
         dispatch(
           startAugmentingVirtualGeometry({
-            offsetX: (offsetX + stageOffset.x) * stageZoomScaleInverse,
-            offsetY: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+            offsetX: (
+              (offsetX + stageOffset.x) *
+              stageZoomScaleInverse
+            ).toFixed(3),
+            offsetY: (
+              (offsetY + stageOffset.y) *
+              stageZoomScaleInverse
+            ).toFixed(3),
           })
         );
       } else {
@@ -147,8 +159,8 @@ export default function Home() {
       } else {
         dispatch(
           updateVirtualGeometry({
-            x: (offsetX + stageOffset.x) * stageZoomScaleInverse,
-            y: (offsetY + stageOffset.y) * stageZoomScaleInverse,
+            x: ((offsetX + stageOffset.x) * stageZoomScaleInverse).toFixed(3),
+            y: ((offsetY + stageOffset.y) * stageZoomScaleInverse).toFixed(3),
           })
         );
       }
@@ -268,6 +280,9 @@ export default function Home() {
         </button>
         <input placeholder='x' />
         <input placeholder='y' />
+        {virtualGeometryBeingDrawn && activatedDrawingTool === 1 && (
+          <LineDialogue />
+        )}
 
         <p>i: {JSON.stringify(o)}</p>
         <p>c: {JSON.stringify(stageZoomScaleInverse)}</p>

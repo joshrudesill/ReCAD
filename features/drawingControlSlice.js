@@ -4,6 +4,7 @@ const initialState = {
   virtualGeometryBeingDrawn: false,
   virtualGeometryBeingAltered: false,
   virtualGeometry: {},
+  virtualGeometryInputLocks: { x: false, y: false },
   geometryAugment: { start: { x: 0, y: 0 }, current: { x: 0, y: 0 } },
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
@@ -40,10 +41,10 @@ export const drawingControlSlice = createSlice({
         action.payload;
       state.virtualGeometryBeingDrawn = true;
       state.virtualGeometry = {
-        startingX: startingX,
-        startingY: startingY,
-        currentX: startingX,
-        currentY: startingY,
+        startingX: parseFloat(startingX),
+        startingY: parseFloat(startingY),
+        currentX: parseFloat(startingX),
+        currentY: parseFloat(startingY),
         stageX: stageX,
         stageY: stageY,
         startingZoom: startingZoom,
@@ -52,8 +53,31 @@ export const drawingControlSlice = createSlice({
     },
     updateVirtualGeometry: (state, action) => {
       const { x, y } = action.payload;
-      state.virtualGeometry.currentX = x;
-      state.virtualGeometry.currentY = y;
+      if (!state.virtualGeometryInputLocks.x) {
+        state.virtualGeometry.currentX = parseFloat(x);
+      }
+      if (!state.virtualGeometryInputLocks.y) {
+        state.virtualGeometry.currentY = parseFloat(y);
+      }
+    },
+    updateVirtualGeometryWithInput: (state, action) => {
+      const { typeOfUpdate, value } = action.payload;
+      if (typeOfUpdate === "sx") {
+        state.virtualGeometry.startingX = parseFloat(value) || 0;
+      } else if (typeOfUpdate === "sy") {
+        state.virtualGeometry.startingY = parseFloat(-value) || 0;
+      } else if (typeOfUpdate === "ex") {
+        state.virtualGeometry.currentX = parseFloat(value) || 0;
+      } else if (typeOfUpdate === "ey") {
+        state.virtualGeometry.currentY = parseFloat(-value) || 0;
+      }
+    },
+    lockVirtualGeometry: (state, action) => {
+      if (action.payload === "x") {
+        state.virtualGeometryInputLocks.x = !state.virtualGeometryInputLocks.x;
+      } else if (action.payload === "y") {
+        state.virtualGeometryInputLocks.y = !state.virtualGeometryInputLocks.y;
+      }
     },
     startAugmentingVirtualGeometry: (state, action) => {
       const { offsetX, offsetY } = action.payload;
@@ -84,6 +108,7 @@ export const drawingControlSlice = createSlice({
     },
     addRealGeometry: (state, action) => {
       state.virtualGeometryBeingDrawn = false;
+      state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
       state.virtualGeometry = {};
       state.realGeometry.push({
         ...action.payload,
@@ -126,6 +151,8 @@ export const {
   updateCursorPosition,
   addSelectedGeometry,
   endAugment,
+  updateVirtualGeometryWithInput,
+  lockVirtualGeometry,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

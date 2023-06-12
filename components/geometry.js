@@ -29,7 +29,6 @@ export default function Geometry() {
             hitStrokeWidth={10 * stageZoomScaleInverse}
             key={geo.key}
             onClick={() => {
-              console.log("geo");
               dispatch(addSelectedGeometry(geo));
             }}
           />
