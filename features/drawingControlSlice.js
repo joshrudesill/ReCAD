@@ -4,7 +4,11 @@ const initialState = {
   virtualGeometryBeingDrawn: false,
   virtualGeometryBeingAltered: false,
   virtualGeometry: {},
-  virtualGeometryInputLocks: { x: false, y: false },
+  virtualGeometryInputLocks: {
+    x: false,
+    y: false,
+    length: { locked: false, value: 0 },
+  },
   geometryAugment: { start: { x: 0, y: 0 }, current: { x: 0, y: 0 } },
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
@@ -53,15 +57,31 @@ export const drawingControlSlice = createSlice({
     },
     updateVirtualGeometry: (state, action) => {
       const { x, y } = action.payload;
-      if (!state.virtualGeometryInputLocks.x) {
-        state.virtualGeometry.currentX = parseFloat(x);
-      }
-      if (!state.virtualGeometryInputLocks.y) {
-        state.virtualGeometry.currentY = parseFloat(y);
+      if (state.virtualGeometryInputLocks.length.locked) {
+        const fx = parseFloat(x);
+        const fy = parseFloat(y);
+        const angleInRadians = Math.atan2(
+          fy - state.virtualGeometry.startingY,
+          fx - state.virtualGeometry.startingX
+        );
+        const length = state.virtualGeometryInputLocks.length.value;
+        state.virtualGeometry.currentX =
+          state.virtualGeometry.startingX + length * Math.cos(angleInRadians);
+        state.virtualGeometry.currentY =
+          state.virtualGeometry.startingY + length * Math.sin(angleInRadians);
+      } else {
+        if (!state.virtualGeometryInputLocks.x) {
+          state.virtualGeometry.currentX = parseFloat(x);
+        }
+        if (!state.virtualGeometryInputLocks.y) {
+          state.virtualGeometry.currentY = parseFloat(y);
+        }
       }
     },
     updateVirtualGeometryWithInput: (state, action) => {
-      const { typeOfUpdate, value } = action.payload;
+      const { typeOfUpdate, value, geoType } = action.payload;
+      state.virtualGeometryBeingDrawn = true;
+      state.virtualGeometry.gType = geoType;
       if (typeOfUpdate === "sx") {
         state.virtualGeometry.startingX = parseFloat(value) || 0;
       } else if (typeOfUpdate === "sy") {
@@ -73,10 +93,17 @@ export const drawingControlSlice = createSlice({
       }
     },
     lockVirtualGeometry: (state, action) => {
-      if (action.payload === "x") {
+      const { lockType, value } = action.payload;
+      if (lockType === "x") {
         state.virtualGeometryInputLocks.x = !state.virtualGeometryInputLocks.x;
-      } else if (action.payload === "y") {
+      } else if (lockType === "y") {
         state.virtualGeometryInputLocks.y = !state.virtualGeometryInputLocks.y;
+      } else if (lockType === "length") {
+        state.virtualGeometryInputLocks.length.locked = true;
+        state.virtualGeometryInputLocks.length.value = parseFloat(value);
+      } else if (lockType === "lengthUnlock") {
+        state.virtualGeometryInputLocks.length.locked = false;
+        state.virtualGeometryInputLocks.length.value = 0;
       }
     },
     startAugmentingVirtualGeometry: (state, action) => {

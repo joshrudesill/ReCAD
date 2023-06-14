@@ -84,8 +84,6 @@ export default function Home() {
           startingZoom: stageZoomScaleInverse,
           gType: activatedDrawingTool,
         };
-        setO(stageZoomScaleInverse);
-        console.log(geometry);
         dispatch(startDrawingVirtualGeometry(geometry));
       }
     } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
@@ -138,23 +136,25 @@ export default function Home() {
       let slope;
       if (e.evt.shiftKey) {
         const { startingX, startingY } = virtualGeometry;
-        if (Math.abs(startingX - offsetX) < 10) {
+        let oX = (offsetX + stageOffset.x) * stageZoomScaleInverse;
+        let oY = (offsetY + stageOffset.y) * stageZoomScaleInverse;
+        if (Math.abs(startingX - oX) < 10) {
           slope = 0;
-        } else if (Math.abs(startingY - offsetY) < 10) {
+        } else if (Math.abs(startingY - oY) < 10) {
           slope = 1000;
         } else {
-          const s = (offsetX - startingX) / (offsetY - startingY);
+          const s = (oX - startingX) / (oY - startingY);
           slope = s;
         }
         slope = Math.abs(slope);
         if (slope === 1000) {
-          dispatch(updateVirtualGeometry({ x: offsetX, y: startingY }));
+          dispatch(updateVirtualGeometry({ x: oX, y: startingY }));
         } else if (slope === 0) {
-          dispatch(updateVirtualGeometry({ x: startingX, y: offsetY }));
+          dispatch(updateVirtualGeometry({ x: startingX, y: oY }));
         } else if (slope > 0 && slope < 1) {
-          dispatch(updateVirtualGeometry({ x: startingX, y: offsetY }));
+          dispatch(updateVirtualGeometry({ x: startingX, y: oY }));
         } else if (slope > 1 && slope < 1000) {
-          dispatch(updateVirtualGeometry({ x: offsetX, y: startingY }));
+          dispatch(updateVirtualGeometry({ x: oX, y: startingY }));
         }
       } else {
         dispatch(
@@ -213,6 +213,7 @@ export default function Home() {
     stage.scale({ x: scale, y: scale });
     stage.position(newPos);
   };
+  const ldRef = useRef(null);
   return (
     <div className='flex-row flex m-3 gap-2'>
       <Stage
@@ -248,47 +249,37 @@ export default function Home() {
       </Stage>
       <div className='flex gap-2 flex-col'>
         <button
-          className='px-2 py-1 bg-slate-400 ml-2'
+          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
           onClick={() => activateDrawingTool(1)}
         >
-          Line
+          L
         </button>
         <button
-          className='px-2 py-1 bg-slate-400 ml-2'
+          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
           onClick={() => activateDrawingTool(2)}
         >
-          Rect
+          R
         </button>
         <button
-          className='px-2 py-1 bg-slate-400 ml-2'
+          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
           onClick={() => activateDrawingTool(3)}
         >
-          Circle
+          C
         </button>
         <button
-          className='px-2 py-1 bg-teal-400 ml-2'
+          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
           onClick={() => activateAugmentationTool(1)}
           disabled={selectedGeometry.length === 0}
         >
-          Move
+          M
         </button>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2'
-          onClick={() => activateDrawingTool(0)}
-        >
-          Clear
-        </button>
-        <input placeholder='x' />
-        <input placeholder='y' />
-        {virtualGeometryBeingDrawn && activatedDrawingTool === 1 && (
-          <LineDialogue />
-        )}
-
-        <p>i: {JSON.stringify(o)}</p>
-        <p>c: {JSON.stringify(stageZoomScaleInverse)}</p>
-
-        <p></p>
+        <p>{virtualGeometryBeingDrawn && virtualGeometry.currentX}</p>
       </div>
+      {activatedDrawingTool === 1 && (
+        <div className='flex gap-2 flex-col'>
+          <LineDialogue ref={ldRef} />
+        </div>
+      )}
     </div>
   );
 }
