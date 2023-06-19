@@ -24,10 +24,16 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       dispatch(lockVirtualGeometry({ lockType: "lengthUnlock", value: 0 }));
     }
   };
+  const handleStartPointInputChange = (e, type) => {
+    if (e.target.value !== "") {
+      updateLine(`s${type}`, e.target.value, 1);
+    } else {
+      updateLine(`s${type}`, 0, 1);
+    }
+  };
   const sxRef = useRef(null);
   const syRef = useRef(null);
-  const cxRef = useRef(null);
-  const cyRef = useRef(null);
+  const lengthRef = useRef(null);
   useImperativeHandle(
     ref,
     () => {
@@ -37,17 +43,54 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
             sxRef.current.focus();
           } else if (input === "sy") {
             syRef.current.focus();
-          } else if (input === "cx") {
-            cxRef.current.focus();
-          } else if (input === "cy") {
-            cyRef.current.focus();
+          } else if (input === "length") {
+            lengthRef.current.focus();
           }
         },
       };
     },
     []
   );
-  if (controlType === "two-point") {
+
+  if (controlType === "start-length") {
+    //choose starting point by clicking or typing
+    //then focus length input
+    //if new typing occurs, set input locks and let math be handled by updatevirtualgeo action
+    return (
+      <>
+        <input
+          placeholder={`${virtualGeometry.startingX || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleStartPointInputChange(e, "x")}
+          ref={sxRef}
+        />
+        <input
+          placeholder={`${virtualGeometry.startingY || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleStartPointInputChange(e, "y")}
+          ref={syRef}
+        />
+        <input
+          placeholder={`${
+            virtualGeometryInputLocks.length.locked
+              ? virtualGeometryInputLocks.length.value
+              : "0"
+          }`}
+          className='border'
+          type='number'
+          onChange={handleLengthInputChange}
+          ref={lengthRef}
+        />
+      </>
+    );
+  }
+});
+
+export default LineDialogue;
+
+/* if (controlType === "two-point") {
     return (
       <>
         <input
@@ -97,40 +140,4 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       </>
     );
   }
-  if (controlType === "start-length") {
-    //choose starting point by clicking or typing
-    //then focus length input
-    //if new typing occurs, set input locks and let math be handled by updatevirtualgeo action
-    return (
-      <>
-        <input
-          placeholder={`${virtualGeometry.startingX || "0"}`}
-          className='border'
-          type='number'
-          onChange={(e) => updateLine("sx", e.target.value, 1)}
-          ref={sxRef}
-        />
-        <input
-          placeholder={`${virtualGeometry.startingY || "0"}`}
-          className='border'
-          type='number'
-          onChange={(e) => updateLine("sy", e.target.value, 1)}
-          ref={sxRef}
-        />
-        <input
-          placeholder={`${
-            virtualGeometryInputLocks.length.locked
-              ? virtualGeometryInputLocks.length.value
-              : "0"
-          }`}
-          className='border'
-          type='number'
-          onChange={handleLengthInputChange}
-          ref={sxRef}
-        />
-      </>
-    );
-  }
-});
-
-export default LineDialogue;
+*/

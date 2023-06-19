@@ -17,8 +17,9 @@ import { Layer, Line, Rect, Stage } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
 import Grid from "@/components/grid";
-import CustomCursor from "@/components/customCursor";
-import LineDialogue from "@/components/lineDialogue";
+import LineDialogue from "@/components/geometryDialogues/lineDialogue";
+import CircleDialogue from "@/components/geometryDialogues/circleDialogue";
+import RectDialogue from "@/components/geometryDialogues/rectDialogue";
 Konva.dragButtons = [2];
 export default function Home() {
   const dispatch = useDispatch();
@@ -40,11 +41,9 @@ export default function Home() {
     virtualGeometryBeingDrawn,
     virtualGeometry,
     stageOffset,
-    stageZoomScale,
     cursorPosition,
     stageZoomScaleInverse,
     selectedGeometry,
-    realGeometry,
     virtualGeometryBeingAltered,
     geometryAugment,
   } = useSelector((state) => state.drawingControl);
@@ -85,6 +84,9 @@ export default function Home() {
           gType: activatedDrawingTool,
         };
         dispatch(startDrawingVirtualGeometry(geometry));
+        if (activatedDrawingTool === 1) {
+          ldRef.current.focus("length");
+        }
       }
     } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
       if (!virtualGeometryBeingAltered) {
@@ -278,6 +280,16 @@ export default function Home() {
       {activatedDrawingTool === 1 && (
         <div className='flex gap-2 flex-col'>
           <LineDialogue ref={ldRef} />
+        </div>
+      )}
+      {activatedDrawingTool === 2 && (
+        <div className='flex gap-2 flex-col'>
+          <RectDialogue ref={ldRef} />
+        </div>
+      )}
+      {activatedDrawingTool === 3 && (
+        <div className='flex gap-2 flex-col'>
+          <CircleDialogue ref={ldRef} />
         </div>
       )}
     </div>

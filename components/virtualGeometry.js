@@ -5,9 +5,6 @@ export default function VirtualGeometry() {
   const {
     virtualGeometryBeingDrawn,
     virtualGeometry,
-    stageOffset,
-    stageZoomScaleInverse,
-    stageZoomScale,
     selectedGeometry,
     virtualGeometryBeingAltered,
     geometryAugment,
