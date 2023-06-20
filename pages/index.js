@@ -234,7 +234,7 @@ export default function Home() {
           return pos;
         }}
       >
-        <Layer name='env'>
+        <Layer name='env' listening={false}>
           <Rect height={10000} width={10000} fill='grey' x={-5000} y={-5000} />
           <Grid />
         </Layer>
