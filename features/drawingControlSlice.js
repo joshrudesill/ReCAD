@@ -48,10 +48,18 @@ export const drawingControlSlice = createSlice({
         action.payload;
       state.virtualGeometryBeingDrawn = true;
       state.virtualGeometry = {
-        startingX: parseFloat(startingX),
-        startingY: parseFloat(startingY),
-        currentX: parseFloat(startingX),
-        currentY: parseFloat(startingY),
+        startingX: state.cursorSnapped
+          ? state.cursorPosition.offsetX
+          : parseFloat(startingX),
+        startingY: state.cursorSnapped
+          ? state.cursorPosition.offsetY
+          : parseFloat(startingY),
+        currentX: state.cursorSnapped
+          ? state.cursorPosition.offsetX
+          : parseFloat(startingX),
+        currentY: state.cursorSnapped
+          ? state.cursorPosition.offsetY
+          : parseFloat(startingY),
         stageX: stageX,
         stageY: stageY,
         startingZoom: startingZoom,
@@ -208,14 +216,8 @@ export const drawingControlSlice = createSlice({
     },
     lockCursorAndSetPosition: (state, action) => {
       state.cursorSnapped = true;
-      state.cursorPosition = {
-        offsetX:
-          (action.payload.offsetX - state.stageOffset.x) *
-          state.stageZoomScaleInverse,
-        offsetY:
-          (action.payload.offsetY - state.stageOffset.y) *
-          state.stageZoomScaleInverse,
-      };
+      state.cursorPosition = action.payload;
+
       if (state.virtualGeometryBeingDrawn) {
         state.virtualGeometry.currentX = action.payload.offsetX;
         state.virtualGeometry.currentY = action.payload.offsetY;
