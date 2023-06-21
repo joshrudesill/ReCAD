@@ -18,6 +18,7 @@ const initialState = {
   stageZoomScaleInverse: 1,
   selectedGeometry: [],
   cursorPosition: { x: 0, y: 0 },
+  cursorSnapped: false,
 };
 
 /* vitrual geometry 
@@ -58,43 +59,45 @@ export const drawingControlSlice = createSlice({
       };
     },
     updateVirtualGeometry: (state, action) => {
-      const { x, y } = action.payload;
-      if (state.virtualGeometryInputLocks.length.locked) {
-        const fx = parseFloat(x);
-        const fy = parseFloat(y);
-        const angleInRadians = Math.atan2(
-          fy - state.virtualGeometry.startingY,
-          fx - state.virtualGeometry.startingX
-        );
-        const length = state.virtualGeometryInputLocks.length.value;
-        state.virtualGeometry.currentX = parseFloat(
-          (
-            state.virtualGeometry.startingX +
-            length * Math.cos(angleInRadians)
-          ).toFixed(4)
-        );
-        state.virtualGeometry.currentY = parseFloat(
-          (
-            state.virtualGeometry.startingY +
-            length * Math.sin(angleInRadians)
-          ).toFixed(4)
-        );
-      } else {
-        if (!state.virtualGeometryInputLocks.x) {
-          state.virtualGeometry.currentX = parseFloat(x);
-        }
-        if (!state.virtualGeometryInputLocks.y) {
-          state.virtualGeometry.currentY = parseFloat(y);
-        }
-        if (state.virtualGeometryInputLocks.width.locked) {
-          state.virtualGeometry.currentX =
-            state.virtualGeometry.startingX +
-            state.virtualGeometryInputLocks.width.value;
-        }
-        if (state.virtualGeometryInputLocks.height.locked) {
-          state.virtualGeometry.currentY =
-            state.virtualGeometry.startingY +
-            state.virtualGeometryInputLocks.height.value;
+      if (!state.cursorSnapped) {
+        const { x, y } = action.payload;
+        if (state.virtualGeometryInputLocks.length.locked) {
+          const fx = parseFloat(x);
+          const fy = parseFloat(y);
+          const angleInRadians = Math.atan2(
+            fy - state.virtualGeometry.startingY,
+            fx - state.virtualGeometry.startingX
+          );
+          const length = state.virtualGeometryInputLocks.length.value;
+          state.virtualGeometry.currentX = parseFloat(
+            (
+              state.virtualGeometry.startingX +
+              length * Math.cos(angleInRadians)
+            ).toFixed(4)
+          );
+          state.virtualGeometry.currentY = parseFloat(
+            (
+              state.virtualGeometry.startingY +
+              length * Math.sin(angleInRadians)
+            ).toFixed(4)
+          );
+        } else {
+          if (!state.virtualGeometryInputLocks.x) {
+            state.virtualGeometry.currentX = parseFloat(x);
+          }
+          if (!state.virtualGeometryInputLocks.y) {
+            state.virtualGeometry.currentY = parseFloat(y);
+          }
+          if (state.virtualGeometryInputLocks.width.locked) {
+            state.virtualGeometry.currentX =
+              state.virtualGeometry.startingX +
+              state.virtualGeometryInputLocks.width.value;
+          }
+          if (state.virtualGeometryInputLocks.height.locked) {
+            state.virtualGeometry.currentY =
+              state.virtualGeometry.startingY +
+              state.virtualGeometryInputLocks.height.value;
+          }
         }
       }
     },
@@ -139,12 +142,21 @@ export const drawingControlSlice = createSlice({
     startAugmentingVirtualGeometry: (state, action) => {
       const { offsetX, offsetY } = action.payload;
       state.virtualGeometryBeingAltered = true;
-      state.geometryAugment.start = { offsetX, offsetY };
-      state.geometryAugment.current = { offsetX, offsetY };
+      state.geometryAugment.start = {
+        offsetX: parseFloat(offsetX),
+        offsetY: parseFloat(offsetY),
+      };
+      state.geometryAugment.current = {
+        offsetX: parseFloat(offsetX),
+        offsetY: parseFloat(offsetY),
+      };
     },
     updateVirtualGeometryAugment: (state, action) => {
       const { offsetX, offsetY } = action.payload;
-      state.geometryAugment.current = { offsetX, offsetY };
+      state.geometryAugment.current = {
+        offsetX: parseFloat(offsetX),
+        offsetY: parseFloat(offsetY),
+      };
     },
     endAugment: (state, action) => {
       state.virtualGeometryBeingAltered = false;
@@ -180,7 +192,7 @@ export const drawingControlSlice = createSlice({
     },
     updateStageZoomScale: (state, action) => {
       state.stageZoomScale = action.payload;
-      state.stageZoomScaleInverse = parseFloat((1 / action.payload).toFixed(2));
+      state.stageZoomScaleInverse = parseFloat((1 / action.payload).toFixed(6));
     },
     addSelectedGeometry: (state, action) => {
       state.selectedGeometry.push(action.payload);
@@ -190,7 +202,27 @@ export const drawingControlSlice = createSlice({
     },
 
     updateCursorPosition: (state, action) => {
-      state.cursorPosition = action.payload;
+      if (!state.cursorSnapped) {
+        state.cursorPosition = action.payload;
+      }
+    },
+    lockCursorAndSetPosition: (state, action) => {
+      state.cursorSnapped = true;
+      state.cursorPosition = {
+        offsetX:
+          (action.payload.offsetX - state.stageOffset.x) *
+          state.stageZoomScaleInverse,
+        offsetY:
+          (action.payload.offsetY - state.stageOffset.y) *
+          state.stageZoomScaleInverse,
+      };
+      if (state.virtualGeometryBeingDrawn) {
+        state.virtualGeometry.currentX = action.payload.offsetX;
+        state.virtualGeometry.currentY = action.payload.offsetY;
+      }
+    },
+    unlockCursor: (state) => {
+      state.cursorSnapped = false;
     },
   },
 });
@@ -210,6 +242,8 @@ export const {
   endAugment,
   updateVirtualGeometryWithInput,
   lockVirtualGeometry,
+  unlockCursor,
+  lockCursorAndSetPosition,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

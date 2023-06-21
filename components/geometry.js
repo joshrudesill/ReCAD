@@ -1,37 +1,38 @@
 import { addSelectedGeometry } from "@/features/drawingControlSlice";
 import { Line, Rect, Circle } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
+import SnapPoints from "./snapping/snapPoints";
 
 export default function Geometry() {
-  const {
-    realGeometry,
-    selectedGeometry,
-    stageZoomScale,
-    stageZoomScaleInverse,
-  } = useSelector((state) => state.drawingControl);
+  const { realGeometry, selectedGeometry, stageZoomScaleInverse } = useSelector(
+    (state) => state.drawingControl
+  );
   const dispatch = useDispatch();
   return (
     realGeometry.length > 0 &&
     realGeometry.map((geo) => {
       if (geo.gType === 1) {
         return (
-          <Line
-            points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
-            closed
-            strokeWidth={0.5}
-            stroke={
-              selectedGeometry.length > 0
-                ? selectedGeometry.some((g) => g.key === geo.key)
-                  ? "red"
+          <>
+            <Line
+              points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
+              closed
+              strokeWidth={0.5}
+              stroke={
+                selectedGeometry.length > 0
+                  ? selectedGeometry.some((g) => g.key === geo.key)
+                    ? "red"
+                    : "black"
                   : "black"
-                : "black"
-            }
-            hitStrokeWidth={10 * stageZoomScaleInverse}
-            key={geo.key}
-            onClick={() => {
-              dispatch(addSelectedGeometry(geo));
-            }}
-          />
+              }
+              hitStrokeWidth={10 * stageZoomScaleInverse}
+              key={geo.key}
+              onClick={() => {
+                dispatch(addSelectedGeometry(geo));
+              }}
+            />
+            <SnapPoints geometry={geo} />
+          </>
         );
       }
       if (geo.gType === 2) {

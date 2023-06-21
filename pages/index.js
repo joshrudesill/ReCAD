@@ -46,6 +46,7 @@ export default function Home() {
     selectedGeometry,
     virtualGeometryBeingAltered,
     geometryAugment,
+    cursorSnapped,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -133,7 +134,9 @@ export default function Home() {
   const handleDragInteractionWithStage = (e) => {
     e.evt.preventDefault();
     const { offsetX, offsetY } = e.evt;
+
     dispatch(updateCursorPosition({ offsetX, offsetY }));
+
     if (virtualGeometryBeingDrawn) {
       let slope;
       if (e.evt.shiftKey) {
@@ -161,8 +164,8 @@ export default function Home() {
       } else {
         dispatch(
           updateVirtualGeometry({
-            x: ((offsetX + stageOffset.x) * stageZoomScaleInverse).toFixed(3),
-            y: ((offsetY + stageOffset.y) * stageZoomScaleInverse).toFixed(3),
+            x: (offsetX + stageOffset.x) * stageZoomScaleInverse,
+            y: (offsetY + stageOffset.y) * stageZoomScaleInverse,
           })
         );
       }

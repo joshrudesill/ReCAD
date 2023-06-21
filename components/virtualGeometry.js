@@ -146,7 +146,7 @@ export default function VirtualGeometry() {
           ]}
           closed
           stroke='black'
-          strokeWidth='0.5'
+          strokeWidth={1}
           dash={[10, 15]}
         />
         <Group
