@@ -2,6 +2,7 @@ import Geometry from "@/components/geometry";
 import VirtualGeometry from "@/components/virtualGeometry";
 import {
   addRealGeometry,
+  cancelVirtualGeometryDrawing,
   endAugment,
   resetSelectedGeometry,
   startAugmentingVirtualGeometry,
@@ -13,7 +14,7 @@ import {
   updateVirtualGeometry,
   updateVirtualGeometryAugment,
 } from "@/features/drawingControlSlice";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Layer, Line, Rect, Stage } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
@@ -32,12 +33,18 @@ export default function Home() {
   const activateDrawingTool = (tool) => {
     setActivatedAugmentationTool(0);
     setActivatedDrawingTool(tool);
+    setLastCommand(tool);
+    setLastCommandType("d");
   };
   const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(0);
   const activateAugmentationTool = (tool) => {
     setActivatedDrawingTool(0);
     setActivatedAugmentationTool(tool);
+    setLastCommand(tool);
+    setLastCommandType("a");
   };
+  const [lastCommand, setLastCommand] = useState(0);
+  const [lastCommandType, setLastCommandType] = useState("d");
   const {
     virtualGeometryBeingDrawn,
     virtualGeometry,
@@ -219,6 +226,41 @@ export default function Home() {
     stage.scale({ x: scale, y: scale });
     stage.position(newPos);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      console.log(e.keyCode);
+      if (e.keyCode === 32) {
+        // space
+        const { log } = console;
+        log("S");
+        log(lastCommand);
+        log(lastCommandType);
+        if (lastCommand !== 0) {
+          if (lastCommandType === "d") {
+            activateDrawingTool(lastCommand);
+          } else if (lastCommandType === "a") {
+            activateAugmentationTool(lastCommand);
+          }
+        }
+      } else if (e.keyCode === 27) {
+        // escape
+        dispatch(cancelVirtualGeometryDrawing());
+        setActivatedDrawingTool(0);
+        setActivatedAugmentationTool(0);
+      } else if (e.keyCode === 76) {
+        // L
+      } else if (e.keyCode === 67) {
+        // C
+      } else if (e.keyCode === 82) {
+        // R
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lastCommand, lastCommandType]);
   const ldRef = useRef(null);
   return (
     <div className='flex-row flex m-3 gap-2'>

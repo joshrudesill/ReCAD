@@ -59,7 +59,7 @@ export default function VirtualGeometry() {
     }
     if (virtualGeometry.gType === 3) {
       return (
-        <Group>
+        <>
           <Line
             x={0}
             y={0}
@@ -71,7 +71,8 @@ export default function VirtualGeometry() {
             ]}
             closed
             stroke='black'
-            dash={[10, 15]}
+            listening={false}
+            hitStrokeWidth={0}
           />
           <Circle
             x={virtualGeometry.startingX}
@@ -88,15 +89,17 @@ export default function VirtualGeometry() {
                       2
                     )
                 )
-              ).toFixed(3)
+              )
             )}
             stroke='black'
+            fillEnabled={false}
           />
-        </Group>
+        </>
       );
     }
   } else if (virtualGeometryBeingAltered) {
     /*
+     dash={[10, 15]}
     augStart, augCurrent
      {selectedGeometry.map((geo) => {
           if (geo.gType === 1) {
@@ -157,7 +160,7 @@ export default function VirtualGeometry() {
             geometryAugment.start.offsetY - geometryAugment.current.offsetY
           }
         >
-          {selectedGeometry.map((geo) => {
+          {selectedGeometry.map((geo, i) => {
             if (geo.gType === 1) {
               return (
                 <Line
@@ -169,6 +172,7 @@ export default function VirtualGeometry() {
                   ]}
                   closed
                   stroke='black'
+                  key={i}
                 />
               );
             }
@@ -181,6 +185,7 @@ export default function VirtualGeometry() {
                   height={-(geo.startingY - geo.endingY)}
                   closed
                   stroke='black'
+                  key={i}
                 />
               );
             }
@@ -197,6 +202,7 @@ export default function VirtualGeometry() {
                   )}
                   closed
                   stroke='black'
+                  key={i}
                 />
               );
             }

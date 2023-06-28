@@ -42,6 +42,11 @@ export const drawingControlSlice = createSlice({
     toggleSnapPoints: (state) => {
       state.showSnapPoints = !state.showSnapPoints;
     },
+    cancelVirtualGeometryDrawing: (state) => {
+      state.virtualGeometryBeingDrawn = false;
+      state.virtualGeometry = {};
+      state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
+    },
     /**
      * Sets virtualGeometryBeingDrawn top true and starts virtualGeometry
      * @param {object} action Pass in starting X, Y, and type of geometry.
@@ -251,6 +256,7 @@ export const {
   unlockCursor,
   lockCursorAndSetPosition,
   toggleSnapPoints,
+  cancelVirtualGeometryDrawing,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;
