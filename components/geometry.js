@@ -37,51 +37,57 @@ export default function Geometry() {
       }
       if (geo.gType === 2) {
         return (
-          <Rect
-            x={geo.startingX}
-            y={geo.startingY}
-            width={-(geo.startingX - geo.endingX)}
-            height={-(geo.startingY - geo.endingY)}
-            strokeWidth={1}
-            hitStrokeWidth={10 * stageZoomScaleInverse}
-            closed
-            stroke={
-              selectedGeometry.length > 0
-                ? selectedGeometry.some((g) => g.key === geo.key)
-                  ? "red"
+          <>
+            <Rect
+              x={geo.startingX}
+              y={geo.startingY}
+              width={-(geo.startingX - geo.endingX)}
+              height={-(geo.startingY - geo.endingY)}
+              strokeWidth={1}
+              hitStrokeWidth={10 * stageZoomScaleInverse}
+              closed
+              stroke={
+                selectedGeometry.length > 0
+                  ? selectedGeometry.some((g) => g.key === geo.key)
+                    ? "red"
+                    : "black"
                   : "black"
-                : "black"
-            }
-            key={geo.key}
-            onClick={() => dispatch(addSelectedGeometry(geo))}
-            fillEnabled={false}
-          />
+              }
+              key={geo.key}
+              onClick={() => dispatch(addSelectedGeometry(geo))}
+              fillEnabled={false}
+            />
+            <SnapPoints geometry={geo} />
+          </>
         );
       }
       if (geo.gType === 3) {
         return (
-          <Circle
-            x={geo.startingX}
-            y={geo.startingY}
-            radius={Math.abs(
-              Math.sqrt(
-                Math.pow(geo.startingX - geo.endingX, 2) +
-                  Math.pow(geo.startingY - geo.endingY, 2)
-              )
-            )}
-            stroke={
-              selectedGeometry.length > 0
-                ? selectedGeometry.some((g) => g.key === geo.key)
-                  ? "red"
+          <>
+            <Circle
+              x={geo.startingX}
+              y={geo.startingY}
+              radius={Math.abs(
+                Math.sqrt(
+                  Math.pow(geo.startingX - geo.endingX, 2) +
+                    Math.pow(geo.startingY - geo.endingY, 2)
+                )
+              )}
+              stroke={
+                selectedGeometry.length > 0
+                  ? selectedGeometry.some((g) => g.key === geo.key)
+                    ? "red"
+                    : "black"
                   : "black"
-                : "black"
-            }
-            onClick={() => dispatch(addSelectedGeometry(geo))}
-            key={geo.key}
-            hitStrokeWidth={10 * stageZoomScaleInverse}
-            strokeWidth={1}
-            fillEnabled={false}
-          />
+              }
+              onClick={() => dispatch(addSelectedGeometry(geo))}
+              key={geo.key}
+              hitStrokeWidth={10 * stageZoomScaleInverse}
+              strokeWidth={1}
+              fillEnabled={false}
+            />
+            <SnapPoints geometry={geo} />
+          </>
         );
       }
     })

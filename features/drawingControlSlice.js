@@ -19,6 +19,7 @@ const initialState = {
   selectedGeometry: [],
   cursorPosition: { x: 0, y: 0 },
   cursorSnapped: false,
+  showSnapPoints: false,
 };
 
 /* vitrual geometry 
@@ -37,6 +38,9 @@ export const drawingControlSlice = createSlice({
   reducers: {
     toggleVirtualDrawing: (state, action) => {
       state.virtualGeometryBeingDrawn = action.payload;
+    },
+    toggleSnapPoints: (state) => {
+      state.showSnapPoints = !state.showSnapPoints;
     },
     /**
      * Sets virtualGeometryBeingDrawn top true and starts virtualGeometry
@@ -246,6 +250,7 @@ export const {
   lockVirtualGeometry,
   unlockCursor,
   lockCursorAndSetPosition,
+  toggleSnapPoints,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

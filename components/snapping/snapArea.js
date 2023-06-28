@@ -7,11 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function SnapArea({ p }) {
   const dispatch = useDispatch();
-  const { stageOffset, stageZoomScaleInverse } = useSelector(
-    (state) => state.drawingControl
-  );
+  const showSnaps = useSelector((state) => state.drawingControl.showSnapPoints);
   const handleMouseEnter = (e) => {
-    console.log("enter");
     dispatch(
       lockCursorAndSetPosition({
         offsetX: p.x,
@@ -25,9 +22,10 @@ export default function SnapArea({ p }) {
   return (
     <Circle
       radius={20}
-      stroke='purple'
       x={p.x}
       y={p.y}
+      stroke='purple'
+      strokeEnabled={showSnaps}
       fillEnabled={true}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

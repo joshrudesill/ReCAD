@@ -6,6 +6,7 @@ import {
   resetSelectedGeometry,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
+  toggleSnapPoints,
   updateCursorPosition,
   updateStageOffset,
   updateStageZoomScale,
@@ -277,6 +278,12 @@ export default function Home() {
           disabled={selectedGeometry.length === 0}
         >
           M
+        </button>
+        <button
+          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
+          onClick={() => dispatch(toggleSnapPoints())}
+        >
+          SP
         </button>
         <p>{virtualGeometryBeingDrawn && virtualGeometry.currentX}</p>
       </div>
