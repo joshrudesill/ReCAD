@@ -22,6 +22,8 @@ import Grid from "@/components/grid";
 import LineDialogue from "@/components/geometryDialogues/lineDialogue";
 import CircleDialogue from "@/components/geometryDialogues/circleDialogue";
 import RectDialogue from "@/components/geometryDialogues/rectDialogue";
+import UserInstruction from "@/components/userInstruction/userInstruction";
+import { setCurrentInstruction } from "@/features/UIControlSlice";
 Konva.dragButtons = [2];
 export default function Home() {
   const dispatch = useDispatch();
@@ -35,6 +37,17 @@ export default function Home() {
     setActivatedDrawingTool(tool);
     setLastCommand(tool);
     setLastCommandType("d");
+    const category = "drawing";
+    const command =
+      tool === 1
+        ? "line"
+        : tool === 2
+        ? "rect"
+        : tool === 3
+        ? "circle"
+        : "none";
+    const stage = "start";
+    dispatch(setCurrentInstruction({ category, command, stage }));
   };
   const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(0);
   const activateAugmentationTool = (tool) => {
@@ -54,7 +67,6 @@ export default function Home() {
     selectedGeometry,
     virtualGeometryBeingAltered,
     geometryAugment,
-    cursorSnapped,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -135,7 +147,9 @@ export default function Home() {
         dispatch(endAugment(geometry));
       }
     } else {
-      dispatch(resetSelectedGeometry());
+      if (!e.evt.shiftKey) {
+        dispatch(resetSelectedGeometry());
+      }
     }
   };
 
@@ -229,13 +243,8 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      console.log(e.keyCode);
       if (e.keyCode === 32) {
         // space
-        const { log } = console;
-        log("S");
-        log(lastCommand);
-        log(lastCommandType);
         if (lastCommand !== 0) {
           if (lastCommandType === "d") {
             activateDrawingTool(lastCommand);
@@ -250,17 +259,31 @@ export default function Home() {
         setActivatedAugmentationTool(0);
       } else if (e.keyCode === 76) {
         // L
+        if (activatedDrawingTool === 0) {
+          activateDrawingTool(1);
+        }
       } else if (e.keyCode === 67) {
         // C
+        if (activatedDrawingTool === 0) {
+          activateDrawingTool(3);
+        }
       } else if (e.keyCode === 82) {
         // R
+        if (activatedDrawingTool === 0) {
+          activateDrawingTool(2);
+        }
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [lastCommand, lastCommandType]);
+  }, [
+    lastCommand,
+    lastCommandType,
+    activatedDrawingTool,
+    activatedAugmentationTool,
+  ]);
   const ldRef = useRef(null);
   return (
     <div className='flex-row flex m-3 gap-2'>
@@ -344,13 +367,11 @@ export default function Home() {
           <CircleDialogue ref={ldRef} />
         </div>
       )}
+      <div className='flex gap-2 flex-col'>
+        <p>
+          <UserInstruction />
+        </p>
+      </div>
     </div>
   );
 }
-/**<p>Tool: {activatedDrawingTool}</p>
- <p>Geo: {JSON.stringify(realGeometry)}</p>
- <p>Geo: {JSON.stringify(stageOffset)}</p>
-        <p>VD: {JSON.stringify(virtualGeometryBeingDrawn)}</p>
-        <p>VD: {JSON.stringify(virtualGeometry)}</p>
- * 
- */
