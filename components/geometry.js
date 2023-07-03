@@ -17,7 +17,7 @@ export default function Geometry() {
             <Line
               points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
               closed
-              strokeWidth={0.5}
+              strokeWidth={0.5 * stageZoomScaleInverse}
               stroke={
                 selectedGeometry.length > 0
                   ? selectedGeometry.some((g) => g.key === geo.key)
@@ -25,7 +25,7 @@ export default function Geometry() {
                     : "black"
                   : "black"
               }
-              hitStrokeWidth={10 * stageZoomScaleInverse}
+              hitStrokeWidth={15 * stageZoomScaleInverse}
               key={geo.key}
               onClick={() => {
                 dispatch(addSelectedGeometry(geo));
@@ -43,8 +43,8 @@ export default function Geometry() {
               y={geo.startingY}
               width={-(geo.startingX - geo.endingX)}
               height={-(geo.startingY - geo.endingY)}
-              strokeWidth={1}
-              hitStrokeWidth={10 * stageZoomScaleInverse}
+              strokeWidth={0.5 * stageZoomScaleInverse}
+              hitStrokeWidth={15 * stageZoomScaleInverse}
               closed
               stroke={
                 selectedGeometry.length > 0
@@ -82,8 +82,8 @@ export default function Geometry() {
               }
               onClick={() => dispatch(addSelectedGeometry(geo))}
               key={geo.key}
-              hitStrokeWidth={10 * stageZoomScaleInverse}
-              strokeWidth={1}
+              hitStrokeWidth={15 * stageZoomScaleInverse}
+              strokeWidth={0.5 * stageZoomScaleInverse}
               fillEnabled={false}
             />
             <SnapPoints geometry={geo} />

@@ -286,7 +286,7 @@ export default function Home() {
   ]);
   const ldRef = useRef(null);
   return (
-    <div className='flex-row flex m-3 gap-2'>
+    <div className='flex-row flex m-3 gap-2 '>
       <Stage
         width={1500}
         height={900}
