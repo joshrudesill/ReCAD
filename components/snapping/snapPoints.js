@@ -65,7 +65,9 @@ export default function SnapPoints({ geometry }) {
     }
   }, [geometry]);
 
-  return snapPoints?.map((p, i) => <SnapArea p={p} key={i} />);
+  return snapPoints?.map((p, i) => (
+    <SnapArea p={p} key={i} geometry={geometry} />
+  ));
   //component that adds circle and a square that becomes visible if the circle is hovered
   // when hovered the component needs to dispatch an action
 }

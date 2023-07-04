@@ -4,11 +4,14 @@ import {
   addRealGeometry,
   cancelVirtualGeometryDrawing,
   endAugment,
+  finishSelectionBox,
   resetSelectedGeometry,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
+  startSelectionBox,
   toggleSnapPoints,
   updateCursorPosition,
+  updateSelectionBox,
   updateStageOffset,
   updateStageZoomScale,
   updateVirtualGeometry,
@@ -24,6 +27,7 @@ import CircleDialogue from "@/components/geometryDialogues/circleDialogue";
 import RectDialogue from "@/components/geometryDialogues/rectDialogue";
 import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
+import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
 export default function Home() {
   const dispatch = useDispatch();
@@ -67,6 +71,7 @@ export default function Home() {
     selectedGeometry,
     virtualGeometryBeingAltered,
     geometryAugment,
+    selectionBox,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -109,42 +114,66 @@ export default function Home() {
           ldRef.current.focus("length");
         }
       }
-    } else if (activatedAugmentationTool !== 0 && selectedGeometry.length > 0) {
-      if (!virtualGeometryBeingAltered) {
-        dispatch(
-          startAugmentingVirtualGeometry({
-            offsetX: (
-              (offsetX + stageOffset.x) *
-              stageZoomScaleInverse
-            ).toFixed(3),
-            offsetY: (
-              (offsetY + stageOffset.y) *
-              stageZoomScaleInverse
-            ).toFixed(3),
-          })
-        );
-      } else {
-        //finish
-        const geometry = selectedGeometry.map((geo) => {
-          return {
-            ...geo,
-            startingX:
-              geo.startingX +
-              (geometryAugment.current.offsetX - geometryAugment.start.offsetX),
-            startingY:
-              geo.startingY +
-              (geometryAugment.current.offsetY - geometryAugment.start.offsetY),
-            endingX:
-              geo.endingX +
-              (geometryAugment.current.offsetX - geometryAugment.start.offsetX),
-            endingY:
-              geo.endingY +
-              (geometryAugment.current.offsetY - geometryAugment.start.offsetY),
-          };
-        });
-        setActivatedAugmentationTool(0);
+    } else if (activatedAugmentationTool !== 0) {
+      if (activatedAugmentationTool === 1 && selectedGeometry.length > 0) {
+        if (!virtualGeometryBeingAltered) {
+          dispatch(
+            startAugmentingVirtualGeometry({
+              offsetX: (
+                (offsetX + stageOffset.x) *
+                stageZoomScaleInverse
+              ).toFixed(3),
+              offsetY: (
+                (offsetY + stageOffset.y) *
+                stageZoomScaleInverse
+              ).toFixed(3),
+            })
+          );
+        } else {
+          //finish
+          const geometry = selectedGeometry.map((geo) => {
+            return {
+              ...geo,
+              startingX:
+                geo.startingX +
+                (geometryAugment.current.offsetX -
+                  geometryAugment.start.offsetX),
+              startingY:
+                geo.startingY +
+                (geometryAugment.current.offsetY -
+                  geometryAugment.start.offsetY),
+              endingX:
+                geo.endingX +
+                (geometryAugment.current.offsetX -
+                  geometryAugment.start.offsetX),
+              endingY:
+                geo.endingY +
+                (geometryAugment.current.offsetY -
+                  geometryAugment.start.offsetY),
+            };
+          });
+          setActivatedAugmentationTool(0);
 
-        dispatch(endAugment(geometry));
+          dispatch(endAugment(geometry));
+        }
+      } else if (activatedAugmentationTool === 2) {
+        //selection box
+        if (selectionBox === null) {
+          //start selection box drawing
+          const selectionBox = {
+            startingX: (
+              (cursorPosition.offsetX + stageOffset.x) *
+              stageZoomScaleInverse
+            ).toFixed(4),
+            startingY: (
+              (cursorPosition.offsetY + stageOffset.y) *
+              stageZoomScaleInverse
+            ).toFixed(4),
+          };
+          dispatch(startSelectionBox(selectionBox));
+        } else {
+          dispatch(finishSelectionBox());
+        }
       }
     } else {
       if (!e.evt.shiftKey) {
@@ -200,6 +229,13 @@ export default function Home() {
           offsetY: ((offsetY + stageOffset.y) * stageZoomScaleInverse).toFixed(
             0
           ),
+        })
+      );
+    } else if (selectionBox !== null) {
+      dispatch(
+        updateSelectionBox({
+          x: (offsetX + stageOffset.x) * stageZoomScaleInverse,
+          y: (offsetY + stageOffset.y) * stageZoomScaleInverse,
         })
       );
     }
@@ -310,12 +346,13 @@ export default function Home() {
         <Layer name='realgeo'>
           <Geometry />
         </Layer>
-        <Layer name='virtualgeo'>
+        <Layer name='virtualgeo' listening={false}>
           {virtualGeometryBeingDrawn || virtualGeometryBeingAltered ? (
             <VirtualGeometry />
           ) : (
             <></>
           )}
+          <BoxSelection />
         </Layer>
       </Stage>
       <div className='flex gap-2 flex-col'>
@@ -343,6 +380,12 @@ export default function Home() {
           disabled={selectedGeometry.length === 0}
         >
           M
+        </button>
+        <button
+          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
+          onClick={() => activateAugmentationTool(2)}
+        >
+          S
         </button>
         <button
           className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'

@@ -20,6 +20,7 @@ const initialState = {
   cursorPosition: { x: 0, y: 0 },
   cursorSnapped: false,
   showSnapPoints: false,
+  selectionBox: null,
 };
 
 /* vitrual geometry 
@@ -75,6 +76,24 @@ export const drawingControlSlice = createSlice({
         gType: gType,
       };
     },
+    startSelectionBox: (state, action) => {
+      const { startingX, startingY } = action.payload;
+      state.selectionBox = {
+        startingX: parseFloat(startingX),
+        startingY: parseFloat(startingY),
+        currentX: parseFloat(startingX),
+        currentY: parseFloat(startingY),
+      };
+    },
+    updateSelectionBox: (state, action) => {
+      const { x, y } = action.payload;
+      state.selectionBox.currentX = parseFloat(x);
+      state.selectionBox.currentY = parseFloat(y);
+    },
+    finishSelectionBox: (state) => {
+      state.selectionBox = null;
+    },
+
     updateVirtualGeometry: (state, action) => {
       if (!state.cursorSnapped) {
         const { x, y } = action.payload;
@@ -257,6 +276,9 @@ export const {
   lockCursorAndSetPosition,
   toggleSnapPoints,
   cancelVirtualGeometryDrawing,
+  startSelectionBox,
+  updateSelectionBox,
+  finishSelectionBox,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;
