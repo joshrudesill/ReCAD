@@ -1,4 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  checkGeometryStartingPoints,
+  normalizeBoxPoints,
+} from "./util/collisionDetection";
 
 const initialState = {
   virtualGeometryBeingDrawn: false,
@@ -91,6 +95,25 @@ export const drawingControlSlice = createSlice({
       state.selectionBox.currentY = parseFloat(y);
     },
     finishSelectionBox: (state) => {
+      // check for geometry starting or ending points and select, then make sure not to check again
+      // First, normalize selection box
+      const normalizedPoints = normalizeBoxPoints(
+        state.selectionBox.startingX,
+        state.selectionBox.startingY,
+        state.selectionBox.currentX,
+        state.selectionBox.currentY
+      );
+      const keys = checkGeometryStartingPoints(
+        normalizedPoints,
+        state.realGeometry.map((e) => ({ ...e }))
+      );
+      if (keys.length > 0) {
+        state.selectedGeometry.push(
+          ...state.realGeometry.map((g) => {
+            if (keys.includes(g.key)) return g;
+          })
+        );
+      }
       state.selectionBox = null;
     },
 

@@ -332,6 +332,17 @@ export default function Home() {
         onWheel={handleWheel}
         onMouseDown={handleClickInteractionWithStage}
         onMouseMove={handleDragInteractionWithStage}
+        onMouseUp={() => {
+          if (selectionBox !== null) {
+            dispatch(finishSelectionBox());
+            setActivatedAugmentationTool(0);
+          }
+        }}
+        onMouseLeave={() => {
+          if (selectionBox !== null) {
+            dispatch(finishSelectionBox());
+          }
+        }} // other things need to be done here
         onContextMenu={(e) => e.evt.preventDefault()}
         draggable
         dragBoundFunc={(pos) => {
