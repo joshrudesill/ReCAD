@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  checkGeometryStartingPoints,
+  checkGeometryCollision,
   normalizeBoxPoints,
 } from "./util/collisionDetection";
 
@@ -103,14 +103,12 @@ export const drawingControlSlice = createSlice({
         state.selectionBox.currentX,
         state.selectionBox.currentY
       );
-      const keys = checkGeometryStartingPoints(
-        normalizedPoints,
-        state.realGeometry.map((e) => ({ ...e }))
-      );
+      const keys = checkGeometryCollision(normalizedPoints, state.realGeometry);
       if (keys.length > 0) {
         state.selectedGeometry.push(
-          ...state.realGeometry.map((g) => {
-            if (keys.includes(g.key)) return g;
+          ...state.realGeometry.filter((g) => {
+            if (keys.includes(g.key)) return true;
+            return false;
           })
         );
       }

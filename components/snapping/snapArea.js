@@ -27,29 +27,27 @@ export default function SnapArea({ p, geometry }) {
   };
 
   return (
-    virtualGeometryBeingDrawn && (
-      <>
-        <Circle
-          radius={20 * stageZoomScaleInverse}
-          x={p.x}
-          y={p.y}
-          stroke='purple'
-          strokeEnabled={showSnapPoints}
-          fillEnabled={true}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
-        <Rect
-          x={p.x - 0.5 * (10 * stageZoomScaleInverse)}
-          y={p.y - 0.5 * (10 * stageZoomScaleInverse)}
-          width={10 * stageZoomScaleInverse}
-          height={10 * stageZoomScaleInverse}
-          stroke='blue'
-          strokeWidth={0.8 * stageZoomScaleInverse}
-          strokeEnabled={snapAreaActive}
-          listening={false}
-        />
-      </>
-    )
+    <>
+      <Circle
+        radius={20 * stageZoomScaleInverse}
+        x={p.x}
+        y={p.y}
+        stroke='purple'
+        strokeEnabled={showSnapPoints}
+        fillEnabled={true}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
+      <Rect
+        x={p.x - 0.5 * (10 * stageZoomScaleInverse)}
+        y={p.y - 0.5 * (10 * stageZoomScaleInverse)}
+        width={10 * stageZoomScaleInverse}
+        height={10 * stageZoomScaleInverse}
+        stroke='blue'
+        strokeWidth={0.8 * stageZoomScaleInverse}
+        strokeEnabled={snapAreaActive}
+        listening={false}
+      />
+    </>
   );
 }
