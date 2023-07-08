@@ -5,11 +5,13 @@ import {
   cancelVirtualGeometryDrawing,
   endAugment,
   finishSelectionBox,
+  redoToNextState,
   resetSelectedGeometry,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
   startSelectionBox,
   toggleSnapPoints,
+  undoToPreviousState,
   updateCursorPosition,
   updateSelectionBox,
   updateStageOffset,
@@ -29,6 +31,7 @@ import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
+
 export default function Home() {
   const dispatch = useDispatch();
 
@@ -72,6 +75,8 @@ export default function Home() {
     virtualGeometryBeingAltered,
     geometryAugment,
     selectionBox,
+    stateIndex,
+    previousStates,
   } = useSelector((state) => state.drawingControl);
 
   const handleClickInteractionWithStage = (e) => {
@@ -404,7 +409,20 @@ export default function Home() {
         >
           SP
         </button>
-        <p>{virtualGeometryBeingDrawn && virtualGeometry.currentX}</p>
+        <button
+          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
+          onClick={() => dispatch(undoToPreviousState())}
+        >
+          U
+        </button>
+        <button
+          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
+          onClick={() => dispatch(redoToNextState())}
+        >
+          R
+        </button>
+        <p>L: {previousStates.length}</p>
+        <p>i: {stateIndex}</p>
       </div>
       {activatedDrawingTool === 1 && (
         <div className='flex gap-2 flex-col'>

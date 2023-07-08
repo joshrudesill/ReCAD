@@ -25,6 +25,8 @@ const initialState = {
   cursorSnapped: false,
   showSnapPoints: false,
   selectionBox: null,
+  previousStates: [],
+  stateIndex: 1,
 };
 
 /* vitrual geometry 
@@ -217,17 +219,41 @@ export const drawingControlSlice = createSlice({
     },
     endAugment: (state, action) => {
       state.virtualGeometryBeingAltered = false;
-      if (state.realGeometry.length === 1) {
-        state.realGeometry = action.payload;
+      if (state.stateIndex !== 1) {
+        if (state.realGeometry.length === 1) {
+          state.realGeometry = action.payload;
+        } else {
+          //replace each matching key with new element with updated coordiantes
+          action.payload.forEach((g) =>
+            state.realGeometry.splice(
+              state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+              1, //delete 1
+              g //replace with new object
+            )
+          );
+        }
+        state.previousStates = [
+          ...state.previousStates.slice(
+            0,
+            state.previousStates.length - state.stateIndex + 1
+          ),
+          state.realGeometry,
+        ];
+        state.stateIndex = 1;
       } else {
-        //replace each matching key with new element with updated coordiantes
-        action.payload.forEach((g) =>
-          state.realGeometry.splice(
-            state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
-            1, //delete 1
-            g //replace with new object
-          )
-        );
+        if (state.realGeometry.length === 1) {
+          state.realGeometry = action.payload;
+        } else {
+          //replace each matching key with new element with updated coordiantes
+          action.payload.forEach((g) =>
+            state.realGeometry.splice(
+              state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+              1, //delete 1
+              g //replace with new object
+            )
+          );
+        }
+        state.previousStates.push(state.realGeometry);
       }
 
       state.selectedGeometry = [];
@@ -236,10 +262,45 @@ export const drawingControlSlice = createSlice({
       state.virtualGeometryBeingDrawn = false;
       state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
       state.virtualGeometry = {};
-      state.realGeometry.push({
-        ...action.payload,
-        key: state.realGeometry.length + 1,
-      });
+      if (state.stateIndex !== 1) {
+        // In redo state
+        state.realGeometry.push({
+          ...action.payload,
+          key: state.realGeometry.length + 1,
+        });
+
+        state.previousStates = [
+          ...state.previousStates.slice(
+            0,
+            state.previousStates.length - state.stateIndex + 1
+          ),
+          state.realGeometry,
+        ];
+        state.stateIndex = 1;
+      } else {
+        state.realGeometry.push({
+          ...action.payload,
+          key: state.realGeometry.length + 1,
+        });
+        state.previousStates.push(state.realGeometry);
+      }
+    },
+    undoToPreviousState: (state, action) => {
+      if (state.stateIndex + 1 > state.previousStates.length) {
+        // Reset state
+        state.realGeometry = [];
+        state.stateIndex = state.previousStates.length + 1;
+      } else {
+        state.realGeometry = state.previousStates.at(-(state.stateIndex + 1));
+        state.stateIndex += 1;
+      }
+    },
+    redoToNextState: (state, action) => {
+      if (state.stateIndex !== 1) {
+        state.realGeometry = state.previousStates.at(-(state.stateIndex - 1));
+
+        state.stateIndex -= 1;
+      }
     },
     updateStageOffset: (state, action) => {
       state.stageOffset = {
@@ -300,6 +361,8 @@ export const {
   startSelectionBox,
   updateSelectionBox,
   finishSelectionBox,
+  undoToPreviousState,
+  redoToNextState,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

@@ -107,7 +107,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
         endingX,
         endingY
       );
-
+      // This will have to be changed when rotation is added
       // Check for rect point inside of selection box and vice versa
       for (const value of Object.values(inputRect)) {
         if (value.x >= bL.x && value.x <= bR.x) {
