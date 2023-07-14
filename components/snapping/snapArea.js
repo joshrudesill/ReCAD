@@ -10,9 +10,12 @@ import { useDispatch, useSelector } from "react-redux";
 export default function SnapArea({ p, geometry }) {
   const dispatch = useDispatch();
   const [snapAreaActive, setSnapAreaActive] = useState(false);
-  const { showSnapPoints, stageZoomScaleInverse } = useSelector(
-    (state) => state.drawingControl
-  );
+  const {
+    showSnapPoints,
+    stageZoomScaleInverse,
+    virtualGeometryBeingDrawn,
+    virtualGeometryBeingAltered,
+  } = useSelector((state) => state.drawingControl);
   const handleMouseEnter = () => {
     dispatch(
       lockCursorAndSetPosition({
@@ -26,6 +29,11 @@ export default function SnapArea({ p, geometry }) {
     dispatch(unlockCursor());
     setSnapAreaActive(false);
   };
+  const handleClick = () => {
+    if (!virtualGeometryBeingAltered && !virtualGeometryBeingDrawn) {
+      dispatch(addSelectedGeometry(geometry));
+    }
+  };
 
   return (
     <>
@@ -38,7 +46,7 @@ export default function SnapArea({ p, geometry }) {
         fillEnabled={true}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onClick={() => dispatch(addSelectedGeometry(geometry))}
+        onClick={handleClick}
       />
       <Rect
         x={p.x - 0.5 * (10 * stageZoomScaleInverse)}

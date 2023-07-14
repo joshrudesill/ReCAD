@@ -15,7 +15,10 @@ const initialState = {
     width: { locked: false, value: 0 },
     height: { locked: false, value: 0 },
   },
-  geometryAugment: { start: { x: 0, y: 0 }, current: { x: 0, y: 0 } },
+  geometryAugment: {
+    start: { offsetX: 0, offsetY: 0 },
+    current: { offsetX: 0, offsetY: 0 },
+  },
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
   stageZoomScale: 1,
@@ -43,22 +46,22 @@ export const drawingControlSlice = createSlice({
   name: "drawingControl",
   initialState,
   reducers: {
+    // This indicates that geometry is being drawn if true, but is not yet realGeometry
     toggleVirtualDrawing: (state, action) => {
       state.virtualGeometryBeingDrawn = action.payload;
     },
+    // Show the snap points which were calculated when the geometry was transistioned from virtual to real
     toggleSnapPoints: (state) => {
       state.showSnapPoints = !state.showSnapPoints;
     },
+    // Cancel out of drawing, reset properly
     cancelVirtualGeometryDrawing: (state) => {
       state.virtualGeometryBeingDrawn = false;
       state.virtualGeometry = {};
       state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
     },
-    /**
-     * Sets virtualGeometryBeingDrawn top true and starts virtualGeometry
-     * @param {object} action Pass in starting X, Y, and type of geometry.
-     */
 
+    // Setup for the start of all geometry drawin
     startDrawingVirtualGeometry: (state, action) => {
       const { startingX, startingY, gType, stageX, stageY, startingZoom } =
         action.payload;
@@ -82,6 +85,7 @@ export const drawingControlSlice = createSlice({
         gType: gType,
       };
     },
+    // Setup for selection box
     startSelectionBox: (state, action) => {
       const { startingX, startingY } = action.payload;
       state.selectionBox = {
@@ -91,11 +95,13 @@ export const drawingControlSlice = createSlice({
         currentY: parseFloat(startingY),
       };
     },
+    // Update for selection box
     updateSelectionBox: (state, action) => {
       const { x, y } = action.payload;
       state.selectionBox.currentX = parseFloat(x);
       state.selectionBox.currentY = parseFloat(y);
     },
+    // Finish for selection box and cleanup, utilizes the collisionDetection module
     finishSelectionBox: (state) => {
       // check for geometry starting or ending points and select, then make sure not to check again
       // First, normalize selection box
@@ -201,21 +207,31 @@ export const drawingControlSlice = createSlice({
     startAugmentingVirtualGeometry: (state, action) => {
       const { offsetX, offsetY } = action.payload;
       state.virtualGeometryBeingAltered = true;
-      state.geometryAugment.start = {
-        offsetX: parseFloat(offsetX),
-        offsetY: parseFloat(offsetY),
-      };
+      if (state.cursorSnapped) {
+        state.geometryAugment.start = {
+          offsetX: state.cursorPosition.offsetX,
+          offsetY: state.cursorPosition.offsetY,
+        };
+      } else {
+        state.geometryAugment.start = {
+          offsetX: parseFloat(offsetX),
+          offsetY: parseFloat(offsetY),
+        };
+      }
       state.geometryAugment.current = {
         offsetX: parseFloat(offsetX),
         offsetY: parseFloat(offsetY),
       };
     },
     updateVirtualGeometryAugment: (state, action) => {
-      const { offsetX, offsetY } = action.payload;
-      state.geometryAugment.current = {
-        offsetX: parseFloat(offsetX),
-        offsetY: parseFloat(offsetY),
-      };
+      if (!state.cursorSnapped) {
+        const { offsetX, offsetY } = action.payload;
+
+        state.geometryAugment.current = {
+          offsetX: parseFloat(offsetX),
+          offsetY: parseFloat(offsetY),
+        };
+      }
     },
     endAugment: (state, action) => {
       state.virtualGeometryBeingAltered = false;
@@ -331,6 +347,12 @@ export const drawingControlSlice = createSlice({
       if (state.virtualGeometryBeingDrawn) {
         state.virtualGeometry.currentX = action.payload.offsetX;
         state.virtualGeometry.currentY = action.payload.offsetY;
+      }
+      if (state.virtualGeometryBeingAltered) {
+        state.geometryAugment.current = {
+          offsetX: action.payload.offsetX,
+          offsetY: action.payload.offsetY,
+        };
       }
     },
     unlockCursor: (state) => {
