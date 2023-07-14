@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@assemblyscript/loader": "^0.27.5",
     "@reduxjs/toolkit": "^1.9.5",
     "autoprefixer": "10.4.14",
     "canvas": "^2.11.2",

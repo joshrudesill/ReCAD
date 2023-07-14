@@ -31,6 +31,7 @@ import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
+import { add, derive_actual_pos } from "@/public/pkg/recad_wasm_bg.wasm";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -78,7 +79,10 @@ export default function Home() {
     stateIndex,
     previousStates,
   } = useSelector((state) => state.drawingControl);
-
+  useEffect(() => {
+    //WASM
+    console.log(derive_actual_pos(5, 4, 5));
+  }, []);
   const handleClickInteractionWithStage = (e) => {
     e.evt.preventDefault();
     if (e.evt.button !== 0) {
@@ -101,14 +105,17 @@ export default function Home() {
         dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
-          startingX: (
-            (cursorPosition.offsetX + stageOffset.x) *
+          startingX: derive_actual_pos(
+            cursorPosition.offsetX,
+            stageOffset.x,
             stageZoomScaleInverse
-          ).toFixed(3),
-          startingY: (
-            (cursorPosition.offsetY + stageOffset.y) *
+          ),
+          startingY: derive_actual_pos(
+            cursorPosition.offsetY,
+            stageOffset.y,
             stageZoomScaleInverse
-          ).toFixed(3),
+          ),
+
           stageX: stageOffset.x * stageZoomScaleInverse,
           stageY: stageOffset.y * stageZoomScaleInverse,
           startingZoom: stageZoomScaleInverse,
