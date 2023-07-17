@@ -54,7 +54,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
   if (geometry.length === 0) return [];
   for (let i = 0; i < geometry.length; i++) {
     const { startingX, startingY, endingX, endingY, gType } = geometry[i];
-    if (gType === 1) {
+    if (gType === "line") {
       // Line
       // First do simple check for line points inside of box
       if (startingX >= bL.x && startingX <= bR.x) {
@@ -99,7 +99,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
       }
       continue;
     }
-    if (gType === 2) {
+    if (gType === "rect") {
       // Rectangle
       const inputRect = normalizeBoxPoints(
         startingX,
@@ -180,7 +180,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
         }
       }
     }
-    if (gType === 3) {
+    if (gType === "circle") {
       // Circle
 
       // Here were checking whether any of the selection box points fall inside of the circle or if the circle center is inside the box

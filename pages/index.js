@@ -20,7 +20,15 @@ import {
   updateVirtualGeometryAugment,
 } from "@/features/drawingControlSlice";
 import { useEffect, useRef, useState } from "react";
-import { Layer, Line, Rect, Stage } from "react-konva";
+import {
+  Arc,
+  Ellipse,
+  Layer,
+  Line,
+  Rect,
+  RegularPolygon,
+  Stage,
+} from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";
 import Grid from "@/components/grid";
@@ -31,7 +39,8 @@ import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
-import { add, derive_actual_pos } from "@/public/pkg/recad_wasm_bg.wasm";
+import { derive_actual_pos } from "@/public/pkg/recad_wasm_bg.wasm";
+import ToolSelection from "@/components/toolSelection";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -39,27 +48,20 @@ export default function Home() {
   // line - 1
   // rect - 2
   // none - 0
-  const [activatedDrawingTool, setActivatedDrawingTool] = useState(0);
+  const [activatedDrawingTool, setActivatedDrawingTool] = useState("none");
   const activateDrawingTool = (tool) => {
     setActivatedAugmentationTool(0);
     setActivatedDrawingTool(tool);
     setLastCommand(tool);
     setLastCommandType("d");
     const category = "drawing";
-    const command =
-      tool === 1
-        ? "line"
-        : tool === 2
-        ? "rect"
-        : tool === 3
-        ? "circle"
-        : "none";
+
     const stage = "start";
-    dispatch(setCurrentInstruction({ category, command, stage }));
+    dispatch(setCurrentInstruction({ category, tool, stage }));
   };
   const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(0);
   const activateAugmentationTool = (tool) => {
-    setActivatedDrawingTool(0);
+    setActivatedDrawingTool("none");
     setActivatedAugmentationTool(tool);
     setLastCommand(tool);
     setLastCommandType("a");
@@ -89,7 +91,7 @@ export default function Home() {
       return;
     }
     const { offsetX, offsetY } = e.evt;
-    if (activatedDrawingTool !== 0) {
+    if (activatedDrawingTool !== "none") {
       if (virtualGeometryBeingDrawn) {
         // add real geo
         const geometry = {
@@ -101,7 +103,7 @@ export default function Home() {
           stageY: 0,
           gType: virtualGeometry.gType,
         };
-        setActivatedDrawingTool(0);
+        setActivatedDrawingTool("none");
         dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
@@ -122,7 +124,7 @@ export default function Home() {
           gType: activatedDrawingTool,
         };
         dispatch(startDrawingVirtualGeometry(geometry));
-        if (activatedDrawingTool === 1) {
+        if (activatedDrawingTool === "line") {
           ldRef.current.focus("length");
         }
       }
@@ -307,17 +309,17 @@ export default function Home() {
         setActivatedAugmentationTool(0);
       } else if (e.keyCode === 76) {
         // L
-        if (activatedDrawingTool === 0) {
+        if (activatedDrawingTool === "none") {
           activateDrawingTool(1);
         }
       } else if (e.keyCode === 67) {
         // C
-        if (activatedDrawingTool === 0) {
+        if (activatedDrawingTool === "none") {
           activateDrawingTool(3);
         }
       } else if (e.keyCode === 82) {
         // R
-        if (activatedDrawingTool === 0) {
+        if (activatedDrawingTool === "none") {
           activateDrawingTool(2);
         }
       }
@@ -379,69 +381,24 @@ export default function Home() {
         </Layer>
       </Stage>
       <div className='flex gap-2 flex-col'>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
-          onClick={() => activateDrawingTool(1)}
-        >
-          L
-        </button>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
-          onClick={() => activateDrawingTool(2)}
-        >
-          R
-        </button>
-        <button
-          className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500'
-          onClick={() => activateDrawingTool(3)}
-        >
-          C
-        </button>
-        <button
-          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
-          onClick={() => activateAugmentationTool(1)}
-          disabled={selectedGeometry.length === 0}
-        >
-          M
-        </button>
-        <button
-          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
-          onClick={() => activateAugmentationTool(2)}
-        >
-          S
-        </button>
-        <button
-          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
-          onClick={() => dispatch(toggleSnapPoints())}
-        >
-          SP
-        </button>
-        <button
-          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
-          onClick={() => dispatch(undoToPreviousState())}
-        >
-          U
-        </button>
-        <button
-          className='px-2 py-1 bg-teal-400 ml-2 hover:bg-orange-500'
-          onClick={() => dispatch(redoToNextState())}
-        >
-          R
-        </button>
-        <p>L: {previousStates.length}</p>
-        <p>i: {stateIndex}</p>
+        <ToolSelection
+          activateDrawingTool={activateDrawingTool}
+          activateAugmentationTool={activateAugmentationTool}
+          length={selectedGeometry.length}
+          activeDrawingTool={activatedDrawingTool}
+        />
       </div>
-      {activatedDrawingTool === 1 && (
+      {activatedDrawingTool === "line" && (
         <div className='flex gap-2 flex-col'>
           <LineDialogue ref={ldRef} />
         </div>
       )}
-      {activatedDrawingTool === 2 && (
+      {activatedDrawingTool === "rect" && (
         <div className='flex gap-2 flex-col'>
           <RectDialogue ref={ldRef} />
         </div>
       )}
-      {activatedDrawingTool === 3 && (
+      {activatedDrawingTool === "circle" && (
         <div className='flex gap-2 flex-col'>
           <CircleDialogue ref={ldRef} />
         </div>

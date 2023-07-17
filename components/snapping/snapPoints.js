@@ -56,11 +56,11 @@ export default function SnapPoints({ geometry }) {
     //line - start, end, center
     //rect - four corners, center, center of sides
     //circle - center, quadrants
-    if (geometry.gType === 1) {
+    if (geometry.gType === "line") {
       calculateLineSnaps();
-    } else if (geometry.gType === 2) {
+    } else if (geometry.gType === "rect") {
       calculateRectSnaps();
-    } else if (geometry.gType === 3) {
+    } else if (geometry.gType === "circle") {
       calculateCircleSnaps();
     }
   }, [geometry]);

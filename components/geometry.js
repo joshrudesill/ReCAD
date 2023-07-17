@@ -2,7 +2,7 @@ import { addSelectedGeometry } from "@/features/drawingControlSlice";
 import { Line, Rect, Circle } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import SnapPoints from "./snapping/snapPoints";
-
+import { get_distance_4p } from "@/public/pkg/recad_wasm_bg.wasm";
 export default function Geometry() {
   const { realGeometry, selectedGeometry, stageZoomScaleInverse } = useSelector(
     (state) => state.drawingControl
@@ -11,7 +11,7 @@ export default function Geometry() {
   return (
     realGeometry.length > 0 &&
     realGeometry.map((geo) => {
-      if (geo.gType === 1) {
+      if (geo.gType === "line") {
         return (
           <>
             <Line
@@ -35,7 +35,7 @@ export default function Geometry() {
           </>
         );
       }
-      if (geo.gType === 2) {
+      if (geo.gType === "rect") {
         return (
           <>
             <Rect
@@ -61,17 +61,17 @@ export default function Geometry() {
           </>
         );
       }
-      if (geo.gType === 3) {
+      if (geo.gType === "circle") {
         return (
           <>
             <Circle
               x={geo.startingX}
               y={geo.startingY}
-              radius={Math.abs(
-                Math.sqrt(
-                  Math.pow(geo.startingX - geo.endingX, 2) +
-                    Math.pow(geo.startingY - geo.endingY, 2)
-                )
+              radius={get_distance_4p(
+                geo.startingX,
+                geo.startingY,
+                geo.endingX,
+                geo.endingY
               )}
               stroke={
                 selectedGeometry.length > 0

@@ -1,6 +1,7 @@
-import { Circle, Group, Line, Rect } from "react-konva";
+import { Circle, Group, Line, Rect, RegularPolygon } from "react-konva";
 import { useSelector } from "react-redux";
-
+import { get_distance_4p } from "@/public/pkg/recad_wasm_bg.wasm";
+import { useEffect } from "react";
 export default function VirtualGeometry() {
   const {
     virtualGeometryBeingDrawn,
@@ -10,8 +11,9 @@ export default function VirtualGeometry() {
     geometryAugment,
   } = useSelector((state) => state.drawingControl);
   //replace^
+
   if (virtualGeometryBeingDrawn) {
-    if (virtualGeometry.gType === 1) {
+    if (virtualGeometry.gType === "line") {
       return (
         <Line
           x={0}
@@ -45,7 +47,7 @@ export default function VirtualGeometry() {
     //time initial scale 66, 66
     //needs 71.43, 71.43
     //1.0714
-    if (virtualGeometry.gType === 2) {
+    if (virtualGeometry.gType === "rect") {
       return (
         <Rect
           x={virtualGeometry.startingX}
@@ -57,7 +59,7 @@ export default function VirtualGeometry() {
         />
       );
     }
-    if (virtualGeometry.gType === 3) {
+    if (virtualGeometry.gType === "circle") {
       return (
         <>
           <Line
@@ -77,24 +79,35 @@ export default function VirtualGeometry() {
           <Circle
             x={virtualGeometry.startingX}
             y={virtualGeometry.startingY}
-            radius={parseFloat(
-              Math.abs(
-                Math.sqrt(
-                  Math.pow(
-                    virtualGeometry.startingX - virtualGeometry.currentX,
-                    2
-                  ) +
-                    Math.pow(
-                      virtualGeometry.startingY - virtualGeometry.currentY,
-                      2
-                    )
-                )
-              )
+            radius={get_distance_4p(
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY
             )}
             stroke='black'
             fillEnabled={false}
           />
         </>
+      );
+    }
+    if (virtualGeometry.gType === "polygon") {
+      return (
+        <RegularPolygon
+          sides={5}
+          stroke={"black"}
+          radius={get_distance_4p(
+            virtualGeometry.startingX,
+            virtualGeometry.startingY,
+            virtualGeometry.currentX,
+            virtualGeometry.currentY
+          )}
+          listening={false}
+          hitStrokeWidth={0}
+          fillEnabled={false}
+          x={virtualGeometry.startingX}
+          y={virtualGeometry.startingY}
+        />
       );
     }
   } else if (virtualGeometryBeingAltered) {
@@ -161,7 +174,7 @@ export default function VirtualGeometry() {
           }
         >
           {selectedGeometry.map((geo, i) => {
-            if (geo.gType === 1) {
+            if (geo.gType === "line") {
               return (
                 <Line
                   points={[
@@ -176,7 +189,7 @@ export default function VirtualGeometry() {
                 />
               );
             }
-            if (geo.gType === 2) {
+            if (geo.gType === "rect") {
               return (
                 <Rect
                   x={geo.startingX}
@@ -189,16 +202,16 @@ export default function VirtualGeometry() {
                 />
               );
             }
-            if (geo.gType === 3) {
+            if (geo.gType === "circle") {
               return (
                 <Circle
                   x={geo.startingX}
                   y={geo.startingY}
-                  radius={Math.abs(
-                    Math.sqrt(
-                      Math.pow(geo.startingX - geo.endingX, 2) +
-                        Math.pow(geo.startingY - geo.endingY, 2)
-                    )
+                  radius={get_distance_4p(
+                    geo.startingX,
+                    geo.startingY,
+                    geo.endingX,
+                    geo.endingY
                   )}
                   closed
                   stroke='black'

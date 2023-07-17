@@ -21,5 +21,5 @@ export default function UserInstruction() {
     (state) => state.UIControl.currentInstruction
   );
   // Gross looking ECMAScript, but does the trick
-  return <>{instructions?.[category]?.[command]?.[stage] ?? "Not Found"}</>;
+  return <>{instructions?.[category]?.[command]?.[stage] ?? ""}</>;
 }

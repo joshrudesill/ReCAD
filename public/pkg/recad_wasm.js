@@ -1,16 +1,6 @@
 let wasm;
 
 /**
-* @param {number} left
-* @param {number} right
-* @returns {number}
-*/
-export function add(left, right) {
-    const ret = wasm.add(left, right);
-    return ret >>> 0;
-}
-
-/**
 * @param {number} cursor
 * @param {number} stage
 * @param {number} inverse_z
@@ -18,6 +8,18 @@ export function add(left, right) {
 */
 export function derive_actual_pos(cursor, stage, inverse_z) {
     const ret = wasm.derive_actual_pos(cursor, stage, inverse_z);
+    return ret;
+}
+
+/**
+* @param {number} sx
+* @param {number} sy
+* @param {number} ex
+* @param {number} ey
+* @returns {number}
+*/
+export function get_distance_4p(sx, sy, ex, ey) {
+    const ret = wasm.get_distance_4p(sx, sy, ex, ey);
     return ret;
 }
 

@@ -1,25 +1,27 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {number} left
-* @param {number} right
-* @returns {number}
-*/
-export function add(left: number, right: number): number;
-/**
 * @param {number} cursor
 * @param {number} stage
 * @param {number} inverse_z
 * @returns {number}
 */
 export function derive_actual_pos(cursor: number, stage: number, inverse_z: number): number;
+/**
+* @param {number} sx
+* @param {number} sy
+* @param {number} ex
+* @param {number} ey
+* @returns {number}
+*/
+export function get_distance_4p(sx: number, sy: number, ex: number, ey: number): number;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly add: (a: number, b: number) => number;
   readonly derive_actual_pos: (a: number, b: number, c: number) => number;
+  readonly get_distance_4p: (a: number, b: number, c: number, d: number) => number;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
