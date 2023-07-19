@@ -83,6 +83,7 @@ export const drawingControlSlice = createSlice({
         stageY: stageY,
         startingZoom: startingZoom,
         gType: gType,
+        sides: 13,
       };
     },
     // Setup for selection box

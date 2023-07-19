@@ -1,6 +1,6 @@
 import { Circle, Group, Line, Rect, RegularPolygon } from "react-konva";
 import { useSelector } from "react-redux";
-import { get_distance_4p } from "@/public/pkg/recad_wasm_bg.wasm";
+import { get_distance_4p, check_line_collision } from "@/pkg/recad_wasm";
 import { useEffect } from "react";
 export default function VirtualGeometry() {
   const {
@@ -11,7 +11,9 @@ export default function VirtualGeometry() {
     geometryAugment,
   } = useSelector((state) => state.drawingControl);
   //replace^
-
+  useEffect(() => {
+    //console.log(check_line_collision(0, 0, 1, 1, 10, 10, 2, 400));
+  }, []);
   if (virtualGeometryBeingDrawn) {
     if (virtualGeometry.gType === "line") {
       return (
@@ -29,24 +31,7 @@ export default function VirtualGeometry() {
         />
       );
     }
-    //starting = 0.75
-    //inverse 1 / 0.75 = 1.33
-    //zoom out
-    // new scale = 0.5
-    //inverse = 2
-    //cursor at 50,50
-    //time initial scale 66, 66
-    //needs 100,100
 
-    //starting = 0.75
-    //inverse 1 / 0.75 = 1.33
-    //zoom out
-    // new scale = 0.7
-    //inverse = 1.43
-    //cursor at 50,50
-    //time initial scale 66, 66
-    //needs 71.43, 71.43
-    //1.0714
     if (virtualGeometry.gType === "rect") {
       return (
         <Rect
@@ -94,7 +79,7 @@ export default function VirtualGeometry() {
     if (virtualGeometry.gType === "polygon") {
       return (
         <RegularPolygon
-          sides={5}
+          sides={virtualGeometry.sides}
           stroke={"black"}
           radius={get_distance_4p(
             virtualGeometry.startingX,
@@ -105,6 +90,16 @@ export default function VirtualGeometry() {
           listening={false}
           hitStrokeWidth={0}
           fillEnabled={false}
+          rotation={
+            //in rust eventually
+            (Math.atan2(
+              virtualGeometry.startingY - virtualGeometry.currentY,
+              virtualGeometry.startingX - virtualGeometry.currentX
+            ) *
+              180) /
+              Math.PI -
+            90
+          }
           x={virtualGeometry.startingX}
           y={virtualGeometry.startingY}
         />

@@ -39,8 +39,9 @@ import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
-import { derive_actual_pos } from "@/public/pkg/recad_wasm_bg.wasm";
+import init, { derive_actual_pos, return_jsarr } from "recad-wasm";
 import ToolSelection from "@/components/toolSelection";
+import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -78,12 +79,9 @@ export default function Home() {
     virtualGeometryBeingAltered,
     geometryAugment,
     selectionBox,
-    stateIndex,
-    previousStates,
   } = useSelector((state) => state.drawingControl);
   useEffect(() => {
-    //WASM
-    console.log(derive_actual_pos(5, 4, 5));
+    init();
   }, []);
   const handleClickInteractionWithStage = (e) => {
     e.evt.preventDefault();
@@ -102,6 +100,7 @@ export default function Home() {
           stageX: 0,
           stageY: 0,
           gType: virtualGeometry.gType,
+          sides: virtualGeometry.sides,
         };
         setActivatedDrawingTool("none");
         dispatch(addRealGeometry(geometry));
@@ -401,6 +400,11 @@ export default function Home() {
       {activatedDrawingTool === "circle" && (
         <div className='flex gap-2 flex-col'>
           <CircleDialogue ref={ldRef} />
+        </div>
+      )}
+      {activatedDrawingTool === "polygon" && (
+        <div className='flex gap-2 flex-col'>
+          <PolygonDialogue ref={ldRef} />
         </div>
       )}
       <div className='flex gap-2 flex-col'>

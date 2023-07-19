@@ -1,3 +1,5 @@
+import { check_line_collision } from "recad-wasm/recad_wasm";
+
 /**
  * Takes the starting and ending X, Y points for a selection box or rectangle and returns said points
  * @param {number} sx Pass in starting X
@@ -55,6 +57,20 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
   for (let i = 0; i < geometry.length; i++) {
     const { startingX, startingY, endingX, endingY, gType } = geometry[i];
     if (gType === "line") {
+      if (
+        check_line_collision(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
+          endingX,
+          endingY
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+      } /*
       // Line
       // First do simple check for line points inside of box
       if (startingX >= bL.x && startingX <= bR.x) {
@@ -62,6 +78,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
         if (startingY >= bL.y && startingY <= tL.y) {
           // StartingY is inside Y of selection box, therefore the point is inside the box
           foundKeys.push(geometry[i].key);
+
           continue;
         }
       }
@@ -179,6 +196,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           }
         }
       }
+      */
     }
     if (gType === "circle") {
       // Circle
