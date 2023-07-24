@@ -26,9 +26,16 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
   };
   const handleStartPointInputChange = (e, type) => {
     if (e.target.value !== "") {
-      updateLine(`s${type}`, e.target.value, 3);
+      updateLine(`s${type}`, e.target.value, "polygon");
     } else {
-      updateLine(`s${type}`, 0, 3);
+      updateLine(`s${type}`, 0, "polygon");
+    }
+  };
+  const handleSideInputChange = (e, type) => {
+    if (e.target.value !== "") {
+      updateLine("sides", e.target.value, "polygon");
+    } else {
+      updateLine("sides", 0, "polygon");
     }
   };
   const sxRef = useRef(null);
@@ -44,6 +51,8 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
           } else if (input === "sy") {
             syRef.current.focus();
           } else if (input === "length") {
+            lengthRef.current.focus();
+          } else if (input === "sides") {
             lengthRef.current.focus();
           }
         },
@@ -84,14 +93,10 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
           ref={lengthRef}
         />
         <input
-          placeholder={`${
-            virtualGeometryInputLocks.length.locked
-              ? virtualGeometryInputLocks.length.value
-              : "0"
-          }`}
+          placeholder={`${virtualGeometry.sides}`}
           className='border'
           type='number'
-          onChange={handleLengthInputChange}
+          onChange={handleSideInputChange}
           ref={lengthRef}
         />
       </>

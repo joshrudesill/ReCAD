@@ -1,6 +1,6 @@
 import { Circle, Group, Line, Rect, RegularPolygon } from "react-konva";
 import { useSelector } from "react-redux";
-import { get_distance_4p, check_line_collision } from "@/pkg/recad_wasm";
+import { get_distance_4p } from "@/pkg/recad_wasm";
 import { useEffect } from "react";
 export default function VirtualGeometry() {
   const {
@@ -60,6 +60,7 @@ export default function VirtualGeometry() {
             stroke='black'
             listening={false}
             hitStrokeWidth={0}
+            dash={[10, 15]}
           />
           <Circle
             x={virtualGeometry.startingX}
@@ -77,32 +78,49 @@ export default function VirtualGeometry() {
       );
     }
     if (virtualGeometry.gType === "polygon") {
+      // interior or exterior length eventually, right now just exterior -- TODO
       return (
-        <RegularPolygon
-          sides={virtualGeometry.sides}
-          stroke={"black"}
-          radius={get_distance_4p(
-            virtualGeometry.startingX,
-            virtualGeometry.startingY,
-            virtualGeometry.currentX,
-            virtualGeometry.currentY
-          )}
-          listening={false}
-          hitStrokeWidth={0}
-          fillEnabled={false}
-          rotation={
-            //in rust eventually
-            (Math.atan2(
-              virtualGeometry.startingY - virtualGeometry.currentY,
-              virtualGeometry.startingX - virtualGeometry.currentX
-            ) *
-              180) /
-              Math.PI -
-            90
-          }
-          x={virtualGeometry.startingX}
-          y={virtualGeometry.startingY}
-        />
+        <>
+          <RegularPolygon
+            sides={virtualGeometry.sides}
+            stroke={"black"}
+            radius={get_distance_4p(
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY
+            )}
+            listening={false}
+            hitStrokeWidth={0}
+            fillEnabled={false}
+            rotation={
+              //in rust eventually
+              (Math.atan2(
+                virtualGeometry.startingY - virtualGeometry.currentY,
+                virtualGeometry.startingX - virtualGeometry.currentX
+              ) *
+                180) /
+                Math.PI -
+              90
+            }
+            x={virtualGeometry.startingX}
+            y={virtualGeometry.startingY}
+          />
+          <Circle
+            x={virtualGeometry.startingX}
+            y={virtualGeometry.startingY}
+            radius={get_distance_4p(
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY
+            )}
+            stroke='black'
+            dash={[10, 15]}
+            fillEnabled={false}
+            listening={false}
+          />
+        </>
       );
     }
   } else if (virtualGeometryBeingAltered) {
@@ -211,6 +229,35 @@ export default function VirtualGeometry() {
                   closed
                   stroke='black'
                   key={i}
+                />
+              );
+            }
+            if (geo.gType === "polygon") {
+              return (
+                <RegularPolygon
+                  sides={geo.sides}
+                  stroke={"black"}
+                  radius={get_distance_4p(
+                    geo.startingX,
+                    geo.startingY,
+                    geo.endingX,
+                    geo.endingY
+                  )}
+                  listening={false}
+                  hitStrokeWidth={0}
+                  fillEnabled={false}
+                  rotation={
+                    //in rust eventually
+                    (Math.atan2(
+                      geo.startingY - geo.endingY,
+                      geo.startingX - geo.endingX
+                    ) *
+                      180) /
+                      Math.PI -
+                    90
+                  }
+                  x={geo.startingX}
+                  y={geo.startingY}
                 />
               );
             }

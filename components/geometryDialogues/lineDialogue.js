@@ -26,9 +26,9 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
   };
   const handleStartPointInputChange = (e, type) => {
     if (e.target.value !== "") {
-      updateLine(`s${type}`, e.target.value, 1);
+      updateLine(`s${type}`, e.target.value, "line");
     } else {
-      updateLine(`s${type}`, 0, 1);
+      updateLine(`s${type}`, 0, "line");
     }
   };
   const sxRef = useRef(null);

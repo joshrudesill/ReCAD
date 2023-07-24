@@ -58,6 +58,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
     const { startingX, startingY, endingX, endingY, gType } = geometry[i];
     if (gType === "line") {
       if (
+        // rust
         check_line_collision(
           bL.x,
           bL.y,
@@ -70,6 +71,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
         )
       ) {
         foundKeys.push(geometry[i].key);
+        continue;
       } /*
       // Line
       // First do simple check for line points inside of box
@@ -115,6 +117,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
         }
       }
       continue;
+      */
     }
     if (gType === "rect") {
       // Rectangle
@@ -196,7 +199,6 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           }
         }
       }
-      */
     }
     if (gType === "circle") {
       // Circle

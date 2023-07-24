@@ -60,7 +60,7 @@ export default function Home() {
     const stage = "start";
     dispatch(setCurrentInstruction({ category, tool, stage }));
   };
-  const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(0);
+  const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(2);
   const activateAugmentationTool = (tool) => {
     setActivatedDrawingTool("none");
     setActivatedAugmentationTool(tool);
@@ -125,6 +125,8 @@ export default function Home() {
         dispatch(startDrawingVirtualGeometry(geometry));
         if (activatedDrawingTool === "line") {
           ldRef.current.focus("length");
+        } else if (activatedDrawingTool === "polygon") {
+          ldRef.current.focus("sides");
         }
       }
     } else if (activatedAugmentationTool !== 0) {
@@ -165,7 +167,7 @@ export default function Home() {
                   geometryAugment.start.offsetY),
             };
           });
-          setActivatedAugmentationTool(0);
+          setActivatedAugmentationTool(2);
 
           dispatch(endAugment(geometry));
         }

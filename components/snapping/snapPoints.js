@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Circle } from "react-konva";
 import SnapArea from "./snapArea";
-
+import { get_distance_4p } from "@/pkg/recad_wasm";
 export default function SnapPoints({ geometry }) {
   const [snapPoints, setSnapPoints] = useState([]);
   const calculateLineSnaps = () => {
@@ -36,10 +36,11 @@ export default function SnapPoints({ geometry }) {
   const calculateCircleSnaps = () => {
     let snaps = [];
     const { startingX, startingY, endingX, endingY } = geometry;
-    const circleRadius = Math.abs(
-      Math.sqrt(
-        Math.pow(startingX - endingX, 2) + Math.pow(startingY - endingY, 2)
-      )
+    const circleRadius = get_distance_4p(
+      startingX,
+      startingY,
+      endingX,
+      endingY
     );
     // Center
     snaps.push({ x: startingX, y: startingY });
@@ -49,6 +50,35 @@ export default function SnapPoints({ geometry }) {
     snaps.push({ x: startingX, y: startingY + circleRadius });
     snaps.push({ x: startingX - circleRadius, y: startingY });
     snaps.push({ x: startingX, y: startingY - circleRadius });
+    setSnapPoints([...snaps]);
+  };
+
+  const calculatePolygonSnaps = () => {
+    const { startingX, startingY, endingX, endingY, sides } = geometry;
+    let snaps = [];
+    // Get rotation
+    let rotationRads = Math.atan2(startingY - endingY, startingX - endingX);
+    if (sides % 2 !== 0) rotationRads += ((Math.PI * 2) / sides) * 0.5;
+    // get radius
+    const polygonRadius = get_distance_4p(
+      startingX,
+      startingY,
+      endingX,
+      endingY
+    );
+    const rad = (2 * Math.PI) / sides;
+    snaps.push({
+      x: startingX + polygonRadius * Math.cos(rotationRads),
+      y: startingY + polygonRadius * Math.sin(rotationRads),
+    });
+    snaps.push({ x: startingX, y: startingY });
+    for (let i = 1; i < sides; i++) {
+      const newPoints = {
+        x: startingX + polygonRadius * Math.cos(rotationRads + rad * i),
+        y: startingY + polygonRadius * Math.sin(rotationRads + rad * i),
+      };
+      snaps.push(newPoints);
+    }
     setSnapPoints([...snaps]);
   };
   useEffect(() => {
@@ -62,6 +92,8 @@ export default function SnapPoints({ geometry }) {
       calculateRectSnaps();
     } else if (geometry.gType === "circle") {
       calculateCircleSnaps();
+    } else if (geometry.gType === "polygon") {
+      calculatePolygonSnaps();
     }
   }, [geometry]);
 

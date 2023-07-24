@@ -83,7 +83,7 @@ export const drawingControlSlice = createSlice({
         stageY: stageY,
         startingZoom: startingZoom,
         gType: gType,
-        sides: 13,
+        sides: 5,
       };
     },
     // Setup for selection box
@@ -179,6 +179,8 @@ export const drawingControlSlice = createSlice({
         state.virtualGeometry.currentX = parseFloat(value) || 0;
       } else if (typeOfUpdate === "ey") {
         state.virtualGeometry.currentY = parseFloat(-value) || 0;
+      } else if (typeOfUpdate === "sides") {
+        state.virtualGeometry.sides = parseFloat(value) || 3;
       }
     },
     lockVirtualGeometry: (state, action) => {
@@ -283,7 +285,7 @@ export const drawingControlSlice = createSlice({
         // In redo state
         state.realGeometry.push({
           ...action.payload,
-          key: state.realGeometry.length + 1,
+          key: state.realGeometry.at(-1) + 1,
         });
 
         state.previousStates = [
