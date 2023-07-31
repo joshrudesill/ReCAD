@@ -7,7 +7,7 @@ export default function Geometry() {
   const { realGeometry, selectedGeometry, stageZoomScaleInverse } = useSelector(
     (state) => state.drawingControl
   );
-  const dispatch = useDispatch();
+
   return (
     realGeometry.length > 0 &&
     realGeometry.map((geo) => (
@@ -22,6 +22,7 @@ export default function Geometry() {
 }
 
 function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
+  const dispatch = useDispatch();
   if (geo.gType === "line") {
     return (
       <>

@@ -1,4 +1,7 @@
-import { check_line_collision } from "recad-wasm/recad_wasm";
+import {
+  check_line_collision,
+  check_rect_collision,
+} from "recad-wasm/recad_wasm";
 
 /**
  * Takes the starting and ending X, Y points for a selection box or rectangle and returns said points
@@ -121,6 +124,22 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
     }
     if (gType === "rect") {
       // Rectangle
+      if (
+        check_rect_collision(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
+          endingX,
+          endingY
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+        continue;
+      }
+      /*
       const inputRect = normalizeBoxPoints(
         startingX,
         startingY,
@@ -198,7 +217,7 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
             continue;
           }
         }
-      }
+      } */
     }
     if (gType === "circle") {
       // Circle
