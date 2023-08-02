@@ -1,6 +1,8 @@
 import {
   check_line_collision,
   check_rect_collision,
+  check_circle_collision,
+  check_polygon_collision,
 } from "recad-wasm/recad_wasm";
 
 /**
@@ -220,10 +222,25 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
       } */
     }
     if (gType === "circle") {
+      if (
+        check_circle_collision(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
+          endingX,
+          endingY
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+        continue;
+      }
       // Circle
-
       // Here were checking whether any of the selection box points fall inside of the circle or if the circle center is inside the box
       // Lets first make sure the circle center isnt inside the selection box
+      /*
       if (startingX >= bL.x && startingX <= bR.x) {
         // StartingX is within selection box x
         if (startingY >= bL.y && startingY <= tL.y) {
@@ -282,6 +299,24 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
             continue;
           }
         }
+      }*/
+    }
+    if (gType === "polygon") {
+      if (
+        check_polygon_collision(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
+          endingX,
+          endingY,
+          geometry[i].sides
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+        continue;
       }
     }
   }

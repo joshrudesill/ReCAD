@@ -67,6 +67,7 @@ export default function SnapPoints({ geometry }) {
       endingY
     );
     const rad = (2 * Math.PI) / sides;
+
     snaps.push({
       x: startingX + polygonRadius * Math.cos(rotationRads),
       y: startingY + polygonRadius * Math.sin(rotationRads),
