@@ -1,0 +1,14 @@
+{
+  "name": "recad-wasm",
+  "version": "0.1.0",
+  "files": [
+    "recad_wasm_bg.wasm",
+    "recad_wasm.js",
+    "recad_wasm.d.ts"
+  ],
+  "module": "recad_wasm.js",
+  "types": "recad_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
