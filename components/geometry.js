@@ -1,5 +1,5 @@
 import { addSelectedGeometry } from "@/features/drawingControlSlice";
-import { Line, Rect, Circle, RegularPolygon } from "react-konva";
+import { Line, Rect, Circle, RegularPolygon, Shape } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import SnapPoints from "./snapping/snapPoints";
 import { get_distance_4p } from "recad-wasm";
@@ -140,6 +140,33 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
         />
         <SnapPoints geometry={geo} />
       </>
+    );
+  }
+  if (geo.gType === "curve") {
+    return (
+      <Shape
+        hitStrokeWidth={15 * stageZoomScaleInverse}
+        onClick={() => dispatch(addSelectedGeometry(geo))}
+        stroke={
+          selectedGeometry.length > 0
+            ? selectedGeometry.some((g) => g.key === geo.key)
+              ? "red"
+              : "black"
+            : "black"
+        }
+        sceneFunc={(context, shape) => {
+          context.beginPath();
+          context.moveTo(geo.startingX, geo.startingY);
+          context.quadraticCurveTo(
+            geo.quadraticCurveAnchor.x,
+            geo.quadraticCurveAnchor.y,
+            geo.endingX,
+            geo.endingY
+          );
+          context.fillStrokeShape(shape);
+          // Basis for custom bezier
+        }}
+      />
     );
   }
 }

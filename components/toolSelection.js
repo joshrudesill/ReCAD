@@ -42,6 +42,12 @@ export default function ToolSelection({
         Polygon
       </button>
       <button
+        className='px-2 py-1 bg-slate-400 ml-2 hover:bg-orange-500 rounded-md'
+        onClick={() => activateDrawingTool("curve")}
+      >
+        Curve
+      </button>
+      <button
         className='px-2 py-1 bg-red-400 ml-2 hover:bg-orange-500 disabled:bg-slate-500 rounded-md'
         onClick={() => activateAugmentationTool(1)}
         disabled={length === 0}

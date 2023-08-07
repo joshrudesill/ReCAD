@@ -86,6 +86,10 @@ export const drawingControlSlice = createSlice({
         sides: 5,
       };
     },
+    setMultiStepEnding: (state, action) => {
+      state.virtualGeometry.endingX = action.payload.endingX;
+      state.virtualGeometry.endingY = action.payload.endingY;
+    },
     // Setup for selection box
     startSelectionBox: (state, action) => {
       const { startingX, startingY } = action.payload;
@@ -388,6 +392,7 @@ export const {
   finishSelectionBox,
   undoToPreviousState,
   redoToNextState,
+  setMultiStepEnding,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

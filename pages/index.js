@@ -7,6 +7,7 @@ import {
   finishSelectionBox,
   redoToNextState,
   resetSelectedGeometry,
+  setMultiStepEnding,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
   startSelectionBox,
@@ -25,6 +26,7 @@ import {
   Ellipse,
   Layer,
   Line,
+  Path,
   Rect,
   RegularPolygon,
   Shape,
@@ -92,19 +94,39 @@ export default function Home() {
     const { offsetX, offsetY } = e.evt;
     if (activatedDrawingTool !== "none") {
       if (virtualGeometryBeingDrawn) {
+        if (
+          activatedDrawingTool === "curve" &&
+          virtualGeometry.endingX === undefined
+        ) {
+          dispatch(
+            setMultiStepEnding({
+              endingX: virtualGeometry.currentX,
+              endingY: virtualGeometry.currentY,
+            })
+          );
+        } else {
+          const geometry = {
+            startingX: virtualGeometry.startingX,
+            startingY: virtualGeometry.startingY,
+            endingX: virtualGeometry.currentX,
+            endingY: virtualGeometry.currentY,
+            stageX: 0,
+            stageY: 0,
+            gType: virtualGeometry.gType,
+            sides: virtualGeometry.sides,
+          };
+          if (activatedDrawingTool === "curve") {
+            geometry.quadraticCurveAnchor = {
+              x: virtualGeometry.currentX,
+              y: virtualGeometry.currentY,
+            };
+            geometry.endingX = virtualGeometry.endingX;
+            geometry.endingY = virtualGeometry.endingY;
+          }
+          setActivatedDrawingTool("none");
+          dispatch(addRealGeometry(geometry));
+        }
         // add real geo
-        const geometry = {
-          startingX: virtualGeometry.startingX,
-          startingY: virtualGeometry.startingY,
-          endingX: virtualGeometry.currentX,
-          endingY: virtualGeometry.currentY,
-          stageX: 0,
-          stageY: 0,
-          gType: virtualGeometry.gType,
-          sides: virtualGeometry.sides,
-        };
-        setActivatedDrawingTool("none");
-        dispatch(addRealGeometry(geometry));
       } else {
         const geometry = {
           startingX: derive_actual_pos(
@@ -372,25 +394,6 @@ export default function Home() {
         </Layer>
         <Layer name='realgeo'>
           <Geometry />
-          <Line
-            stroke={"black"}
-            x={100}
-            y={-100}
-            points={[
-              50, 50, 100, 100, 150, 50, 200, 100, 250, 50, 300, 100, 350, 50,
-            ]}
-            bezier
-          />
-          <Shape
-            stroke={"black"}
-            sceneFunc={(context, shape) => {
-              context.beginPath();
-              context.moveTo(20, 50);
-              context.bezierCurveTo(150, -100, 260, -170, 50, -100);
-              context.fillStrokeShape(shape);
-              // Basis for custom bezier
-            }}
-          />
         </Layer>
         <Layer name='virtualgeo' listening={false}>
           {virtualGeometryBeingDrawn || virtualGeometryBeingAltered ? (

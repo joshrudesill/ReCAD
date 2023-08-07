@@ -1,4 +1,4 @@
-import { Circle, Group, Line, Rect, RegularPolygon } from "react-konva";
+import { Circle, Group, Line, Rect, RegularPolygon, Shape } from "react-konva";
 import { useSelector } from "react-redux";
 import { get_distance_4p } from "@/pkg/recad_wasm";
 import { useEffect } from "react";
@@ -118,6 +118,56 @@ export default function VirtualGeometry() {
             stroke='black'
             dash={[10, 15]}
             fillEnabled={false}
+            listening={false}
+          />
+        </>
+      );
+    }
+    if (virtualGeometry.gType === "curve") {
+      return (
+        <>
+          <Shape
+            stroke={"black"}
+            sceneFunc={(context, shape) => {
+              context.beginPath();
+              context.moveTo(
+                virtualGeometry.startingX,
+                virtualGeometry.startingY
+              );
+              context.quadraticCurveTo(
+                virtualGeometry.currentX,
+                virtualGeometry.currentY,
+                virtualGeometry.endingX
+                  ? virtualGeometry.endingX
+                  : virtualGeometry.currentX,
+                virtualGeometry.endingY
+                  ? virtualGeometry.endingY
+                  : virtualGeometry.currentY
+              );
+              context.fillStrokeShape(shape);
+              // Basis for custom bezier
+            }}
+          />
+          <Line
+            stroke={"black"}
+            points={[
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY,
+            ]}
+            dash={[10, 15]}
+            listening={false}
+          />
+          <Line
+            stroke={"black"}
+            points={[
+              virtualGeometry.endingX,
+              virtualGeometry.endingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY,
+            ]}
+            dash={[10, 15]}
             listening={false}
           />
         </>
