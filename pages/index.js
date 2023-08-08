@@ -23,14 +23,17 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
   Arc,
+  Circle,
   Ellipse,
   Layer,
   Line,
   Path,
   Rect,
   RegularPolygon,
+  Ring,
   Shape,
   Stage,
+  Wedge,
 } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import Konva from "konva";

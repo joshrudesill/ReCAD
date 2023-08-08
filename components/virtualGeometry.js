@@ -173,6 +173,43 @@ export default function VirtualGeometry() {
         </>
       );
     }
+    if (virtualGeometry.gType === "cap") {
+      return (
+        <>
+          <Shape
+            sceneFunc={(context, shape) => {
+              context.beginPath();
+              context.moveTo(
+                virtualGeometry.startingX,
+                virtualGeometry.startingY
+              );
+              context.arc(
+                (virtualGeometry.currentX + virtualGeometry.startingX) * 0.5,
+                (virtualGeometry.currentY + virtualGeometry.startingY) * 0.5,
+                get_distance_4p(
+                  virtualGeometry.startingX,
+                  virtualGeometry.startingY,
+                  virtualGeometry.currentX,
+                  virtualGeometry.currentY
+                ) * 0.5,
+                0,
+                Math.PI,
+                false
+              );
+              context.fillStrokeShape(shape);
+            }}
+            stroke='black'
+            strokeWidth={2}
+          />
+          <Circle
+            x={(virtualGeometry.currentX + virtualGeometry.startingX) * 0.5}
+            y={(virtualGeometry.currentY + virtualGeometry.startingY) * 0.5}
+            radius={10}
+            stroke={"black"}
+          />
+        </>
+      );
+    }
   } else if (virtualGeometryBeingAltered) {
     /*
      dash={[10, 15]}
