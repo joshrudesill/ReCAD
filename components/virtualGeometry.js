@@ -179,10 +179,6 @@ export default function VirtualGeometry() {
           <Shape
             sceneFunc={(context, shape) => {
               context.beginPath();
-              context.moveTo(
-                virtualGeometry.startingX,
-                virtualGeometry.startingY
-              );
               context.arc(
                 (virtualGeometry.currentX + virtualGeometry.startingX) * 0.5,
                 (virtualGeometry.currentY + virtualGeometry.startingY) * 0.5,
@@ -192,11 +188,17 @@ export default function VirtualGeometry() {
                   virtualGeometry.currentX,
                   virtualGeometry.currentY
                 ) * 0.5,
-                0,
-                Math.PI,
+                Math.atan2(
+                  virtualGeometry.currentY - virtualGeometry.startingY,
+                  virtualGeometry.currentX - virtualGeometry.startingX
+                ),
+                Math.atan2(
+                  virtualGeometry.currentY - virtualGeometry.startingY,
+                  virtualGeometry.currentX - virtualGeometry.startingX
+                ) + Math.PI,
                 false
               );
-              context.fillStrokeShape(shape);
+              context.stroke();
             }}
             stroke='black'
             strokeWidth={2}
@@ -204,8 +206,19 @@ export default function VirtualGeometry() {
           <Circle
             x={(virtualGeometry.currentX + virtualGeometry.startingX) * 0.5}
             y={(virtualGeometry.currentY + virtualGeometry.startingY) * 0.5}
-            radius={10}
+            radius={3}
             stroke={"black"}
+            fill='red'
+          />
+          <Line
+            points={[
+              virtualGeometry.startingX,
+              virtualGeometry.startingY,
+              virtualGeometry.currentX,
+              virtualGeometry.currentY,
+            ]}
+            stroke={"black"}
+            dash={[10, 15]}
           />
         </>
       );

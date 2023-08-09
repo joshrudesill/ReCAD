@@ -169,4 +169,45 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
       />
     );
   }
+  if (geo.gType === "cap") {
+    return (
+      <>
+        <Shape
+          hitStrokeWidth={15 * stageZoomScaleInverse}
+          sceneFunc={(context, shape) => {
+            context.beginPath();
+            context.arc(
+              (geo.endingX + geo.startingX) * 0.5,
+              (geo.endingY + geo.startingY) * 0.5,
+              get_distance_4p(
+                geo.startingX,
+                geo.startingY,
+                geo.endingX,
+                geo.endingY
+              ) * 0.5,
+              Math.atan2(
+                geo.endingY - geo.startingY,
+                geo.endingX - geo.startingX
+              ),
+              Math.atan2(
+                geo.endingY - geo.startingY,
+                geo.endingX - geo.startingX
+              ) + Math.PI,
+              false
+            );
+            context.fillStrokeShape(shape);
+          }}
+          fillEnabled={false}
+          onClick={() => dispatch(addSelectedGeometry(geo))}
+          stroke={
+            selectedGeometry.length > 0
+              ? selectedGeometry.some((g) => g.key === geo.key)
+                ? "red"
+                : "black"
+              : "black"
+          }
+        />
+      </>
+    );
+  }
 }

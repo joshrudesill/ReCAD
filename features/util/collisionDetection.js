@@ -48,6 +48,12 @@ export function normalizeBoxPoints(sx, sy, ex, ey) {
   }
   return { bL, bR, tL, tR };
 }
+
+export function rustTemp(sx, sy, ex, ey) {
+  // Calc angle in radians
+  return Math.atan2(ey - sy, ex - sx);
+}
+
 /**
  * Checks to see if any starting or ending points of `geometry` fall inside of the selection box
  * @param {object} normalizedPoints Normalized selection box
