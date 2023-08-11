@@ -29,7 +29,7 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
         <Line
           points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
           closed
-          strokeWidth={0.5 * stageZoomScaleInverse}
+          strokeWidth={1 * stageZoomScaleInverse}
           stroke={
             selectedGeometry.length > 0
               ? selectedGeometry.some((g) => g.key === geo.key)

@@ -1,12 +1,25 @@
+import { useEffect, useRef } from "react";
 import { Circle, Group, Line } from "react-konva";
 
 export default function Grid() {
-  const spacing = 50;
+  const spacing = 100;
   const linesCount = 10000 / spacing;
   //shape cache eventually
+  const gRef = useRef(null);
+  useEffect(() => {
+    if (gRef.current.node !== null) {
+      gRef.current.cache();
+      console.log(gRef.current);
+    }
+  }, [gRef]);
   return (
     <>
-      <Group>
+      <Group
+        ref={gRef}
+        hitStrokeWidth={0}
+        listening={false}
+        perfectDrawEnabled={false}
+      >
         {Array.from(Array(linesCount).keys()).map((line) => (
           <Line
             points={[
@@ -17,7 +30,7 @@ export default function Grid() {
             ]}
             closed
             strokeWidth={0.1}
-            stroke='black'
+            stroke='grey'
             key={line}
             hitStrokeWidth={0}
             listening={false}
@@ -34,7 +47,7 @@ export default function Grid() {
             ]}
             closed
             strokeWidth={0.1}
-            stroke='black'
+            stroke='grey'
             hitStrokeWidth={0}
             listening={false}
             key={line}

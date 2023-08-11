@@ -38,7 +38,7 @@ export default function SnapArea({ p, geometry }) {
   return (
     <>
       <Circle
-        radius={20 * stageZoomScaleInverse}
+        radius={10 * stageZoomScaleInverse}
         x={p.x}
         y={p.y}
         stroke='purple'

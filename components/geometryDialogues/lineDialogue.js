@@ -11,7 +11,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
     (state) => state.drawingControl
   );
   const dispatch = useDispatch();
-  const [controlType, setControlType] = useState("start-length");
+  const [controlType, setControlType] = useState("start-end");
   const updateLine = (typeOfUpdate, value, geoType) => {
     dispatch(updateVirtualGeometryWithInput({ typeOfUpdate, value, geoType }));
   };
@@ -29,6 +29,16 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       updateLine(`s${type}`, e.target.value, "line");
     } else {
       updateLine(`s${type}`, 0, "line");
+    }
+  };
+  const handleEndPointInputChange = (e, type) => {
+    if (e.target.value !== "") {
+      dispatch(
+        lockVirtualGeometry({ lockType: `e${type}`, value: e.target.value })
+      );
+      updateLine(`e${type}`, e.target.value, "line");
+    } else {
+      updateLine(`e${type}`, 0, "line");
     }
   };
   const sxRef = useRef(null);
@@ -82,6 +92,43 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
           type='number'
           onChange={handleLengthInputChange}
           ref={lengthRef}
+        />
+      </>
+    );
+  }
+  if (controlType === "start-end") {
+    //choose starting point by clicking or typing
+    //then focus length input
+    //if new typing occurs, set input locks and let math be handled by updatevirtualgeo action
+    return (
+      <>
+        <input
+          placeholder={`${virtualGeometry.startingX || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleStartPointInputChange(e, "x")}
+          ref={sxRef}
+        />
+        <input
+          placeholder={`${virtualGeometry.startingY || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleStartPointInputChange(e, "y")}
+          ref={syRef}
+        />
+        <input
+          placeholder={`${virtualGeometry.currentX || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleEndPointInputChange(e, "x")}
+          ref={sxRef}
+        />
+        <input
+          placeholder={`${virtualGeometry.currentY || "0"}`}
+          className='border'
+          type='number'
+          onChange={(e) => handleEndPointInputChange(e, "y")}
+          ref={syRef}
         />
       </>
     );

@@ -14,6 +14,8 @@ const initialState = {
     length: { locked: false, value: 0 },
     width: { locked: false, value: 0 },
     height: { locked: false, value: 0 },
+    ex: { locked: false, value: 0 },
+    ey: { locked: false, value: 0 },
   },
   geometryAugment: {
     start: { offsetX: 0, offsetY: 0 },
@@ -168,6 +170,14 @@ export const drawingControlSlice = createSlice({
               state.virtualGeometry.startingY +
               state.virtualGeometryInputLocks.height.value;
           }
+          if (state.virtualGeometryInputLocks.ex.locked) {
+            state.virtualGeometry.currentX =
+              state.virtualGeometryInputLocks.ex.value;
+          }
+          if (state.virtualGeometryInputLocks.ey.locked) {
+            state.virtualGeometry.currentY =
+              state.virtualGeometryInputLocks.ey.value;
+          }
         }
       }
     },
@@ -209,6 +219,12 @@ export const drawingControlSlice = createSlice({
       } else if (lockType === "height") {
         state.virtualGeometryInputLocks.height.locked = true;
         state.virtualGeometryInputLocks.height.value = parseFloat(value);
+      } else if (lockType === "ex") {
+        state.virtualGeometryInputLocks.ex.locked = true;
+        state.virtualGeometryInputLocks.ex.value = parseFloat(value);
+      } else if (lockType === "ey") {
+        state.virtualGeometryInputLocks.ey.locked = true;
+        state.virtualGeometryInputLocks.ey.value = parseFloat(value);
       }
     },
     startAugmentingVirtualGeometry: (state, action) => {

@@ -89,6 +89,29 @@ export default function Home() {
   useEffect(() => {
     init();
   }, []);
+  const [fps, setFPS] = useState(0);
+
+  let lastFrameTime = performance.now();
+  let frameCount = 0;
+
+  useEffect(() => {
+    const updateFPS = () => {
+      const currentTime = performance.now();
+      const deltaTime = currentTime - lastFrameTime;
+
+      frameCount += 1;
+
+      if (deltaTime >= 1000) {
+        setFPS((frameCount * 1000) / deltaTime);
+        frameCount = 0;
+        lastFrameTime = currentTime;
+      }
+
+      requestAnimationFrame(updateFPS);
+    };
+
+    updateFPS(); // Start the loop
+  }, []);
   const handleClickInteractionWithStage = (e) => {
     e.evt.preventDefault();
     if (e.evt.button !== 0) {
@@ -150,7 +173,7 @@ export default function Home() {
         };
         dispatch(startDrawingVirtualGeometry(geometry));
         if (activatedDrawingTool === "line") {
-          ldRef.current.focus("length");
+          ldRef.current.focus("sx");
         } else if (activatedDrawingTool === "polygon") {
           ldRef.current.focus("sides");
         }
@@ -392,11 +415,20 @@ export default function Home() {
         }}
       >
         <Layer name='env' listening={false}>
-          <Rect height={10000} width={10000} fill='grey' x={-5000} y={-5000} />
-          <Grid />
+          <Rect
+            height={10000}
+            width={10000}
+            fill='#e8e8bb'
+            x={-5000}
+            y={-5000}
+          />
+          {
+            //<Grid />
+          }
         </Layer>
         <Layer name='realgeo'>
           <Geometry />
+          <Ellipse />
         </Layer>
         <Layer name='virtualgeo' listening={false}>
           {virtualGeometryBeingDrawn || virtualGeometryBeingAltered ? (
@@ -438,6 +470,7 @@ export default function Home() {
       <div className='flex gap-2 flex-col'>
         <p>
           <UserInstruction />
+          {fps}
         </p>
       </div>
     </div>
