@@ -144,29 +144,32 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
   }
   if (geo.gType === "curve") {
     return (
-      <Shape
-        hitStrokeWidth={15 * stageZoomScaleInverse}
-        onClick={() => dispatch(addSelectedGeometry(geo))}
-        stroke={
-          selectedGeometry.length > 0
-            ? selectedGeometry.some((g) => g.key === geo.key)
-              ? "red"
+      <>
+        <Shape
+          hitStrokeWidth={15 * stageZoomScaleInverse}
+          onClick={() => dispatch(addSelectedGeometry(geo))}
+          stroke={
+            selectedGeometry.length > 0
+              ? selectedGeometry.some((g) => g.key === geo.key)
+                ? "red"
+                : "black"
               : "black"
-            : "black"
-        }
-        sceneFunc={(context, shape) => {
-          context.beginPath();
-          context.moveTo(geo.startingX, geo.startingY);
-          context.quadraticCurveTo(
-            geo.quadraticCurveAnchor.x,
-            geo.quadraticCurveAnchor.y,
-            geo.endingX,
-            geo.endingY
-          );
-          context.fillStrokeShape(shape);
-          // Basis for custom bezier
-        }}
-      />
+          }
+          sceneFunc={(context, shape) => {
+            context.beginPath();
+            context.moveTo(geo.startingX, geo.startingY);
+            context.quadraticCurveTo(
+              geo.quadraticCurveAnchor.x,
+              geo.quadraticCurveAnchor.y,
+              geo.endingX,
+              geo.endingY
+            );
+            context.fillStrokeShape(shape);
+            // Basis for custom bezier
+          }}
+        />
+        <SnapPoints geometry={geo} />
+      </>
     );
   }
   if (geo.gType === "cap") {

@@ -80,6 +80,18 @@ export default function SnapPoints({ geometry }) {
       };
       snaps.push(newPoints);
     }
+    v;
+  };
+  const calculateCurveSnaps = () => {
+    const { startingX, startingY, endingX, endingY, quadraticCurveAnchor } =
+      geometry;
+
+    let snaps = [
+      { x: startingX, y: startingY },
+      { x: endingX, y: endingY },
+      { x: quadraticCurveAnchor.x, y: quadraticCurveAnchor.y },
+    ];
+
     setSnapPoints([...snaps]);
   };
   useEffect(() => {
@@ -95,6 +107,8 @@ export default function SnapPoints({ geometry }) {
       calculateCircleSnaps();
     } else if (geometry.gType === "polygon") {
       calculatePolygonSnaps();
+    } else if (geometry.gType === "curve") {
+      calculateCurveSnaps();
     }
   }, [geometry]);
 
