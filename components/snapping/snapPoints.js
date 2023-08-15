@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Circle } from "react-konva";
 import SnapArea from "./snapArea";
 import { get_distance_4p } from "@/pkg/recad_wasm";
 export default function SnapPoints({ geometry }) {
@@ -80,7 +79,7 @@ export default function SnapPoints({ geometry }) {
       };
       snaps.push(newPoints);
     }
-    v;
+    setSnapPoints([...snaps]);
   };
   const calculateCurveSnaps = () => {
     const { startingX, startingY, endingX, endingY, quadraticCurveAnchor } =
@@ -91,6 +90,33 @@ export default function SnapPoints({ geometry }) {
       { x: endingX, y: endingY },
       { x: quadraticCurveAnchor.x, y: quadraticCurveAnchor.y },
     ];
+
+    setSnapPoints([...snaps]);
+  };
+  const calculateCapSnaps = () => {
+    const { startingX, startingY, endingX, endingY } = geometry;
+
+    let snaps = [
+      { x: startingX, y: startingY },
+      { x: endingX, y: endingY },
+    ];
+
+    let centerSnap = {
+      x: (startingX + endingX) / 2,
+      y: (startingY + endingY) / 2,
+    };
+
+    let quadrantVector = {
+      x: centerSnap.x - startingX,
+      y: centerSnap.y - startingY,
+    };
+
+    snaps.push({
+      x: -quadrantVector.y + centerSnap.x,
+      y: quadrantVector.x + centerSnap.y,
+    });
+
+    snaps.push(centerSnap);
 
     setSnapPoints([...snaps]);
   };
@@ -109,6 +135,8 @@ export default function SnapPoints({ geometry }) {
       calculatePolygonSnaps();
     } else if (geometry.gType === "curve") {
       calculateCurveSnaps();
+    } else if (geometry.gType === "cap") {
+      calculateCapSnaps();
     }
   }, [geometry]);
 

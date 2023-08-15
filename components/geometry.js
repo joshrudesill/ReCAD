@@ -210,6 +210,7 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
               : "black"
           }
         />
+        <SnapPoints geometry={geo} />
       </>
     );
   }
