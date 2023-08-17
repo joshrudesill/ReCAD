@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import SnapArea from "./snapArea";
-import { get_distance_4p } from "@/pkg/recad_wasm";
-export default function SnapPoints({ geometry }) {
+import { get_distance_4p, find_circle_tan_points } from "@/pkg/recad_wasm";
+export default function SnapPoints({
+  geometry,
+  vg,
+  virtualGeometryBeingDrawn,
+}) {
   const [snapPoints, setSnapPoints] = useState([]);
   const calculateLineSnaps = () => {
     let snaps = [];
@@ -139,6 +143,28 @@ export default function SnapPoints({ geometry }) {
       calculateCapSnaps();
     }
   }, [geometry]);
+
+  useEffect(() => {
+    if (virtualGeometryBeingDrawn && vg.gType === "line") {
+      const tangents = find_circle_tan_points(
+        geometry.startingX,
+        geometry.startingY,
+        get_distance_4p(
+          geometry.startingX,
+          geometry.startingY,
+          geometry.endingX,
+          geometry.endingY
+        ),
+        vg.startingX,
+        vg.startingY
+      );
+      setSnapPoints((prev) => [
+        ...prev,
+        { x: tangents[0], y: tangents[1] },
+        { x: tangents[2], y: tangents[3] },
+      ]);
+    }
+  }, [virtualGeometryBeingDrawn]);
 
   return snapPoints?.map((p, i) => (
     <SnapArea p={p} key={i} geometry={geometry} />

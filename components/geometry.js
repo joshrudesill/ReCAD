@@ -4,9 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import SnapPoints from "./snapping/snapPoints";
 import { get_distance_4p } from "recad-wasm";
 export default function Geometry() {
-  const { realGeometry, selectedGeometry, stageZoomScaleInverse } = useSelector(
-    (state) => state.drawingControl
-  );
+  const {
+    realGeometry,
+    selectedGeometry,
+    stageZoomScaleInverse,
+    virtualGeometryBeingDrawn,
+    virtualGeometry,
+  } = useSelector((state) => state.drawingControl);
 
   return (
     realGeometry.length > 0 &&
@@ -16,12 +20,20 @@ export default function Geometry() {
         geo={geo}
         stageZoomScaleInverse={stageZoomScaleInverse}
         selectedGeometry={selectedGeometry}
+        virtualGeometry={virtualGeometry}
+        virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
       />
     ))
   );
 }
 
-function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
+function GeoWithKey({
+  geo,
+  stageZoomScaleInverse,
+  selectedGeometry,
+  virtualGeometry,
+  virtualGeometryBeingDrawn,
+}) {
   const dispatch = useDispatch();
   if (geo.gType === "line") {
     return (
@@ -98,7 +110,11 @@ function GeoWithKey({ geo, stageZoomScaleInverse, selectedGeometry }) {
           strokeWidth={0.5 * stageZoomScaleInverse}
           fillEnabled={false}
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          geometry={geo}
+          vg={virtualGeometry}
+          virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+        />
       </>
     );
   }

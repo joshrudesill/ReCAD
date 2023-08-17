@@ -75,6 +75,15 @@ export function check_circle_collision(bsx: number, bsy: number, bex: number, be
 */
 export function check_polygon_collision(bsx: number, bsy: number, bex: number, bey: number, gsx: number, gsy: number, gex: number, gey: number, sides: number): boolean;
 /**
+* @param {number} circle_center_x
+* @param {number} circle_center_y
+* @param {number} circle_radius
+* @param {number} point_x
+* @param {number} point_y
+* @returns {Array<any>}
+*/
+export function find_circle_tan_points(circle_center_x: number, circle_center_y: number, circle_radius: number, point_x: number, point_y: number): Array<any>;
+/**
 */
 export class Geometry {
   free(): void;
@@ -99,6 +108,7 @@ export interface InitOutput {
   readonly check_rect_collision: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
   readonly check_circle_collision: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
   readonly check_polygon_collision: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
+  readonly find_circle_tan_points: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6: (a: number, b: number, c: number, d: number, e: number) => void;
 }
 
