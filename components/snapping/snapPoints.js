@@ -163,6 +163,7 @@ export default function SnapPoints({
         { x: tangents[0], y: tangents[1] },
         { x: tangents[2], y: tangents[3] },
       ]);
+      // ToDo -  Cleanup tangent snaps after line is drawn
     }
   }, [virtualGeometryBeingDrawn]);
 
