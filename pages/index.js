@@ -3,6 +3,7 @@ import VirtualGeometry from "@/components/virtualGeometry";
 import {
   addRealGeometry,
   cancelVirtualGeometryDrawing,
+  deleteSelectedItems,
   endAugment,
   finishSelectionBox,
   redoToNextState,
@@ -191,13 +192,14 @@ export default function Home() {
                 (offsetY + stageOffset.y) *
                 stageZoomScaleInverse
               ).toFixed(3),
-              type: "copy",
+              type: "array",
+              copies: 5,
             })
           );
         } else {
           //finish
           const geometry = selectedGeometry.map((geo) => {
-            return {
+            const newGeo = {
               ...geo,
               startingX:
                 geo.startingX +
@@ -216,6 +218,20 @@ export default function Home() {
                 (geometryAugment.current.offsetY -
                   geometryAugment.start.offsetY),
             };
+
+            if (newGeo.quadraticCurveAnchor) {
+              newGeo.quadraticCurveAnchor = {
+                x:
+                  geo.quadraticCurveAnchor.x +
+                  (geometryAugment.current.offsetX -
+                    geometryAugment.start.offsetX),
+                y:
+                  geo.quadraticCurveAnchor.y +
+                  (geometryAugment.current.offsetY -
+                    geometryAugment.start.offsetY),
+              };
+            }
+            return newGeo;
           });
           setActivatedAugmentationTool(2);
 
@@ -286,16 +302,63 @@ export default function Home() {
         );
       }
     } else if (virtualGeometryBeingAltered) {
-      dispatch(
-        updateVirtualGeometryAugment({
-          offsetX: ((offsetX + stageOffset.x) * stageZoomScaleInverse).toFixed(
-            0
-          ),
-          offsetY: ((offsetY + stageOffset.y) * stageZoomScaleInverse).toFixed(
-            0
-          ),
-        })
-      );
+      let slope;
+      if (e.evt.shiftKey) {
+        const { start } = geometryAugment;
+        let oX = (offsetX + stageOffset.x) * stageZoomScaleInverse;
+        let oY = (offsetY + stageOffset.y) * stageZoomScaleInverse;
+        if (Math.abs(start.offsetX - oX) < 10) {
+          slope = 0;
+        } else if (Math.abs(start.offsetY - oY) < 10) {
+          slope = 1000;
+        } else {
+          const s = (oX - start.offsetX) / (oY - start.offsetY);
+          slope = s;
+        }
+        slope = Math.abs(slope);
+        if (slope === 1000) {
+          dispatch(
+            updateVirtualGeometryAugment({
+              offsetX: oX,
+              offsetY: start.offsetY,
+            })
+          );
+        } else if (slope === 0) {
+          dispatch(
+            updateVirtualGeometryAugment({
+              offsetX: start.offsetX,
+              offsetY: oY,
+            })
+          );
+        } else if (slope > 0 && slope < 1) {
+          dispatch(
+            updateVirtualGeometryAugment({
+              offsetX: start.offsetX,
+              offsetY: oY,
+            })
+          );
+        } else if (slope > 1 && slope < 1000) {
+          dispatch(
+            updateVirtualGeometryAugment({
+              offsetX: oX,
+              offsetY: start.offsetY,
+            })
+          );
+        }
+      } else {
+        dispatch(
+          updateVirtualGeometryAugment({
+            offsetX: (
+              (offsetX + stageOffset.x) *
+              stageZoomScaleInverse
+            ).toFixed(0),
+            offsetY: (
+              (offsetY + stageOffset.y) *
+              stageZoomScaleInverse
+            ).toFixed(0),
+          })
+        );
+      }
     } else if (selectionBox !== null) {
       dispatch(
         updateSelectionBox({
@@ -361,18 +424,21 @@ export default function Home() {
       } else if (e.keyCode === 76) {
         // L
         if (activatedDrawingTool === "none") {
-          activateDrawingTool(1);
+          activateDrawingTool("line");
         }
       } else if (e.keyCode === 67) {
         // C
         if (activatedDrawingTool === "none") {
-          activateDrawingTool(3);
+          activateDrawingTool("circle");
         }
       } else if (e.keyCode === 82) {
         // R
         if (activatedDrawingTool === "none") {
-          activateDrawingTool(2);
+          activateDrawingTool("rect");
         }
+      } else if (e.keyCode === 46) {
+        //delete
+        dispatch(deleteSelectedItems());
       }
     };
     document.addEventListener("keydown", handleKeyDown);

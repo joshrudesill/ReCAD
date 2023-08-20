@@ -224,106 +224,354 @@ export default function VirtualGeometry() {
       );
     }
   } else if (virtualGeometryBeingAltered) {
-    return (
-      <>
-        <Line
-          points={[
-            geometryAugment.start.offsetX,
-            geometryAugment.start.offsetY,
-            geometryAugment.current.offsetX,
-            geometryAugment.current.offsetY,
-          ]}
-          closed
-          stroke='black'
-          strokeWidth={1}
-          dash={[10, 15]}
-        />
-        <Group
-          offsetX={
-            geometryAugment.start.offsetX - geometryAugment.current.offsetX
-          }
-          offsetY={
-            geometryAugment.start.offsetY - geometryAugment.current.offsetY
-          }
-        >
-          {selectedGeometry.map((geo, i) => {
-            if (geo.gType === "line") {
-              return (
-                <Line
-                  points={[
-                    geo.startingX,
-                    geo.startingY,
-                    geo.endingX,
-                    geo.endingY,
-                  ]}
-                  closed
-                  stroke='black'
-                  key={i}
-                />
-              );
+    if (geometryAugment.type === "copy" || geometryAugment.type === "move") {
+      return (
+        <>
+          <Line
+            points={[
+              geometryAugment.start.offsetX,
+              geometryAugment.start.offsetY,
+              geometryAugment.current.offsetX,
+              geometryAugment.current.offsetY,
+            ]}
+            closed
+            stroke='black'
+            strokeWidth={1}
+            dash={[10, 15]}
+          />
+          <Group
+            offsetX={
+              geometryAugment.start.offsetX - geometryAugment.current.offsetX
             }
-            if (geo.gType === "rect") {
-              return (
-                <Rect
-                  x={geo.startingX}
-                  y={geo.startingY}
-                  width={-(geo.startingX - geo.endingX)}
-                  height={-(geo.startingY - geo.endingY)}
-                  closed
-                  stroke='black'
-                  key={i}
-                />
-              );
+            offsetY={
+              geometryAugment.start.offsetY - geometryAugment.current.offsetY
             }
-            if (geo.gType === "circle") {
-              return (
-                <Circle
-                  x={geo.startingX}
-                  y={geo.startingY}
-                  radius={get_distance_4p(
-                    geo.startingX,
-                    geo.startingY,
-                    geo.endingX,
-                    geo.endingY
-                  )}
-                  closed
-                  stroke='black'
-                  key={i}
-                />
-              );
-            }
-            if (geo.gType === "polygon") {
-              return (
-                <RegularPolygon
-                  sides={geo.sides}
-                  stroke={"black"}
-                  radius={get_distance_4p(
-                    geo.startingX,
-                    geo.startingY,
-                    geo.endingX,
-                    geo.endingY
-                  )}
-                  listening={false}
-                  hitStrokeWidth={0}
-                  fillEnabled={false}
-                  rotation={
-                    //in rust eventually
-                    (Math.atan2(
-                      geo.startingY - geo.endingY,
-                      geo.startingX - geo.endingX
-                    ) *
-                      180) /
-                      Math.PI -
-                    90
+          >
+            {selectedGeometry.map((geo, i) => {
+              if (geo.gType === "line") {
+                return (
+                  <Line
+                    points={[
+                      geo.startingX,
+                      geo.startingY,
+                      geo.endingX,
+                      geo.endingY,
+                    ]}
+                    closed
+                    stroke='black'
+                    key={i}
+                  />
+                );
+              }
+              if (geo.gType === "rect") {
+                return (
+                  <Rect
+                    x={geo.startingX}
+                    y={geo.startingY}
+                    width={-(geo.startingX - geo.endingX)}
+                    height={-(geo.startingY - geo.endingY)}
+                    closed
+                    stroke='black'
+                    key={i}
+                  />
+                );
+              }
+              if (geo.gType === "circle") {
+                return (
+                  <Circle
+                    x={geo.startingX}
+                    y={geo.startingY}
+                    radius={get_distance_4p(
+                      geo.startingX,
+                      geo.startingY,
+                      geo.endingX,
+                      geo.endingY
+                    )}
+                    closed
+                    stroke='black'
+                    key={i}
+                  />
+                );
+              }
+              if (geo.gType === "polygon") {
+                return (
+                  <RegularPolygon
+                    sides={geo.sides}
+                    stroke={"black"}
+                    radius={get_distance_4p(
+                      geo.startingX,
+                      geo.startingY,
+                      geo.endingX,
+                      geo.endingY
+                    )}
+                    listening={false}
+                    hitStrokeWidth={0}
+                    fillEnabled={false}
+                    rotation={
+                      //in rust eventually
+                      (Math.atan2(
+                        geo.startingY - geo.endingY,
+                        geo.startingX - geo.endingX
+                      ) *
+                        180) /
+                        Math.PI -
+                      90
+                    }
+                    x={geo.startingX}
+                    y={geo.startingY}
+                  />
+                );
+              }
+              if (geo.gType === "curve") {
+                return (
+                  <Shape
+                    hitStrokeWidth={0}
+                    listening={false}
+                    onClick={() => dispatch(addSelectedGeometry(geo))}
+                    stroke={
+                      selectedGeometry.length > 0
+                        ? selectedGeometry.some((g) => g.key === geo.key)
+                          ? "red"
+                          : "black"
+                        : "black"
+                    }
+                    sceneFunc={(context, shape) => {
+                      context.beginPath();
+                      context.moveTo(geo.startingX, geo.startingY);
+                      context.quadraticCurveTo(
+                        geo.quadraticCurveAnchor.x,
+                        geo.quadraticCurveAnchor.y,
+                        geo.endingX,
+                        geo.endingY
+                      );
+                      context.fillStrokeShape(shape);
+                      // Basis for custom bezier
+                    }}
+                  />
+                );
+              }
+              if (geo.gType === "cap") {
+                return (
+                  <Shape
+                    hitStrokeWidth={0}
+                    listening={false}
+                    sceneFunc={(context, shape) => {
+                      context.beginPath();
+                      context.arc(
+                        (geo.endingX + geo.startingX) * 0.5,
+                        (geo.endingY + geo.startingY) * 0.5,
+                        get_distance_4p(
+                          geo.startingX,
+                          geo.startingY,
+                          geo.endingX,
+                          geo.endingY
+                        ) * 0.5,
+                        Math.atan2(
+                          geo.endingY - geo.startingY,
+                          geo.endingX - geo.startingX
+                        ),
+                        Math.atan2(
+                          geo.endingY - geo.startingY,
+                          geo.endingX - geo.startingX
+                        ) + Math.PI,
+                        false
+                      );
+                      context.fillStrokeShape(shape);
+                    }}
+                    fillEnabled={false}
+                    onClick={() => dispatch(addSelectedGeometry(geo))}
+                    stroke={
+                      selectedGeometry.length > 0
+                        ? selectedGeometry.some((g) => g.key === geo.key)
+                          ? "red"
+                          : "black"
+                        : "black"
+                    }
+                  />
+                );
+              }
+            })}
+          </Group>
+        </>
+      );
+    }
+    if (geometryAugment.type === "array") {
+      return (
+        <>
+          <Line
+            points={[
+              geometryAugment.start.offsetX,
+              geometryAugment.start.offsetY,
+              geometryAugment.current.offsetX,
+              geometryAugment.current.offsetY,
+            ]}
+            closed
+            stroke='black'
+            strokeWidth={1}
+            dash={[10, 15]}
+          />
+          {Array.from({ length: geometryAugment.copies }).map(
+            (item, iteration) => (
+              <Group
+                key={iteration}
+                offsetX={
+                  geometryAugment.start.offsetX * iteration -
+                  geometryAugment.current.offsetX * iteration
+                }
+                offsetY={
+                  geometryAugment.start.offsetY * iteration -
+                  geometryAugment.current.offsetY * iteration
+                }
+              >
+                {selectedGeometry.map((geo, i) => {
+                  if (geo.gType === "line") {
+                    return (
+                      <Line
+                        points={[
+                          geo.startingX,
+                          geo.startingY,
+                          geo.endingX,
+                          geo.endingY,
+                        ]}
+                        closed
+                        stroke='black'
+                        key={i}
+                      />
+                    );
                   }
-                  x={geo.startingX}
-                  y={geo.startingY}
-                />
-              );
-            }
-          })}
-        </Group>
-      </>
-    );
+                  if (geo.gType === "rect") {
+                    return (
+                      <Rect
+                        x={geo.startingX}
+                        y={geo.startingY}
+                        width={-(geo.startingX - geo.endingX)}
+                        height={-(geo.startingY - geo.endingY)}
+                        closed
+                        stroke='black'
+                        key={i}
+                      />
+                    );
+                  }
+                  if (geo.gType === "circle") {
+                    return (
+                      <Circle
+                        x={geo.startingX}
+                        y={geo.startingY}
+                        radius={get_distance_4p(
+                          geo.startingX,
+                          geo.startingY,
+                          geo.endingX,
+                          geo.endingY
+                        )}
+                        closed
+                        stroke='black'
+                        key={i}
+                      />
+                    );
+                  }
+                  if (geo.gType === "polygon") {
+                    return (
+                      <RegularPolygon
+                        sides={geo.sides}
+                        stroke={"black"}
+                        radius={get_distance_4p(
+                          geo.startingX,
+                          geo.startingY,
+                          geo.endingX,
+                          geo.endingY
+                        )}
+                        listening={false}
+                        hitStrokeWidth={0}
+                        fillEnabled={false}
+                        rotation={
+                          //in rust eventually
+                          (Math.atan2(
+                            geo.startingY - geo.endingY,
+                            geo.startingX - geo.endingX
+                          ) *
+                            180) /
+                            Math.PI -
+                          90
+                        }
+                        x={geo.startingX}
+                        y={geo.startingY}
+                      />
+                    );
+                  }
+                  if (geo.gType === "curve") {
+                    return (
+                      <Shape
+                        hitStrokeWidth={0}
+                        listening={false}
+                        onClick={() => dispatch(addSelectedGeometry(geo))}
+                        stroke={
+                          selectedGeometry.length > 0
+                            ? selectedGeometry.some((g) => g.key === geo.key)
+                              ? "red"
+                              : "black"
+                            : "black"
+                        }
+                        sceneFunc={(context, shape) => {
+                          context.beginPath();
+                          context.moveTo(geo.startingX, geo.startingY);
+                          context.quadraticCurveTo(
+                            geo.quadraticCurveAnchor.x,
+                            geo.quadraticCurveAnchor.y,
+                            geo.endingX,
+                            geo.endingY
+                          );
+                          context.fillStrokeShape(shape);
+                          // Basis for custom bezier
+                        }}
+                      />
+                    );
+                  }
+                  if (geo.gType === "cap") {
+                    return (
+                      <Shape
+                        hitStrokeWidth={0}
+                        listening={false}
+                        sceneFunc={(context, shape) => {
+                          context.beginPath();
+                          context.arc(
+                            (geo.endingX + geo.startingX) * 0.5,
+                            (geo.endingY + geo.startingY) * 0.5,
+                            get_distance_4p(
+                              geo.startingX,
+                              geo.startingY,
+                              geo.endingX,
+                              geo.endingY
+                            ) * 0.5,
+                            Math.atan2(
+                              geo.endingY - geo.startingY,
+                              geo.endingX - geo.startingX
+                            ),
+                            Math.atan2(
+                              geo.endingY - geo.startingY,
+                              geo.endingX - geo.startingX
+                            ) + Math.PI,
+                            false
+                          );
+                          context.fillStrokeShape(shape);
+                        }}
+                        fillEnabled={false}
+                        onClick={() => dispatch(addSelectedGeometry(geo))}
+                        stroke={
+                          selectedGeometry.length > 0
+                            ? selectedGeometry.some((g) => g.key === geo.key)
+                              ? "red"
+                              : "black"
+                            : "black"
+                        }
+                      />
+                    );
+                  }
+                })}
+              </Group>
+            )
+          )}
+        </>
+      );
+    }
   }
 }
