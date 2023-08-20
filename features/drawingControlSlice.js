@@ -20,6 +20,7 @@ const initialState = {
   geometryAugment: {
     start: { offsetX: 0, offsetY: 0 },
     current: { offsetX: 0, offsetY: 0 },
+    type: "none",
   },
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
@@ -228,8 +229,9 @@ export const drawingControlSlice = createSlice({
       }
     },
     startAugmentingVirtualGeometry: (state, action) => {
-      const { offsetX, offsetY } = action.payload;
+      const { offsetX, offsetY, type } = action.payload;
       state.virtualGeometryBeingAltered = true;
+      state.geometryAugment.type = type;
       if (state.cursorSnapped) {
         state.geometryAugment.start = {
           offsetX: state.cursorPosition.offsetX,
@@ -260,16 +262,27 @@ export const drawingControlSlice = createSlice({
       state.virtualGeometryBeingAltered = false;
       if (state.stateIndex !== 1) {
         if (state.realGeometry.length === 1) {
-          state.realGeometry = action.payload;
+          if (state.geometryAugment.type === "move") {
+            state.realGeometry = action.payload;
+          } else if (state.geometryAugment.type === "copy") {
+            state.realGeometry = state.realGeometry.concat(
+              action.payload.map((geo, i) => {
+                return { ...geo, key: state.realGeometry.length + i };
+              })
+            );
+          }
         } else {
           //replace each matching key with new element with updated coordiantes
-          action.payload.forEach((g) =>
-            state.realGeometry.splice(
-              state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
-              1, //delete 1
-              g //replace with new object
-            )
-          );
+          if (state.geometryAugment.type === "move") {
+            action.payload.forEach((g) =>
+              state.realGeometry.splice(
+                state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+                1, //delete 1
+                g //replace with new object
+              )
+            );
+          } else if (state.geometryAugment.type === "copy") {
+          }
         }
         state.previousStates = [
           ...state.previousStates.slice(
@@ -281,20 +294,39 @@ export const drawingControlSlice = createSlice({
         state.stateIndex = 1;
       } else {
         if (state.realGeometry.length === 1) {
-          state.realGeometry = action.payload;
+          if (state.geometryAugment.type === "move") {
+            state.realGeometry = action.payload;
+          } else if (state.geometryAugment.type === "copy") {
+            console.log(state.realGeometry);
+            console.log(action.payload);
+            state.realGeometry = state.realGeometry.concat(
+              action.payload.map((geo, i) => {
+                return { ...geo, key: state.realGeometry.length + i };
+              })
+            );
+          }
         } else {
           //replace each matching key with new element with updated coordiantes
-          action.payload.forEach((g) =>
-            state.realGeometry.splice(
-              state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
-              1, //delete 1
-              g //replace with new object
-            )
-          );
+          if (state.geometryAugment.type === "move") {
+            action.payload.forEach((g) =>
+              state.realGeometry.splice(
+                state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+                1, //delete 1
+                g //replace with new object
+              )
+            );
+          } else if (state.geometryAugment.type === "copy") {
+            state.realGeometry = [
+              ...state.realGeometry,
+              action.payload.map((geo, i) => {
+                return { ...geo, key: state.realGeometry.length + i };
+              }),
+            ];
+          }
         }
         state.previousStates.push(state.realGeometry);
       }
-
+      // This function can be shortened significantly
       state.selectedGeometry = [];
     },
     addRealGeometry: (state, action) => {

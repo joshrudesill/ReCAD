@@ -7,6 +7,7 @@ export default function SnapPoints({
   virtualGeometryBeingDrawn,
 }) {
   const [snapPoints, setSnapPoints] = useState([]);
+  const [tempSnapPoints, setTempSnapPoints] = useState([]);
   const calculateLineSnaps = () => {
     let snaps = [];
     const { startingX, startingY, endingX, endingY } = geometry;
@@ -40,6 +41,7 @@ export default function SnapPoints({
     let snaps = [];
     const { startingX, startingY, endingX, endingY } = geometry;
     const circleRadius = get_distance_4p(
+      // rust
       startingX,
       startingY,
       endingX,
@@ -147,6 +149,7 @@ export default function SnapPoints({
   useEffect(() => {
     if (virtualGeometryBeingDrawn && vg.gType === "line") {
       const tangents = find_circle_tan_points(
+        // rust
         geometry.startingX,
         geometry.startingY,
         get_distance_4p(
@@ -158,18 +161,27 @@ export default function SnapPoints({
         vg.startingX,
         vg.startingY
       );
-      setSnapPoints((prev) => [
+      setTempSnapPoints((prev) => [
         ...prev,
         { x: tangents[0], y: tangents[1] },
         { x: tangents[2], y: tangents[3] },
       ]);
       // ToDo -  Cleanup tangent snaps after line is drawn
+    } else if (!virtualGeometryBeingDrawn) {
+      setTempSnapPoints([]);
     }
   }, [virtualGeometryBeingDrawn]);
 
-  return snapPoints?.map((p, i) => (
-    <SnapArea p={p} key={i} geometry={geometry} />
-  ));
+  return (
+    <>
+      {snapPoints?.map((p, i) => (
+        <SnapArea p={p} key={i} geometry={geometry} />
+      ))}
+      {tempSnapPoints?.map((snap, j) => (
+        <SnapArea p={snap} key={j + snapPoints.length} geometry={geometry} />
+      ))}
+    </>
+  );
   //component that adds circle and a square that becomes visible if the circle is hovered
   // when hovered the component needs to dispatch an action
 }

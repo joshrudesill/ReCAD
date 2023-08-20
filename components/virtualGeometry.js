@@ -224,46 +224,6 @@ export default function VirtualGeometry() {
       );
     }
   } else if (virtualGeometryBeingAltered) {
-    /*
-     dash={[10, 15]}
-    augStart, augCurrent
-     {selectedGeometry.map((geo) => {
-          if (geo.gType === 1) {
-            return (
-              <Line
-                x={geo.stageX}
-                y={geo.stageY}
-                points={[
-                  geo.startingX,
-                  geo.startingY,
-                  geo.currentX,
-                  geo.currentY,
-                ]}
-                closed
-                stroke='black'
-              />
-            );
-          }
-          if (geo.gType === 2) {
-            return (
-              <Rect
-                x={(geo.startingX + stageOffset.x) * stageZoomScaleInverse}
-                y={(geo.startingY + stageOffset.y) * stageZoomScaleInverse}
-                width={
-                  -(geo.startingX - virtualGeometry.currentX) *
-                  stageZoomScaleInverse
-                }
-                height={
-                  -(geo.startingY - virtualGeometry.currentY) *
-                  stageZoomScaleInverse
-                }
-                closed
-                stroke='black'
-              />
-            );
-          }
-        })}
-     */
     return (
       <>
         <Line
