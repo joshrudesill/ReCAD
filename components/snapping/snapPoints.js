@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import SnapArea from "./snapArea";
 import { get_distance_4p, find_circle_tan_points } from "@/pkg/recad_wasm";
 export default function SnapPoints({
-  geometry,
+  startingX,
+  startingY,
+  endingX,
+  endingY,
+  gType,
   vg,
   virtualGeometryBeingDrawn,
 }) {
@@ -10,7 +14,6 @@ export default function SnapPoints({
   const [tempSnapPoints, setTempSnapPoints] = useState([]);
   const calculateLineSnaps = () => {
     let snaps = [];
-    const { startingX, startingY, endingX, endingY } = geometry;
     snaps.push({ x: startingX, y: startingY });
     snaps.push({ x: endingX, y: endingY });
     snaps.push({ x: (endingX + startingX) / 2, y: (endingY + startingY) / 2 });
@@ -39,7 +42,6 @@ export default function SnapPoints({
 
   const calculateCircleSnaps = () => {
     let snaps = [];
-    const { startingX, startingY, endingX, endingY } = geometry;
     const circleRadius = get_distance_4p(
       // rust
       startingX,
@@ -59,7 +61,6 @@ export default function SnapPoints({
   };
 
   const calculatePolygonSnaps = () => {
-    const { startingX, startingY, endingX, endingY, sides } = geometry;
     let snaps = [];
     // Get rotation
     let rotationRads = Math.atan2(startingY - endingY, startingX - endingX);
@@ -88,9 +89,7 @@ export default function SnapPoints({
     setSnapPoints([...snaps]);
   };
   const calculateCurveSnaps = () => {
-    const { startingX, startingY, endingX, endingY, quadraticCurveAnchor } =
-      geometry;
-
+    // bug
     let snaps = [
       { x: startingX, y: startingY },
       { x: endingX, y: endingY },
@@ -131,20 +130,20 @@ export default function SnapPoints({
     //line - start, end, center
     //rect - four corners, center, center of sides
     //circle - center, quadrants
-    if (geometry.gType === "line") {
+    if (gType === "line") {
       calculateLineSnaps();
-    } else if (geometry.gType === "rect") {
+    } else if (gType === "rect") {
       calculateRectSnaps();
-    } else if (geometry.gType === "circle") {
+    } else if (gType === "circle") {
       calculateCircleSnaps();
-    } else if (geometry.gType === "polygon") {
+    } else if (gType === "polygon") {
       calculatePolygonSnaps();
-    } else if (geometry.gType === "curve") {
+    } else if (gType === "curve") {
       calculateCurveSnaps();
-    } else if (geometry.gType === "cap") {
+    } else if (gType === "cap") {
       calculateCapSnaps();
     }
-  }, [geometry]);
+  }, [startingX, startingY, endingX, endingY, gType]);
 
   useEffect(() => {
     if (virtualGeometryBeingDrawn && vg.gType === "line") {
@@ -175,10 +174,10 @@ export default function SnapPoints({
   return (
     <>
       {snapPoints?.map((p, i) => (
-        <SnapArea p={p} key={i} geometry={geometry} />
+        <SnapArea p={p} key={i} />
       ))}
       {tempSnapPoints?.map((snap, j) => (
-        <SnapArea p={snap} key={j + snapPoints.length} geometry={geometry} />
+        <SnapArea p={snap} key={j + snapPoints.length} />
       ))}
     </>
   );

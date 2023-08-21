@@ -95,7 +95,7 @@ export default function Home() {
   let lastFrameTime = performance.now();
   let frameCount = 0;
 
-  useEffect(() => {
+  /* useEffect(() => {
     const updateFPS = () => {
       const currentTime = performance.now();
       const deltaTime = currentTime - lastFrameTime;
@@ -112,7 +112,7 @@ export default function Home() {
     };
 
     updateFPS(); // Start the loop
-  }, []);
+  }, []); */
   const handleClickInteractionWithStage = (e) => {
     e.evt.preventDefault();
     if (e.evt.button !== 0) {
@@ -231,6 +231,7 @@ export default function Home() {
                     geometryAugment.start.offsetY),
               };
             }
+
             return newGeo;
           });
           setActivatedAugmentationTool(2);
@@ -476,6 +477,8 @@ export default function Home() {
         }} // other things need to be done here
         onContextMenu={(e) => e.evt.preventDefault()}
         draggable
+        onDragEnd={() => {}}
+        onDragStart={() => {}}
         dragBoundFunc={(pos) => {
           dispatch(updateStageOffset({ x: pos.x, y: pos.y }));
           return pos;

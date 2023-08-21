@@ -2,6 +2,7 @@ import { addSelectedGeometry } from "@/features/drawingControlSlice";
 import { Line, Rect, Circle, RegularPolygon, Shape } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import SnapPoints from "./snapping/snapPoints";
+import React from "react";
 import { get_distance_4p } from "recad-wasm";
 export default function Geometry() {
   const {
@@ -11,223 +12,241 @@ export default function Geometry() {
     virtualGeometryBeingDrawn,
     virtualGeometry,
   } = useSelector((state) => state.drawingControl);
-
+  const dispatch = useDispatch();
   return (
     realGeometry.length > 0 &&
     realGeometry.map((geo) => (
       <GeoWithKey
         key={geo.key}
-        geo={geo}
+        gkey={geo.key}
+        startingX={geo.startingX}
+        startingY={geo.startingY}
+        endingX={geo.endingX}
+        endingY={geo.endingY}
+        gType={geo.gType}
         stageZoomScaleInverse={stageZoomScaleInverse}
         selectedGeometry={selectedGeometry}
         virtualGeometry={virtualGeometry}
         virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+        dispatch={dispatch}
       />
     ))
   );
 }
 
-function GeoWithKey({
-  geo,
+const GeoWithKey = React.memo(function GeoWithKey({
+  startingX,
+  startingY,
+  endingX,
+  endingY,
+  gType,
+  gkey,
   stageZoomScaleInverse,
   selectedGeometry,
   virtualGeometry,
   virtualGeometryBeingDrawn,
+  dispatch,
 }) {
-  const dispatch = useDispatch();
-  if (geo.gType === "line") {
+  if (gType === "line") {
     return (
       <>
         <Line
-          points={[geo.startingX, geo.startingY, geo.endingX, geo.endingY]}
+          shadowForStrokeEnabled={false}
+          points={[startingX, startingY, endingX, endingY]}
           closed
           strokeWidth={1 * stageZoomScaleInverse}
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
           hitStrokeWidth={15 * stageZoomScaleInverse}
-          key={geo.key}
           onClick={() => {
-            dispatch(addSelectedGeometry(geo));
+            dispatch(addSelectedGeometry(gkey));
           }}
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
+        />
       </>
     );
   }
-  if (geo.gType === "rect") {
+  if (gType === "rect") {
     return (
       <>
         <Rect
-          x={geo.startingX}
-          y={geo.startingY}
-          width={-(geo.startingX - geo.endingX)}
-          height={-(geo.startingY - geo.endingY)}
+          shadowForStrokeEnabled={false}
+          x={startingX}
+          y={startingY}
+          width={-(startingX - endingX)}
+          height={-(startingY - endingY)}
           strokeWidth={0.5 * stageZoomScaleInverse}
           hitStrokeWidth={15 * stageZoomScaleInverse}
           closed
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
-          key={geo.key}
-          onClick={() => dispatch(addSelectedGeometry(geo))}
+          onClick={() => dispatch(addSelectedGeometry(gkey))}
           fillEnabled={false}
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
+        />
       </>
     );
   }
-  if (geo.gType === "circle") {
+  if (gType === "circle") {
     return (
       <>
         <Circle
-          x={geo.startingX}
-          y={geo.startingY}
-          radius={get_distance_4p(
-            geo.startingX,
-            geo.startingY,
-            geo.endingX,
-            geo.endingY
-          )}
+          x={startingX}
+          y={startingY}
+          shadowForStrokeEnabled={false}
+          radius={get_distance_4p(startingX, startingY, endingX, endingY)}
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
-          onClick={() => dispatch(addSelectedGeometry(geo))}
-          key={geo.key}
+          onClick={() => dispatch(addSelectedGeometry(gkey))}
+          key={key}
           hitStrokeWidth={15 * stageZoomScaleInverse}
           strokeWidth={0.5 * stageZoomScaleInverse}
           fillEnabled={false}
         />
         <SnapPoints
-          geometry={geo}
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
           vg={virtualGeometry}
           virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
         />
       </>
     );
   }
-  if (geo.gType === "polygon") {
+  if (gType === "polygon") {
     return (
       <>
         <RegularPolygon
-          x={geo.startingX}
-          y={geo.startingY}
-          sides={geo.sides}
-          radius={get_distance_4p(
-            geo.startingX,
-            geo.startingY,
-            geo.endingX,
-            geo.endingY
-          )}
+          x={startingX}
+          y={startingY}
+          shadowForStrokeEnabled={false}
+          sides={sides}
+          radius={get_distance_4p(startingX, startingY, endingX, endingY)}
           rotation={
             //in rust eventually
-            (Math.atan2(
-              geo.startingY - geo.endingY,
-              geo.startingX - geo.endingX
-            ) *
-              180) /
+            (Math.atan2(startingY - endingY, startingX - endingX) * 180) /
               Math.PI -
             90
           }
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
-          onClick={() => dispatch(addSelectedGeometry(geo))}
-          key={geo.key}
+          onClick={() => dispatch(addSelectedGeometry(gkey))}
+          key={key}
           hitStrokeWidth={15 * stageZoomScaleInverse}
           strokeWidth={0.5 * stageZoomScaleInverse}
           fillEnabled={false}
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
+        />
       </>
     );
   }
-  if (geo.gType === "curve") {
+  if (gType === "curve") {
     return (
       <>
         <Shape
           hitStrokeWidth={15 * stageZoomScaleInverse}
-          onClick={() => dispatch(addSelectedGeometry(geo))}
+          shadowForStrokeEnabled={false}
+          onClick={() => dispatch(addSelectedGeometry(gkey))}
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
           sceneFunc={(context, shape) => {
             context.beginPath();
-            context.moveTo(geo.startingX, geo.startingY);
+            context.moveTo(startingX, startingY);
             context.quadraticCurveTo(
-              geo.quadraticCurveAnchor.x,
-              geo.quadraticCurveAnchor.y,
-              geo.endingX,
-              geo.endingY
+              quadraticCurveAnchor.x,
+              quadraticCurveAnchor.y,
+              endingX,
+              endingY
             );
             context.fillStrokeShape(shape);
             // Basis for custom bezier
           }}
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
+        />
       </>
     );
   }
-  if (geo.gType === "cap") {
+  if (gType === "cap") {
     return (
       <>
         <Shape
           hitStrokeWidth={15 * stageZoomScaleInverse}
+          shadowForStrokeEnabled={false}
           sceneFunc={(context, shape) => {
             context.beginPath();
             context.arc(
-              (geo.endingX + geo.startingX) * 0.5,
-              (geo.endingY + geo.startingY) * 0.5,
-              get_distance_4p(
-                geo.startingX,
-                geo.startingY,
-                geo.endingX,
-                geo.endingY
-              ) * 0.5,
-              Math.atan2(
-                geo.endingY - geo.startingY,
-                geo.endingX - geo.startingX
-              ),
-              Math.atan2(
-                geo.endingY - geo.startingY,
-                geo.endingX - geo.startingX
-              ) + Math.PI,
+              (endingX + startingX) * 0.5,
+              (endingY + startingY) * 0.5,
+              get_distance_4p(startingX, startingY, endingX, endingY) * 0.5,
+              Math.atan2(endingY - startingY, endingX - startingX),
+              Math.atan2(endingY - startingY, endingX - startingX) + Math.PI,
               false
             );
             context.fillStrokeShape(shape);
           }}
           fillEnabled={false}
-          onClick={() => dispatch(addSelectedGeometry(geo))}
+          onClick={() => dispatch(addSelectedGeometry(gkey))}
           stroke={
             selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === geo.key)
+              ? selectedGeometry.some((g) => g.key === gkey)
                 ? "red"
                 : "black"
               : "black"
           }
         />
-        <SnapPoints geometry={geo} />
+        <SnapPoints
+          startingX={startingX}
+          startingY={startingY}
+          endingX={endingX}
+          endingY={endingY}
+        />
       </>
     );
   }
-}
+});

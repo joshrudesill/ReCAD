@@ -495,6 +495,7 @@ export default function VirtualGeometry() {
                         }
                         x={geo.startingX}
                         y={geo.startingY}
+                        key={i}
                       />
                     );
                   }
@@ -511,6 +512,7 @@ export default function VirtualGeometry() {
                               : "black"
                             : "black"
                         }
+                        key={i}
                         sceneFunc={(context, shape) => {
                           context.beginPath();
                           context.moveTo(geo.startingX, geo.startingY);
@@ -531,6 +533,7 @@ export default function VirtualGeometry() {
                       <Shape
                         hitStrokeWidth={0}
                         listening={false}
+                        key={i}
                         sceneFunc={(context, shape) => {
                           context.beginPath();
                           context.arc(

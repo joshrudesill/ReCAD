@@ -271,6 +271,59 @@ export const drawingControlSlice = createSlice({
               return { ...geo, key: state.realGeometry.length + i + 1 };
             })
           );
+        } else if (state.geometryAugment.type === "array") {
+          const firstIndex = state.realGeometry.at(-1).key;
+          let nextIndex = firstIndex + 1;
+          state.realGeometry = state.realGeometry.concat(
+            action.payload.flatMap((geo, i) => {
+              nextIndex += 1;
+              return Array.from({
+                length: state.geometryAugment.copies - 1,
+              }).map((_, j) => {
+                nextIndex += 1;
+                return {
+                  ...geo,
+                  startingX:
+                    geo.startingX +
+                    (state.geometryAugment.current.offsetX -
+                      state.geometryAugment.start.offsetX) *
+                      j,
+                  startingY:
+                    geo.startingY +
+                    (state.geometryAugment.current.offsetY -
+                      state.geometryAugment.start.offsetY) *
+                      j,
+                  endingX:
+                    geo.endingX +
+                    (state.geometryAugment.current.offsetX -
+                      state.geometryAugment.start.offsetX) *
+                      j,
+                  endingY:
+                    geo.endingY +
+                    (state.geometryAugment.current.offsetY -
+                      state.geometryAugment.start.offsetY) *
+                      j,
+                  key: nextIndex,
+                  quadraticCurveAnchor: {
+                    x:
+                      geo.quadraticCurveAnchor?.x !== undefined
+                        ? geo.quadraticCurveAnchor.x +
+                          (state.geometryAugment.current.offsetX -
+                            state.geometryAugment.start.offsetX) *
+                            j
+                        : 0,
+                    y:
+                      geo.quadraticCurveAnchor?.y !== undefined
+                        ? geo.quadraticCurveAnchor.y +
+                          (state.geometryAugment.current.offsetY -
+                            state.geometryAugment.start.offsetY) *
+                            j
+                        : 0,
+                  },
+                };
+              });
+            })
+          );
         }
       } else {
         //replace each matching key with new element with updated coordiantes
@@ -286,6 +339,59 @@ export const drawingControlSlice = createSlice({
           state.realGeometry = state.realGeometry.concat(
             action.payload.map((geo, i) => {
               return { ...geo, key: state.realGeometry.length + i + 1 };
+            })
+          );
+        } else if (state.geometryAugment.type === "array") {
+          const firstIndex = state.realGeometry.at(-1).key;
+          let nextIndex = firstIndex + 1;
+          state.realGeometry = state.realGeometry.concat(
+            action.payload.flatMap((geo, i) => {
+              nextIndex += 1;
+              return Array.from({
+                length: state.geometryAugment.copies - 1,
+              }).map((_, j) => {
+                nextIndex += 1;
+                return {
+                  ...geo,
+                  startingX:
+                    geo.startingX +
+                    (state.geometryAugment.current.offsetX -
+                      state.geometryAugment.start.offsetX) *
+                      j,
+                  startingY:
+                    geo.startingY +
+                    (state.geometryAugment.current.offsetY -
+                      state.geometryAugment.start.offsetY) *
+                      j,
+                  endingX:
+                    geo.endingX +
+                    (state.geometryAugment.current.offsetX -
+                      state.geometryAugment.start.offsetX) *
+                      j,
+                  endingY:
+                    geo.endingY +
+                    (state.geometryAugment.current.offsetY -
+                      state.geometryAugment.start.offsetY) *
+                      j,
+                  key: nextIndex,
+                  quadraticCurveAnchor: {
+                    x:
+                      geo.quadraticCurveAnchor?.x !== undefined
+                        ? geo.quadraticCurveAnchor.x +
+                          (state.geometryAugment.current.offsetX -
+                            state.geometryAugment.start.offsetX) *
+                            j
+                        : 0,
+                    y:
+                      geo.quadraticCurveAnchor?.y !== undefined
+                        ? geo.quadraticCurveAnchor.y +
+                          (state.geometryAugment.current.offsetY -
+                            state.geometryAugment.start.offsetY) *
+                            j
+                        : 0,
+                  },
+                };
+              });
             })
           );
         }
@@ -338,7 +444,10 @@ export const drawingControlSlice = createSlice({
         // In redo state
         state.realGeometry.push({
           ...action.payload,
-          key: state.realGeometry.at(-1) + 1,
+          key:
+            state.realGeometry.length > 0
+              ? state.realGeometry.at(-1).key + 1
+              : 1,
         });
 
         state.previousStates = [
@@ -352,7 +461,10 @@ export const drawingControlSlice = createSlice({
       } else {
         state.realGeometry.push({
           ...action.payload,
-          key: state.realGeometry.length + 1,
+          key:
+            state.realGeometry.length > 0
+              ? state.realGeometry.at(-1).key + 1
+              : 1,
         });
         state.previousStates.push(state.realGeometry);
       }
@@ -385,7 +497,9 @@ export const drawingControlSlice = createSlice({
       state.stageZoomScaleInverse = parseFloat((1 / action.payload).toFixed(6));
     },
     addSelectedGeometry: (state, action) => {
-      state.selectedGeometry.push(action.payload);
+      state.selectedGeometry.push(
+        state.realGeometry.find((g) => action.payload === g.key)
+      );
     },
     resetSelectedGeometry: (state) => {
       state.selectedGeometry = [];

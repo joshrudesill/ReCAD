@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Circle, Rect } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function SnapArea({ p, geometry }) {
+export default function SnapArea({ p }) {
   const dispatch = useDispatch();
   const [snapAreaActive, setSnapAreaActive] = useState(false);
   const {
@@ -31,7 +31,7 @@ export default function SnapArea({ p, geometry }) {
   };
   const handleClick = () => {
     if (!virtualGeometryBeingAltered && !virtualGeometryBeingDrawn) {
-      dispatch(addSelectedGeometry(geometry));
+      //dispatch(addSelectedGeometry(geometry));
     }
   };
 
