@@ -159,17 +159,6 @@ export default function VirtualGeometry() {
             dash={[10, 15]}
             listening={false}
           />
-          <Line
-            stroke={"black"}
-            points={[
-              virtualGeometry.endingX,
-              virtualGeometry.endingY,
-              virtualGeometry.currentX,
-              virtualGeometry.currentY,
-            ]}
-            dash={[10, 15]}
-            listening={false}
-          />
         </>
       );
     }

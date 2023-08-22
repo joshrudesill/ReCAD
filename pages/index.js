@@ -492,9 +492,7 @@ export default function Home() {
             x={-5000}
             y={-5000}
           />
-          {
-            //<Grid />
-          }
+          <Grid />
         </Layer>
         <Layer name='realgeo'>
           <Geometry />

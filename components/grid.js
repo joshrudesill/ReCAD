@@ -37,7 +37,7 @@ export default function Grid() {
             perfectDrawEnabled={false}
           />
         ))}
-        {Array.from(Array(linesCount).keys()).map((line) => (
+        {Array.from({ length: linesCount }).map((line) => (
           <Line
             points={[
               -5000,

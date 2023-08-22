@@ -5,22 +5,21 @@ import {
 } from "@/features/drawingControlSlice";
 import { useState } from "react";
 import { Circle, Rect } from "react-konva";
-import { useDispatch, useSelector } from "react-redux";
 
-export default function SnapArea({ p }) {
-  const dispatch = useDispatch();
+export default function SnapArea({
+  px,
+  py,
+  dispatch,
+  stageZoomScaleInverse,
+  showSnapPoints,
+}) {
   const [snapAreaActive, setSnapAreaActive] = useState(false);
-  const {
-    showSnapPoints,
-    stageZoomScaleInverse,
-    virtualGeometryBeingDrawn,
-    virtualGeometryBeingAltered,
-  } = useSelector((state) => state.drawingControl);
+
   const handleMouseEnter = () => {
     dispatch(
       lockCursorAndSetPosition({
-        offsetX: p.x,
-        offsetY: p.y,
+        offsetX: px,
+        offsetY: py,
       })
     );
     setSnapAreaActive(true);
@@ -39,8 +38,8 @@ export default function SnapArea({ p }) {
     <>
       <Circle
         radius={10 * stageZoomScaleInverse}
-        x={p.x}
-        y={p.y}
+        x={px}
+        y={py}
         stroke='purple'
         strokeEnabled={showSnapPoints}
         fillEnabled={true}
@@ -49,8 +48,8 @@ export default function SnapArea({ p }) {
         onClick={handleClick}
       />
       <Rect
-        x={p.x - 0.5 * (10 * stageZoomScaleInverse)}
-        y={p.y - 0.5 * (10 * stageZoomScaleInverse)}
+        x={px - 0.5 * (10 * stageZoomScaleInverse)}
+        y={py - 0.5 * (10 * stageZoomScaleInverse)}
         width={10 * stageZoomScaleInverse}
         height={10 * stageZoomScaleInverse}
         stroke='blue'

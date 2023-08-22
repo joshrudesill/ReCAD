@@ -1,27 +1,37 @@
 import { useEffect, useState } from "react";
 import SnapArea from "./snapArea";
 import { get_distance_4p, find_circle_tan_points } from "@/pkg/recad_wasm";
-export default function SnapPoints({
+import React from "react";
+import { useDispatch } from "react-redux";
+export default React.memo(function SnapPoints({
   startingX,
   startingY,
   endingX,
   endingY,
   gType,
-  vg,
-  virtualGeometryBeingDrawn,
+  vg = 0,
+  sides = 0,
+  virtualGeometryBeingDrawn = false,
+  stageZoomScaleInverse,
+  showSnapPoints,
+  quadraticCurveAnchorX = 0,
+  quadraticCurveAnchorY = 0,
 }) {
   const [snapPoints, setSnapPoints] = useState([]);
   const [tempSnapPoints, setTempSnapPoints] = useState([]);
+  const dispatch = useDispatch();
   const calculateLineSnaps = () => {
     let snaps = [];
-    snaps.push({ x: startingX, y: startingY });
     snaps.push({ x: endingX, y: endingY });
-    snaps.push({ x: (endingX + startingX) / 2, y: (endingY + startingY) / 2 });
+    snaps.push({ x: startingX, y: startingY });
+    snaps.push({
+      x: (endingX + startingX) / 2,
+      y: (endingY + startingY) / 2,
+    });
     setSnapPoints([...snaps]);
   };
   const calculateRectSnaps = () => {
     let snaps = [];
-    const { startingX, startingY, endingX, endingY } = geometry;
     const rectHeight = -(startingX - endingX);
     const rectWidth = -(startingY - endingY);
 
@@ -93,14 +103,12 @@ export default function SnapPoints({
     let snaps = [
       { x: startingX, y: startingY },
       { x: endingX, y: endingY },
-      { x: quadraticCurveAnchor.x, y: quadraticCurveAnchor.y },
+      { x: quadraticCurveAnchorX, y: quadraticCurveAnchorY },
     ];
 
     setSnapPoints([...snaps]);
   };
   const calculateCapSnaps = () => {
-    const { startingX, startingY, endingX, endingY } = geometry;
-
     let snaps = [
       { x: startingX, y: startingY },
       { x: endingX, y: endingY },
@@ -149,14 +157,9 @@ export default function SnapPoints({
     if (virtualGeometryBeingDrawn && vg.gType === "line") {
       const tangents = find_circle_tan_points(
         // rust
-        geometry.startingX,
-        geometry.startingY,
-        get_distance_4p(
-          geometry.startingX,
-          geometry.startingY,
-          geometry.endingX,
-          geometry.endingY
-        ),
+        startingX,
+        startingY,
+        get_distance_4p(startingX, startingY, endingX, endingY),
         vg.startingX,
         vg.startingY
       );
@@ -174,13 +177,29 @@ export default function SnapPoints({
   return (
     <>
       {snapPoints?.map((p, i) => (
-        <SnapArea p={p} key={i} />
+        <SnapArea
+          px={p.x}
+          py={p.y}
+          key={i}
+          dispatch={dispatch}
+          virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+          stageZoomScaleInverse={stageZoomScaleInverse}
+          showSnapPoints={showSnapPoints}
+        />
       ))}
       {tempSnapPoints?.map((snap, j) => (
-        <SnapArea p={snap} key={j + snapPoints.length} />
+        <SnapArea
+          px={snap.x}
+          py={snap.y}
+          key={j + snapPoints.length}
+          dispatch={dispatch}
+          virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+          stageZoomScaleInverse={stageZoomScaleInverse}
+          showSnapPoints={showSnapPoints}
+        />
       ))}
     </>
   );
   //component that adds circle and a square that becomes visible if the circle is hovered
   // when hovered the component needs to dispatch an action
-}
+});

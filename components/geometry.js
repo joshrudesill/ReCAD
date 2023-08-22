@@ -11,6 +11,7 @@ export default function Geometry() {
     stageZoomScaleInverse,
     virtualGeometryBeingDrawn,
     virtualGeometry,
+    showSnapPoints,
   } = useSelector((state) => state.drawingControl);
   const dispatch = useDispatch();
   return (
@@ -23,7 +24,11 @@ export default function Geometry() {
         startingY={geo.startingY}
         endingX={geo.endingX}
         endingY={geo.endingY}
+        sides={geo?.sides}
         gType={geo.gType}
+        showSnapPoints={showSnapPoints}
+        quadraticCurveAnchorX={geo?.quadraticCurveAnchor?.x}
+        quadraticCurveAnchorY={geo?.quadraticCurveAnchor?.y}
         stageZoomScaleInverse={stageZoomScaleInverse}
         selectedGeometry={selectedGeometry}
         virtualGeometry={virtualGeometry}
@@ -34,219 +39,253 @@ export default function Geometry() {
   );
 }
 
-const GeoWithKey = React.memo(function GeoWithKey({
-  startingX,
-  startingY,
-  endingX,
-  endingY,
-  gType,
-  gkey,
-  stageZoomScaleInverse,
-  selectedGeometry,
-  virtualGeometry,
-  virtualGeometryBeingDrawn,
-  dispatch,
-}) {
-  if (gType === "line") {
-    return (
-      <>
-        <Line
-          shadowForStrokeEnabled={false}
-          points={[startingX, startingY, endingX, endingY]}
-          closed
-          strokeWidth={1 * stageZoomScaleInverse}
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
+const GeoWithKey = React.memo(
+  function GeoWithKey({
+    startingX,
+    startingY,
+    endingX,
+    endingY,
+    gType,
+    gkey,
+    sides,
+    stageZoomScaleInverse,
+    selectedGeometry,
+    virtualGeometry,
+    virtualGeometryBeingDrawn,
+    quadraticCurveAnchorX,
+    quadraticCurveAnchorY,
+    dispatch,
+    showSnapPoints,
+  }) {
+    if (gType === "line") {
+      return (
+        <>
+          <Line
+            shadowForStrokeEnabled={false}
+            points={[startingX, startingY, endingX, endingY]}
+            closed
+            strokeWidth={1 * stageZoomScaleInverse}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
                 : "black"
-              : "black"
-          }
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          onClick={() => {
-            dispatch(addSelectedGeometry(gkey));
-          }}
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-        />
-      </>
+            }
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            onClick={() => {
+              dispatch(addSelectedGeometry(gkey));
+            }}
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"line"}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+    if (gType === "rect") {
+      return (
+        <>
+          <Rect
+            shadowForStrokeEnabled={false}
+            x={startingX}
+            y={startingY}
+            width={-(startingX - endingX)}
+            height={-(startingY - endingY)}
+            strokeWidth={0.5 * stageZoomScaleInverse}
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            closed
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+            onClick={() => dispatch(addSelectedGeometry(gkey))}
+            fillEnabled={false}
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"rect"}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+    if (gType === "circle") {
+      return (
+        <>
+          <Circle
+            x={startingX}
+            y={startingY}
+            shadowForStrokeEnabled={false}
+            radius={get_distance_4p(startingX, startingY, endingX, endingY)}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+            onClick={() => dispatch(addSelectedGeometry(gkey))}
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            strokeWidth={0.5 * stageZoomScaleInverse}
+            fillEnabled={false}
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"circle"}
+            vg={virtualGeometry}
+            virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+    if (gType === "polygon") {
+      return (
+        <>
+          <RegularPolygon
+            x={startingX}
+            y={startingY}
+            shadowForStrokeEnabled={false}
+            sides={sides}
+            radius={get_distance_4p(startingX, startingY, endingX, endingY)}
+            rotation={
+              //in rust eventually
+              (Math.atan2(startingY - endingY, startingX - endingX) * 180) /
+                Math.PI -
+              90
+            }
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+            onClick={() => dispatch(addSelectedGeometry(gkey))}
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            strokeWidth={0.5 * stageZoomScaleInverse}
+            fillEnabled={false}
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"polygon"}
+            sides={sides}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+    if (gType === "curve") {
+      return (
+        <>
+          <Shape
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            shadowForStrokeEnabled={false}
+            fillEnabled={false}
+            onClick={() => dispatch(addSelectedGeometry(gkey))}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+            sceneFunc={(context, shape) => {
+              context.beginPath();
+              context.moveTo(startingX, startingY);
+              context.quadraticCurveTo(
+                quadraticCurveAnchorX,
+                quadraticCurveAnchorY,
+                endingX,
+                endingY
+              );
+              context.fillStrokeShape(shape);
+              // Basis for custom bezier
+            }}
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            quadraticCurveAnchorX={quadraticCurveAnchorX}
+            quadraticCurveAnchorY={quadraticCurveAnchorY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"curve"}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+    if (gType === "cap") {
+      return (
+        <>
+          <Shape
+            hitStrokeWidth={15 * stageZoomScaleInverse}
+            shadowForStrokeEnabled={false}
+            sceneFunc={(context, shape) => {
+              context.beginPath();
+              context.arc(
+                (endingX + startingX) * 0.5,
+                (endingY + startingY) * 0.5,
+                get_distance_4p(startingX, startingY, endingX, endingY) * 0.5,
+                Math.atan2(endingY - startingY, endingX - startingX),
+                Math.atan2(endingY - startingY, endingX - startingX) + Math.PI,
+                false
+              );
+              context.fillStrokeShape(shape);
+            }}
+            fillEnabled={false}
+            onClick={() => dispatch(addSelectedGeometry(gkey))}
+            stroke={
+              selectedGeometry.length > 0
+                ? selectedGeometry.some((g) => g.key === gkey)
+                  ? "red"
+                  : "black"
+                : "black"
+            }
+          />
+          <SnapPoints
+            startingX={startingX}
+            startingY={startingY}
+            endingX={endingX}
+            endingY={endingY}
+            gType={"cap"}
+            showSnapPoints={showSnapPoints}
+            stageZoomScaleInverse={stageZoomScaleInverse}
+          />
+        </>
+      );
+    }
+  },
+  (prev, next) => {
+    return (
+      prev.showSnapPoints === next.showSnapPoints &&
+      prev.startingX === next.startingX &&
+      prev.selectedGeometry.length === next.selectedGeometry.length &&
+      prev.virtualGeometry.startingX === next.virtualGeometry.startingX
     );
   }
-  if (gType === "rect") {
-    return (
-      <>
-        <Rect
-          shadowForStrokeEnabled={false}
-          x={startingX}
-          y={startingY}
-          width={-(startingX - endingX)}
-          height={-(startingY - endingY)}
-          strokeWidth={0.5 * stageZoomScaleInverse}
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          closed
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
-                : "black"
-              : "black"
-          }
-          onClick={() => dispatch(addSelectedGeometry(gkey))}
-          fillEnabled={false}
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-        />
-      </>
-    );
-  }
-  if (gType === "circle") {
-    return (
-      <>
-        <Circle
-          x={startingX}
-          y={startingY}
-          shadowForStrokeEnabled={false}
-          radius={get_distance_4p(startingX, startingY, endingX, endingY)}
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
-                : "black"
-              : "black"
-          }
-          onClick={() => dispatch(addSelectedGeometry(gkey))}
-          key={key}
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          strokeWidth={0.5 * stageZoomScaleInverse}
-          fillEnabled={false}
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-          vg={virtualGeometry}
-          virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
-        />
-      </>
-    );
-  }
-  if (gType === "polygon") {
-    return (
-      <>
-        <RegularPolygon
-          x={startingX}
-          y={startingY}
-          shadowForStrokeEnabled={false}
-          sides={sides}
-          radius={get_distance_4p(startingX, startingY, endingX, endingY)}
-          rotation={
-            //in rust eventually
-            (Math.atan2(startingY - endingY, startingX - endingX) * 180) /
-              Math.PI -
-            90
-          }
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
-                : "black"
-              : "black"
-          }
-          onClick={() => dispatch(addSelectedGeometry(gkey))}
-          key={key}
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          strokeWidth={0.5 * stageZoomScaleInverse}
-          fillEnabled={false}
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-        />
-      </>
-    );
-  }
-  if (gType === "curve") {
-    return (
-      <>
-        <Shape
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          shadowForStrokeEnabled={false}
-          onClick={() => dispatch(addSelectedGeometry(gkey))}
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
-                : "black"
-              : "black"
-          }
-          sceneFunc={(context, shape) => {
-            context.beginPath();
-            context.moveTo(startingX, startingY);
-            context.quadraticCurveTo(
-              quadraticCurveAnchor.x,
-              quadraticCurveAnchor.y,
-              endingX,
-              endingY
-            );
-            context.fillStrokeShape(shape);
-            // Basis for custom bezier
-          }}
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-        />
-      </>
-    );
-  }
-  if (gType === "cap") {
-    return (
-      <>
-        <Shape
-          hitStrokeWidth={15 * stageZoomScaleInverse}
-          shadowForStrokeEnabled={false}
-          sceneFunc={(context, shape) => {
-            context.beginPath();
-            context.arc(
-              (endingX + startingX) * 0.5,
-              (endingY + startingY) * 0.5,
-              get_distance_4p(startingX, startingY, endingX, endingY) * 0.5,
-              Math.atan2(endingY - startingY, endingX - startingX),
-              Math.atan2(endingY - startingY, endingX - startingX) + Math.PI,
-              false
-            );
-            context.fillStrokeShape(shape);
-          }}
-          fillEnabled={false}
-          onClick={() => dispatch(addSelectedGeometry(gkey))}
-          stroke={
-            selectedGeometry.length > 0
-              ? selectedGeometry.some((g) => g.key === gkey)
-                ? "red"
-                : "black"
-              : "black"
-          }
-        />
-        <SnapPoints
-          startingX={startingX}
-          startingY={startingY}
-          endingX={endingX}
-          endingY={endingY}
-        />
-      </>
-    );
-  }
-});
+);
