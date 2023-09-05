@@ -1,6 +1,14 @@
-import { Circle, Group, Line, Rect, RegularPolygon, Shape } from "react-konva";
+import {
+  Circle,
+  Group,
+  Line,
+  Rect,
+  RegularPolygon,
+  Shape,
+  Text,
+} from "react-konva";
 import { useSelector } from "react-redux";
-import { get_distance_4p } from "@/pkg/recad_wasm";
+import { get_distance_4p, rotate_point } from "@/pkg/recad_wasm";
 import { useEffect } from "react";
 export default function VirtualGeometry() {
   const {
@@ -11,9 +19,7 @@ export default function VirtualGeometry() {
     geometryAugment,
   } = useSelector((state) => state.drawingControl);
   //replace^
-  useEffect(() => {
-    //console.log(check_line_collision(0, 0, 1, 1, 10, 10, 2, 400));
-  }, []);
+
   if (virtualGeometryBeingDrawn) {
     if (virtualGeometry.gType === "line") {
       return (
@@ -562,6 +568,187 @@ export default function VirtualGeometry() {
               </Group>
             )
           )}
+        </>
+      );
+    }
+    if (geometryAugment.type === "rotate") {
+      const angle = Math.atan2(
+        geometryAugment.current.offsetY - geometryAugment.start.offsetY,
+        geometryAugment.current.offsetX - geometryAugment.start.offsetX
+      );
+      return (
+        <>
+          <Line
+            points={[
+              geometryAugment.start.offsetX,
+              geometryAugment.start.offsetY,
+              geometryAugment.current.offsetX,
+              geometryAugment.current.offsetY,
+            ]}
+            closed
+            stroke='black'
+            strokeWidth={1}
+            dash={[10, 15]}
+          />
+          <Group>
+            {selectedGeometry.map((geo, i) => {
+              if (geo.gType === "line") {
+                const start = rotate_point(
+                  geo.startingX,
+                  geo.startingY,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
+                const end = rotate_point(
+                  geo.endingX,
+                  geo.endingY,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
+                return (
+                  <>
+                    {}
+
+                    <Line
+                      points={[start[0], start[1], end[0], end[1]]}
+                      closed
+                      stroke='black'
+                      key={i}
+                    />
+                  </>
+                );
+              }
+              if (geo.gType === "rect") {
+                return (
+                  <Rect
+                    x={geo.startingX}
+                    y={geo.startingY}
+                    width={-(geo.startingX - geo.endingX)}
+                    height={-(geo.startingY - geo.endingY)}
+                    closed
+                    stroke='black'
+                    key={i}
+                  />
+                );
+              }
+              if (geo.gType === "circle") {
+                return (
+                  <Circle
+                    x={geo.startingX}
+                    y={geo.startingY}
+                    radius={get_distance_4p(
+                      geo.startingX,
+                      geo.startingY,
+                      geo.endingX,
+                      geo.endingY
+                    )}
+                    closed
+                    stroke='black'
+                    key={i}
+                  />
+                );
+              }
+              if (geo.gType === "polygon") {
+                return (
+                  <RegularPolygon
+                    sides={geo.sides}
+                    stroke={"black"}
+                    radius={get_distance_4p(
+                      geo.startingX,
+                      geo.startingY,
+                      geo.endingX,
+                      geo.endingY
+                    )}
+                    listening={false}
+                    hitStrokeWidth={0}
+                    fillEnabled={false}
+                    rotation={
+                      //in rust eventually
+                      (Math.atan2(
+                        geo.startingY - geo.endingY,
+                        geo.startingX - geo.endingX
+                      ) *
+                        180) /
+                        Math.PI -
+                      90
+                    }
+                    x={geo.startingX}
+                    y={geo.startingY}
+                  />
+                );
+              }
+              if (geo.gType === "curve") {
+                return (
+                  <Shape
+                    hitStrokeWidth={0}
+                    listening={false}
+                    onClick={() => dispatch(addSelectedGeometry(geo))}
+                    stroke={
+                      selectedGeometry.length > 0
+                        ? selectedGeometry.some((g) => g.key === geo.key)
+                          ? "red"
+                          : "black"
+                        : "black"
+                    }
+                    sceneFunc={(context, shape) => {
+                      context.beginPath();
+                      context.moveTo(geo.startingX, geo.startingY);
+                      context.quadraticCurveTo(
+                        geo.quadraticCurveAnchor.x,
+                        geo.quadraticCurveAnchor.y,
+                        geo.endingX,
+                        geo.endingY
+                      );
+                      context.fillStrokeShape(shape);
+                      // Basis for custom bezier
+                    }}
+                  />
+                );
+              }
+              if (geo.gType === "cap") {
+                return (
+                  <Shape
+                    hitStrokeWidth={0}
+                    listening={false}
+                    sceneFunc={(context, shape) => {
+                      context.beginPath();
+                      context.arc(
+                        (geo.endingX + geo.startingX) * 0.5,
+                        (geo.endingY + geo.startingY) * 0.5,
+                        get_distance_4p(
+                          geo.startingX,
+                          geo.startingY,
+                          geo.endingX,
+                          geo.endingY
+                        ) * 0.5,
+                        Math.atan2(
+                          geo.endingY - geo.startingY,
+                          geo.endingX - geo.startingX
+                        ),
+                        Math.atan2(
+                          geo.endingY - geo.startingY,
+                          geo.endingX - geo.startingX
+                        ) + Math.PI,
+                        false
+                      );
+                      context.fillStrokeShape(shape);
+                    }}
+                    fillEnabled={false}
+                    onClick={() => dispatch(addSelectedGeometry(geo))}
+                    stroke={
+                      selectedGeometry.length > 0
+                        ? selectedGeometry.some((g) => g.key === geo.key)
+                          ? "red"
+                          : "black"
+                        : "black"
+                    }
+                  />
+                );
+              }
+            })}
+          </Group>
         </>
       );
     }

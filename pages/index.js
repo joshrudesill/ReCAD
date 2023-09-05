@@ -49,6 +49,7 @@ Konva.dragButtons = [2];
 import init, { derive_actual_pos, return_jsarr } from "recad-wasm";
 import ToolSelection from "@/components/toolSelection";
 import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
+import ArryaCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -174,9 +175,13 @@ export default function Home() {
         };
         dispatch(startDrawingVirtualGeometry(geometry));
         if (activatedDrawingTool === "line") {
-          ldRef.current.focus("sx");
+          ldRef.current.focus("length");
         } else if (activatedDrawingTool === "polygon") {
           ldRef.current.focus("sides");
+        } else if (activatedDrawingTool === "circle") {
+          ldRef.current.focus("length");
+        } else if (activatedDrawingTool === "rect") {
+          ldRef.current.focus("length");
         }
       }
     } else if (activatedAugmentationTool !== 0) {
@@ -192,10 +197,13 @@ export default function Home() {
                 (offsetY + stageOffset.y) *
                 stageZoomScaleInverse
               ).toFixed(3),
-              type: "array",
+              type: "rotate",
               copies: 5,
             })
           );
+          if (activatedAugmentationTool === 1) {
+            ldRef.current.focus();
+          }
         } else {
           //finish
           const geometry = selectedGeometry.map((geo) => {
@@ -533,6 +541,11 @@ export default function Home() {
       {activatedDrawingTool === "polygon" && (
         <div className='flex gap-2 flex-col'>
           <PolygonDialogue ref={ldRef} />
+        </div>
+      )}
+      {activatedAugmentationTool === 1 && (
+        <div className='flex gap-2 flex-col'>
+          <ArryaCopyDialogue ref={ldRef} />
         </div>
       )}
       <div className='flex gap-2 flex-col'>

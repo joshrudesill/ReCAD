@@ -41,6 +41,7 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
   const sxRef = useRef(null);
   const syRef = useRef(null);
   const lengthRef = useRef(null);
+  const sidesRef = useRef(null);
   useImperativeHandle(
     ref,
     () => {
@@ -53,7 +54,7 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
           } else if (input === "length") {
             lengthRef.current.focus();
           } else if (input === "sides") {
-            lengthRef.current.focus();
+            sidesRef.current.focus();
           }
         },
       };
@@ -93,11 +94,11 @@ const PolygonDialogue = forwardRef(function PolygonDialogue(props, ref) {
           ref={lengthRef}
         />
         <input
-          placeholder={`${virtualGeometry.sides}`}
+          placeholder={`${virtualGeometry.sides || "5"}`}
           className='border'
           type='number'
           onChange={handleSideInputChange}
-          ref={lengthRef}
+          ref={sidesRef}
         />
       </>
     );

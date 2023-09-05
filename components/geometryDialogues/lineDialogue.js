@@ -11,7 +11,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
     (state) => state.drawingControl
   );
   const dispatch = useDispatch();
-  const [controlType, setControlType] = useState("start-end");
+  const [controlType, setControlType] = useState("start-length");
   const updateLine = (typeOfUpdate, value, geoType) => {
     dispatch(updateVirtualGeometryWithInput({ typeOfUpdate, value, geoType }));
   };
@@ -96,6 +96,8 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       </>
     );
   }
+
+  // Probably wont be used
   if (controlType === "start-end") {
     //choose starting point by clicking or typing
     //then focus length input

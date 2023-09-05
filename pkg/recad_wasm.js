@@ -202,7 +202,20 @@ export function find_circle_tan_points(circle_center_x, circle_center_y, circle_
     return takeObject(ret);
 }
 
-function __wbg_adapter_23(arg0, arg1, arg2, arg3, arg4) {
+/**
+* @param {number} ptr_x
+* @param {number} ptr_y
+* @param {number} center_x
+* @param {number} center_y
+* @param {number} angle
+* @returns {Array<any>}
+*/
+export function rotate_point(ptr_x, ptr_y, center_x, center_y, angle) {
+    const ret = wasm.rotate_point(ptr_x, ptr_y, center_x, center_y, angle);
+    return takeObject(ret);
+}
+
+function __wbg_adapter_22(arg0, arg1, arg2, arg3, arg4) {
     wasm.wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6(arg0, arg1, addHeapObject(arg2), arg3, addHeapObject(arg4));
 }
 
@@ -282,9 +295,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
-    imports.wbg.__wbg_log_d8f770d99bfae179 = function(arg0, arg1) {
-        console.log(getStringFromWasm0(arg0, arg1));
-    };
     imports.wbg.__wbindgen_number_new = function(arg0) {
         const ret = arg0;
         return addHeapObject(ret);
@@ -304,7 +314,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_23(a, state0.b, arg0, arg1, arg2);
+                    return __wbg_adapter_22(a, state0.b, arg0, arg1, arg2);
                 } finally {
                     state0.a = a;
                 }

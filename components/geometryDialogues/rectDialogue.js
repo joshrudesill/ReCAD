@@ -32,6 +32,7 @@ const RectDialogue = forwardRef(function RectDialogue(props, ref) {
   const sxRef = useRef(null);
   const syRef = useRef(null);
   const lengthRef = useRef(null);
+  const heightRef = useRef(null);
   useImperativeHandle(
     ref,
     () => {
@@ -90,7 +91,7 @@ const RectDialogue = forwardRef(function RectDialogue(props, ref) {
           className='border'
           type='number'
           onChange={(e) => handleWHInputChange(e, "height")}
-          ref={lengthRef}
+          ref={heightRef}
         />
       </>
     );

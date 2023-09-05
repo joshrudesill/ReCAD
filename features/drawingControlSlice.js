@@ -198,6 +198,9 @@ export const drawingControlSlice = createSlice({
         state.virtualGeometry.sides = parseFloat(value) || 3;
       }
     },
+    updateArrayCopySides: (state, action) => {
+      state.geometryAugment.copies = action.payload;
+    },
     lockVirtualGeometry: (state, action) => {
       const { lockType, value } = action.payload;
       if (lockType === "x") {
@@ -265,68 +268,8 @@ export const drawingControlSlice = createSlice({
       if (state.realGeometry.length === 1) {
         if (state.geometryAugment.type === "move") {
           state.realGeometry = action.payload;
-        } else if (state.geometryAugment.type === "copy") {
-          state.realGeometry = state.realGeometry.concat(
-            action.payload.map((geo, i) => {
-              return { ...geo, key: state.realGeometry.length + i + 1 };
-            })
-          );
-        } else if (state.geometryAugment.type === "array") {
-          const firstIndex = state.realGeometry.at(-1).key;
-          let nextIndex = firstIndex + 1;
-          state.realGeometry = state.realGeometry.concat(
-            action.payload.flatMap((geo, i) => {
-              nextIndex += 1;
-              return Array.from({
-                length: state.geometryAugment.copies - 1,
-              }).map((_, j) => {
-                nextIndex += 1;
-                return {
-                  ...geo,
-                  startingX:
-                    geo.startingX +
-                    (state.geometryAugment.current.offsetX -
-                      state.geometryAugment.start.offsetX) *
-                      j,
-                  startingY:
-                    geo.startingY +
-                    (state.geometryAugment.current.offsetY -
-                      state.geometryAugment.start.offsetY) *
-                      j,
-                  endingX:
-                    geo.endingX +
-                    (state.geometryAugment.current.offsetX -
-                      state.geometryAugment.start.offsetX) *
-                      j,
-                  endingY:
-                    geo.endingY +
-                    (state.geometryAugment.current.offsetY -
-                      state.geometryAugment.start.offsetY) *
-                      j,
-                  key: nextIndex,
-                  quadraticCurveAnchor: {
-                    x:
-                      geo.quadraticCurveAnchor?.x !== undefined
-                        ? geo.quadraticCurveAnchor.x +
-                          (state.geometryAugment.current.offsetX -
-                            state.geometryAugment.start.offsetX) *
-                            j
-                        : 0,
-                    y:
-                      geo.quadraticCurveAnchor?.y !== undefined
-                        ? geo.quadraticCurveAnchor.y +
-                          (state.geometryAugment.current.offsetY -
-                            state.geometryAugment.start.offsetY) *
-                            j
-                        : 0,
-                  },
-                };
-              });
-            })
-          );
         }
       } else {
-        //replace each matching key with new element with updated coordiantes
         if (state.geometryAugment.type === "move") {
           action.payload.forEach((g) =>
             state.realGeometry.splice(
@@ -335,66 +278,67 @@ export const drawingControlSlice = createSlice({
               g //replace with new object
             )
           );
-        } else if (state.geometryAugment.type === "copy") {
-          state.realGeometry = state.realGeometry.concat(
-            action.payload.map((geo, i) => {
-              return { ...geo, key: state.realGeometry.length + i + 1 };
-            })
-          );
-        } else if (state.geometryAugment.type === "array") {
-          const firstIndex = state.realGeometry.at(-1).key;
-          let nextIndex = firstIndex + 1;
-          state.realGeometry = state.realGeometry.concat(
-            action.payload.flatMap((geo, i) => {
-              nextIndex += 1;
-              return Array.from({
-                length: state.geometryAugment.copies - 1,
-              }).map((_, j) => {
-                nextIndex += 1;
-                return {
-                  ...geo,
-                  startingX:
-                    geo.startingX +
-                    (state.geometryAugment.current.offsetX -
-                      state.geometryAugment.start.offsetX) *
-                      j,
-                  startingY:
-                    geo.startingY +
-                    (state.geometryAugment.current.offsetY -
-                      state.geometryAugment.start.offsetY) *
-                      j,
-                  endingX:
-                    geo.endingX +
-                    (state.geometryAugment.current.offsetX -
-                      state.geometryAugment.start.offsetX) *
-                      j,
-                  endingY:
-                    geo.endingY +
-                    (state.geometryAugment.current.offsetY -
-                      state.geometryAugment.start.offsetY) *
-                      j,
-                  key: nextIndex,
-                  quadraticCurveAnchor: {
-                    x:
-                      geo.quadraticCurveAnchor?.x !== undefined
-                        ? geo.quadraticCurveAnchor.x +
-                          (state.geometryAugment.current.offsetX -
-                            state.geometryAugment.start.offsetX) *
-                            j
-                        : 0,
-                    y:
-                      geo.quadraticCurveAnchor?.y !== undefined
-                        ? geo.quadraticCurveAnchor.y +
-                          (state.geometryAugment.current.offsetY -
-                            state.geometryAugment.start.offsetY) *
-                            j
-                        : 0,
-                  },
-                };
-              });
-            })
-          );
         }
+      }
+      if (state.geometryAugment.type === "copy") {
+        state.realGeometry = state.realGeometry.concat(
+          action.payload.map((geo, i) => {
+            return { ...geo, key: state.realGeometry.length + i + 1 };
+          })
+        );
+      } else if (state.geometryAugment.type === "array") {
+        const firstIndex = state.realGeometry.at(-1).key;
+        let nextIndex = firstIndex + 1;
+        state.realGeometry = state.realGeometry.concat(
+          action.payload.flatMap((geo, i) => {
+            nextIndex += 1;
+            return Array.from({
+              length: state.geometryAugment.copies - 1,
+            }).map((_, j) => {
+              nextIndex += 1;
+              return {
+                ...geo,
+                startingX:
+                  geo.startingX +
+                  (state.geometryAugment.current.offsetX -
+                    state.geometryAugment.start.offsetX) *
+                    j,
+                startingY:
+                  geo.startingY +
+                  (state.geometryAugment.current.offsetY -
+                    state.geometryAugment.start.offsetY) *
+                    j,
+                endingX:
+                  geo.endingX +
+                  (state.geometryAugment.current.offsetX -
+                    state.geometryAugment.start.offsetX) *
+                    j,
+                endingY:
+                  geo.endingY +
+                  (state.geometryAugment.current.offsetY -
+                    state.geometryAugment.start.offsetY) *
+                    j,
+                key: nextIndex,
+                quadraticCurveAnchor: {
+                  x:
+                    geo.quadraticCurveAnchor?.x !== undefined
+                      ? geo.quadraticCurveAnchor.x +
+                        (state.geometryAugment.current.offsetX -
+                          state.geometryAugment.start.offsetX) *
+                          j
+                      : 0,
+                  y:
+                    geo.quadraticCurveAnchor?.y !== undefined
+                      ? geo.quadraticCurveAnchor.y +
+                        (state.geometryAugment.current.offsetY -
+                          state.geometryAugment.start.offsetY) *
+                          j
+                      : 0,
+                },
+              };
+            });
+          })
+        );
       }
 
       if (state.stateIndex !== 1) {
@@ -557,6 +501,7 @@ export const {
   redoToNextState,
   setMultiStepEnding,
   deleteSelectedItems,
+  updateArrayCopySides,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;
