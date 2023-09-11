@@ -9,7 +9,6 @@ export default function Grid() {
   useEffect(() => {
     if (gRef.current.node !== null) {
       gRef.current.cache();
-      console.log(gRef.current);
     }
   }, [gRef]);
   return (

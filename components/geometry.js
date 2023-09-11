@@ -29,6 +29,8 @@ export default function Geometry() {
         showSnapPoints={showSnapPoints}
         quadraticCurveAnchorX={geo?.quadraticCurveAnchor?.x}
         quadraticCurveAnchorY={geo?.quadraticCurveAnchor?.y}
+        originalDimensions={geo?.originalDimensions}
+        rotation={geo?.rotation}
         stageZoomScaleInverse={stageZoomScaleInverse}
         selectedGeometry={selectedGeometry}
         virtualGeometry={virtualGeometry}
@@ -54,6 +56,8 @@ const GeoWithKey = React.memo(
     virtualGeometryBeingDrawn,
     quadraticCurveAnchorX,
     quadraticCurveAnchorY,
+    originalDimensions,
+    rotation,
     dispatch,
     showSnapPoints,
   }) {
@@ -96,11 +100,12 @@ const GeoWithKey = React.memo(
             shadowForStrokeEnabled={false}
             x={startingX}
             y={startingY}
-            width={-(startingX - endingX)}
-            height={-(startingY - endingY)}
+            width={originalDimensions?.width || -(startingX - endingX)}
+            height={originalDimensions?.height || -(startingY - endingY)}
             strokeWidth={0.5 * stageZoomScaleInverse}
             hitStrokeWidth={15 * stageZoomScaleInverse}
             closed
+            rotation={rotation ?? 0}
             stroke={
               selectedGeometry.length > 0
                 ? selectedGeometry.some((g) => g.key === gkey)
@@ -116,6 +121,8 @@ const GeoWithKey = React.memo(
             startingY={startingY}
             endingX={endingX}
             endingY={endingY}
+            originalDimensions={originalDimensions}
+            rotation={rotation}
             gType={"rect"}
             showSnapPoints={showSnapPoints}
             stageZoomScaleInverse={stageZoomScaleInverse}

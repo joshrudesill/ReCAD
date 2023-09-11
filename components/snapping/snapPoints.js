@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import SnapArea from "./snapArea";
-import { get_distance_4p, find_circle_tan_points } from "@/pkg/recad_wasm";
+import {
+  get_distance_4p,
+  find_circle_tan_points,
+  rotate_point,
+} from "@/pkg/recad_wasm";
 import React from "react";
 import { useDispatch } from "react-redux";
 export default React.memo(function SnapPoints({
@@ -16,6 +20,8 @@ export default React.memo(function SnapPoints({
   showSnapPoints,
   quadraticCurveAnchorX = 0,
   quadraticCurveAnchorY = 0,
+  originalDimensions,
+  rotation,
 }) {
   const [snapPoints, setSnapPoints] = useState([]);
   const [tempSnapPoints, setTempSnapPoints] = useState([]);
@@ -32,22 +38,38 @@ export default React.memo(function SnapPoints({
   };
   const calculateRectSnaps = () => {
     let snaps = [];
-    const rectHeight = -(startingX - endingX);
-    const rectWidth = -(startingY - endingY);
+
+    const rectWidth = originalDimensions?.width || -(startingX - endingX);
+    const rectHeight = originalDimensions?.height || -(startingY - endingY);
 
     // Four corners
-    snaps.push({ x: startingX, y: startingY });
-    snaps.push({ x: startingX + rectHeight, y: startingY });
-    snaps.push({ x: startingX, y: startingY + rectWidth });
-    snaps.push({ x: startingX + rectHeight, y: startingY + rectWidth });
+
+    snaps.push({ x: startingX + rectWidth, y: startingY });
+    snaps.push({ x: startingX, y: startingY + rectHeight });
+    snaps.push({ x: startingX + rectWidth, y: startingY + rectHeight });
 
     // Center Points
-    snaps.push({ x: startingX + rectHeight / 2, y: startingY + rectWidth });
-    snaps.push({ x: startingX + rectHeight / 2, y: startingY });
-    snaps.push({ x: startingX, y: startingY + rectWidth / 2 });
-    snaps.push({ x: startingX + rectHeight, y: startingY + rectWidth / 2 });
+    snaps.push({ x: startingX + rectWidth / 2, y: startingY + rectHeight });
+    snaps.push({ x: startingX + rectWidth / 2, y: startingY });
+    snaps.push({ x: startingX, y: startingY + rectHeight / 2 });
+    snaps.push({ x: startingX + rectWidth, y: startingY + rectHeight / 2 });
 
-    setSnapPoints([...snaps]);
+    if (rotation) {
+      const angle = rotation * (Math.PI / 180);
+      let rotatedSnaps = snaps.map((snap) => {
+        let points = rotate_point(snap.x, snap.y, startingX, startingY, angle);
+        return {
+          x: points[0],
+          y: points[1],
+        };
+      });
+      rotatedSnaps.push({ x: startingX, y: startingY });
+      setSnapPoints([...rotatedSnaps]);
+    } else {
+      // Add start point back at the end if no rotation
+      snaps.push({ x: startingX, y: startingY });
+      setSnapPoints([...snaps]);
+    }
   };
 
   const calculateCircleSnaps = () => {

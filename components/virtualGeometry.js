@@ -9,7 +9,6 @@ import {
 } from "react-konva";
 import { useSelector } from "react-redux";
 import { get_distance_4p, rotate_point } from "@/pkg/recad_wasm";
-import { useEffect } from "react";
 export default function VirtualGeometry() {
   const {
     virtualGeometryBeingDrawn,
@@ -263,8 +262,15 @@ export default function VirtualGeometry() {
                   <Rect
                     x={geo.startingX}
                     y={geo.startingY}
-                    width={-(geo.startingX - geo.endingX)}
-                    height={-(geo.startingY - geo.endingY)}
+                    width={
+                      geo.originalDimensions?.width ||
+                      -(geo.startingX - geo.endingX)
+                    }
+                    height={
+                      geo.originalDimensions?.height ||
+                      -(geo.startingY - geo.endingY)
+                    }
+                    rotation={geo?.rotation || 0}
                     closed
                     stroke='black'
                     key={i}
@@ -439,8 +445,15 @@ export default function VirtualGeometry() {
                       <Rect
                         x={geo.startingX}
                         y={geo.startingY}
-                        width={-(geo.startingX - geo.endingX)}
-                        height={-(geo.startingY - geo.endingY)}
+                        width={
+                          geo.originalDimensions?.width ||
+                          -(geo.startingX - geo.endingX)
+                        }
+                        height={
+                          geo.originalDimensions?.height ||
+                          -(geo.startingY - geo.endingY)
+                        }
+                        rotation={geo?.rotation || 0}
                         closed
                         stroke='black'
                         key={i}
@@ -576,6 +589,7 @@ export default function VirtualGeometry() {
         geometryAugment.current.offsetY - geometryAugment.start.offsetY,
         geometryAugment.current.offsetX - geometryAugment.start.offsetX
       );
+
       return (
         <>
           <Line
@@ -592,25 +606,23 @@ export default function VirtualGeometry() {
           />
           <Group>
             {selectedGeometry.map((geo, i) => {
+              const start = rotate_point(
+                geo.startingX,
+                geo.startingY,
+                geometryAugment.start.offsetX,
+                geometryAugment.start.offsetY,
+                angle
+              );
+              const end = rotate_point(
+                geo.endingX,
+                geo.endingY,
+                geometryAugment.start.offsetX,
+                geometryAugment.start.offsetY,
+                angle
+              );
               if (geo.gType === "line") {
-                const start = rotate_point(
-                  geo.startingX,
-                  geo.startingY,
-                  geometryAugment.start.offsetX,
-                  geometryAugment.start.offsetY,
-                  angle
-                );
-                const end = rotate_point(
-                  geo.endingX,
-                  geo.endingY,
-                  geometryAugment.start.offsetX,
-                  geometryAugment.start.offsetY,
-                  angle
-                );
                 return (
                   <>
-                    {}
-
                     <Line
                       points={[start[0], start[1], end[0], end[1]]}
                       closed
@@ -623,11 +635,18 @@ export default function VirtualGeometry() {
               if (geo.gType === "rect") {
                 return (
                   <Rect
-                    x={geo.startingX}
-                    y={geo.startingY}
-                    width={-(geo.startingX - geo.endingX)}
-                    height={-(geo.startingY - geo.endingY)}
+                    x={start[0]}
+                    y={start[1]}
+                    width={
+                      geo.originalDimensions?.width ||
+                      -(geo.startingX - geo.endingX)
+                    }
+                    height={
+                      geo.originalDimensions?.height ||
+                      -(geo.startingY - geo.endingY)
+                    }
                     closed
+                    rotation={angle * (180 / Math.PI) + (geo?.rotation || 0)}
                     stroke='black'
                     key={i}
                   />
@@ -636,14 +655,9 @@ export default function VirtualGeometry() {
               if (geo.gType === "circle") {
                 return (
                   <Circle
-                    x={geo.startingX}
-                    y={geo.startingY}
-                    radius={get_distance_4p(
-                      geo.startingX,
-                      geo.startingY,
-                      geo.endingX,
-                      geo.endingY
-                    )}
+                    x={start[0]}
+                    y={start[1]}
+                    radius={get_distance_4p(start[0], start[1], end[0], end[1])}
                     closed
                     stroke='black'
                     key={i}
@@ -655,35 +669,35 @@ export default function VirtualGeometry() {
                   <RegularPolygon
                     sides={geo.sides}
                     stroke={"black"}
-                    radius={get_distance_4p(
-                      geo.startingX,
-                      geo.startingY,
-                      geo.endingX,
-                      geo.endingY
-                    )}
+                    radius={get_distance_4p(start[0], start[1], end[0], end[1])}
                     listening={false}
                     hitStrokeWidth={0}
                     fillEnabled={false}
+                    key={i}
                     rotation={
                       //in rust eventually
-                      (Math.atan2(
-                        geo.startingY - geo.endingY,
-                        geo.startingX - geo.endingX
-                      ) *
-                        180) /
+                      (Math.atan2(start[1] - end[1], start[0] - end[0]) * 180) /
                         Math.PI -
                       90
                     }
-                    x={geo.startingX}
-                    y={geo.startingY}
+                    x={start[0]}
+                    y={start[1]}
                   />
                 );
               }
               if (geo.gType === "curve") {
+                const curve = rotate_point(
+                  geo.quadraticCurveAnchor.x,
+                  geo.quadraticCurveAnchor.y,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
                 return (
                   <Shape
                     hitStrokeWidth={0}
                     listening={false}
+                    key={i}
                     onClick={() => dispatch(addSelectedGeometry(geo))}
                     stroke={
                       selectedGeometry.length > 0
@@ -694,12 +708,12 @@ export default function VirtualGeometry() {
                     }
                     sceneFunc={(context, shape) => {
                       context.beginPath();
-                      context.moveTo(geo.startingX, geo.startingY);
+                      context.moveTo(start[0], start[1]);
                       context.quadraticCurveTo(
-                        geo.quadraticCurveAnchor.x,
-                        geo.quadraticCurveAnchor.y,
-                        geo.endingX,
-                        geo.endingY
+                        curve[0],
+                        curve[1],
+                        end[0],
+                        end[1]
                       );
                       context.fillStrokeShape(shape);
                       // Basis for custom bezier
@@ -712,25 +726,17 @@ export default function VirtualGeometry() {
                   <Shape
                     hitStrokeWidth={0}
                     listening={false}
+                    key={i}
                     sceneFunc={(context, shape) => {
                       context.beginPath();
                       context.arc(
-                        (geo.endingX + geo.startingX) * 0.5,
-                        (geo.endingY + geo.startingY) * 0.5,
-                        get_distance_4p(
-                          geo.startingX,
-                          geo.startingY,
-                          geo.endingX,
-                          geo.endingY
-                        ) * 0.5,
-                        Math.atan2(
-                          geo.endingY - geo.startingY,
-                          geo.endingX - geo.startingX
-                        ),
-                        Math.atan2(
-                          geo.endingY - geo.startingY,
-                          geo.endingX - geo.startingX
-                        ) + Math.PI,
+                        (end[0] + start[0]) * 0.5,
+                        (end[1] + start[1]) * 0.5,
+                        get_distance_4p(start[0], start[1], end[0], end[1]) *
+                          0.5,
+                        Math.atan2(end[1] - start[1], end[0] - start[0]),
+                        Math.atan2(end[1] - start[1], end[0] - start[0]) +
+                          Math.PI,
                         false
                       );
                       context.fillStrokeShape(shape);

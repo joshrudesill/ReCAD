@@ -46,7 +46,7 @@ import UserInstruction from "@/components/userInstruction/userInstruction";
 import { setCurrentInstruction } from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
-import init, { derive_actual_pos, return_jsarr } from "recad-wasm";
+import init, { derive_actual_pos, rotate_point } from "recad-wasm";
 import ToolSelection from "@/components/toolSelection";
 import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
 import ArryaCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
@@ -68,7 +68,7 @@ export default function Home() {
     const stage = "start";
     dispatch(setCurrentInstruction({ category, tool, stage }));
   };
-  const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(2);
+  const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(2); // Needs to be verbose
   const activateAugmentationTool = (tool) => {
     setActivatedDrawingTool("none");
     setActivatedAugmentationTool(tool);
@@ -206,45 +206,126 @@ export default function Home() {
           }
         } else {
           //finish
-          const geometry = selectedGeometry.map((geo) => {
-            const newGeo = {
-              ...geo,
-              startingX:
-                geo.startingX +
-                (geometryAugment.current.offsetX -
-                  geometryAugment.start.offsetX),
-              startingY:
-                geo.startingY +
-                (geometryAugment.current.offsetY -
-                  geometryAugment.start.offsetY),
-              endingX:
-                geo.endingX +
-                (geometryAugment.current.offsetX -
-                  geometryAugment.start.offsetX),
-              endingY:
-                geo.endingY +
-                (geometryAugment.current.offsetY -
-                  geometryAugment.start.offsetY),
-            };
-
-            if (newGeo.quadraticCurveAnchor) {
-              newGeo.quadraticCurveAnchor = {
-                x:
-                  geo.quadraticCurveAnchor.x +
+          // if not rotate
+          if (geometryAugment.type !== "rotate") {
+            const geometry = selectedGeometry.map((geo) => {
+              const newGeo = {
+                ...geo,
+                startingX:
+                  geo.startingX +
                   (geometryAugment.current.offsetX -
                     geometryAugment.start.offsetX),
-                y:
-                  geo.quadraticCurveAnchor.y +
+                startingY:
+                  geo.startingY +
+                  (geometryAugment.current.offsetY -
+                    geometryAugment.start.offsetY),
+                endingX:
+                  geo.endingX +
+                  (geometryAugment.current.offsetX -
+                    geometryAugment.start.offsetX),
+                endingY:
+                  geo.endingY +
                   (geometryAugment.current.offsetY -
                     geometryAugment.start.offsetY),
               };
-            }
 
-            return newGeo;
-          });
-          setActivatedAugmentationTool(2);
+              if (newGeo.quadraticCurveAnchor) {
+                newGeo.quadraticCurveAnchor = {
+                  x:
+                    geo.quadraticCurveAnchor.x +
+                    (geometryAugment.current.offsetX -
+                      geometryAugment.start.offsetX),
+                  y:
+                    geo.quadraticCurveAnchor.y +
+                    (geometryAugment.current.offsetY -
+                      geometryAugment.start.offsetY),
+                };
+              }
 
-          dispatch(endAugment(geometry));
+              return newGeo;
+            });
+            setActivatedAugmentationTool(2);
+
+            dispatch(endAugment(geometry));
+          } else {
+            // rotate
+            const angle = Math.atan2(
+              geometryAugment.current.offsetY - geometryAugment.start.offsetY,
+              geometryAugment.current.offsetX - geometryAugment.start.offsetX
+            );
+
+            const geometry = selectedGeometry.map((geo) => {
+              if (geo.gType === "rect") {
+                // Rects require special attention since they arent drawn based on starting and ending points but rather starting point and width / height
+                // We only want to rotate the starting point, then we check if it has already been rotated and if so change the rotation and add the old rotation
+                // if not old rotation will resolve to 0, then we set original dimensions so that the width and height never change
+                // This could be solved more easily with RegularPolygon but I like using the Rect object so I see no need
+
+                const start = rotate_point(
+                  geo.startingX,
+                  geo.startingY,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
+                const newGeo = {
+                  ...geo,
+                  startingX: start[0],
+                  startingY: start[1],
+                  rotation: angle * (180 / Math.PI) + (geo?.rotation || 0),
+                };
+                if (!newGeo.originalDimensions) {
+                  newGeo.originalDimensions = {
+                    width: -(geo.startingX - geo.endingX),
+                    height: -(geo.startingY - geo.endingY),
+                  };
+                }
+                return newGeo;
+              } else {
+                const start = rotate_point(
+                  geo.startingX,
+                  geo.startingY,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
+                const end = rotate_point(
+                  geo.endingX,
+                  geo.endingY,
+                  geometryAugment.start.offsetX,
+                  geometryAugment.start.offsetY,
+                  angle
+                );
+                const newGeo = {
+                  ...geo,
+                  startingX: start[0],
+                  startingY: start[1],
+                  endingX: end[0],
+                  endingY: end[1],
+                };
+
+                if (newGeo.quadraticCurveAnchor) {
+                  const start = rotate_point(
+                    geo.quadraticCurveAnchor.x,
+                    geo.quadraticCurveAnchor.y,
+                    geometryAugment.start.offsetX,
+                    geometryAugment.start.offsetY,
+                    angle
+                  );
+
+                  newGeo.quadraticCurveAnchor = {
+                    x: start[0],
+                    y: start[1],
+                  };
+                }
+
+                return newGeo;
+              }
+            });
+            setActivatedAugmentationTool(2);
+
+            dispatch(endAugment(geometry));
+          }
         }
       } else if (activatedAugmentationTool === 2) {
         //selection box
@@ -263,6 +344,7 @@ export default function Home() {
           dispatch(startSelectionBox(selectionBox));
         } else {
           dispatch(finishSelectionBox());
+          setActivatedAugmentationTool(2);
         }
       }
     } else {
@@ -500,7 +582,6 @@ export default function Home() {
             x={-5000}
             y={-5000}
           />
-          <Grid />
         </Layer>
         <Layer name='realgeo'>
           <Geometry />

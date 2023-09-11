@@ -268,9 +268,19 @@ export const drawingControlSlice = createSlice({
       if (state.realGeometry.length === 1) {
         if (state.geometryAugment.type === "move") {
           state.realGeometry = action.payload;
+        } else if (state.geometryAugment.type === "rotate") {
+          state.realGeometry = action.payload;
         }
       } else {
         if (state.geometryAugment.type === "move") {
+          action.payload.forEach((g) =>
+            state.realGeometry.splice(
+              state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
+              1, //delete 1
+              g //replace with new object
+            )
+          );
+        } else if (state.geometryAugment.type === "rotate") {
           action.payload.forEach((g) =>
             state.realGeometry.splice(
               state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
@@ -355,6 +365,7 @@ export const drawingControlSlice = createSlice({
       }
       // This function can be shortened significantly
       state.selectedGeometry = [];
+      state.geometryAugment = initialState.geometryAugment;
     },
 
     deleteSelectedItems: (state) => {
