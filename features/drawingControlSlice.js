@@ -20,8 +20,10 @@ const initialState = {
   geometryAugment: {
     start: { offsetX: 0, offsetY: 0 },
     current: { offsetX: 0, offsetY: 0 },
+    angle: 0,
     type: "none",
   },
+  enableSnaps: false,
   realGeometry: [],
   stageOffset: { x: -100, y: -800 },
   stageZoomScale: 1,
@@ -61,9 +63,15 @@ export const drawingControlSlice = createSlice({
     cancelVirtualGeometryDrawing: (state) => {
       state.virtualGeometryBeingDrawn = false;
       state.virtualGeometry = {};
+      state.selectedGeometry = [];
+      state.geometryAugment = initialState.geometryAugment;
+      state.enableSnaps = false;
+      state.virtualGeometryBeingAltered = false;
       state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
     },
-
+    setEnableSnaps: (state, action) => {
+      state.enableSnaps = action.payload;
+    },
     // Setup for the start of all geometry drawin
     startDrawingVirtualGeometry: (state, action) => {
       const { startingX, startingY, gType, stageX, stageY, startingZoom } =
@@ -201,6 +209,9 @@ export const drawingControlSlice = createSlice({
     updateArrayCopySides: (state, action) => {
       state.geometryAugment.copies = action.payload;
     },
+    lockAugmentAngle: (state, action) => {
+      state.geometryAugment.angle = action.payload;
+    },
     lockVirtualGeometry: (state, action) => {
       const { lockType, value } = action.payload;
       if (lockType === "x") {
@@ -264,7 +275,7 @@ export const drawingControlSlice = createSlice({
     },
     endAugment: (state, action) => {
       state.virtualGeometryBeingAltered = false;
-
+      state.enableSnaps = false;
       if (state.realGeometry.length === 1) {
         if (state.geometryAugment.type === "move") {
           state.realGeometry = action.payload;
@@ -281,6 +292,7 @@ export const drawingControlSlice = createSlice({
             )
           );
         } else if (state.geometryAugment.type === "rotate") {
+          // Unnecessary
           action.payload.forEach((g) =>
             state.realGeometry.splice(
               state.realGeometry.findIndex((e) => e.key === g.key), //find where it is
@@ -393,6 +405,7 @@ export const drawingControlSlice = createSlice({
 
     addRealGeometry: (state, action) => {
       state.virtualGeometryBeingDrawn = false;
+      state.enableSnaps = false;
       state.virtualGeometryInputLocks = initialState.virtualGeometryInputLocks;
       state.virtualGeometry = {};
       if (state.stateIndex !== 1) {
@@ -513,6 +526,8 @@ export const {
   setMultiStepEnding,
   deleteSelectedItems,
   updateArrayCopySides,
+  lockAugmentAngle,
+  setEnableSnaps,
 } = drawingControlSlice.actions;
 
 export default drawingControlSlice.reducer;

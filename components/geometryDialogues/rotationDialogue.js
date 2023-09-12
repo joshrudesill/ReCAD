@@ -1,21 +1,24 @@
-import { updateArrayCopySides } from "@/features/drawingControlSlice";
+import {
+  lockAugmentAngle,
+  updateArrayCopySides,
+} from "@/features/drawingControlSlice";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const ArrayCopyDialogue = forwardRef(function ArrayCopyDialogue(props, ref) {
+const RotationDialogue = forwardRef(function RotationDialogue(props, ref) {
   const { virtualGeometry } = useSelector((state) => state.drawingControl);
   const dispatch = useDispatch();
 
-  const sidesRef = useRef(null);
-  const handleSidesChange = (e) => {
-    dispatch(updateArrayCopySides(e.target.value));
+  const rotationAngleRef = useRef(null);
+  const handleRotationChange = (e) => {
+    dispatch(lockAugmentAngle(e.target.value));
   };
   useImperativeHandle(
     ref,
     () => {
       return {
         focus() {
-          sidesRef.current.focus();
+          rotationAngleRef.current.focus();
         },
       };
     },
@@ -28,11 +31,11 @@ const ArrayCopyDialogue = forwardRef(function ArrayCopyDialogue(props, ref) {
         placeholder={`${virtualGeometry.startingX || "0"}`}
         className='border'
         type='number'
-        onChange={(e) => handleSidesChange(e)}
-        ref={sidesRef}
+        onChange={(e) => handleRotationChange(e)}
+        ref={rotationAngleRef}
       />
     </>
   );
 });
 
-export default ArrayCopyDialogue;
+export default RotationDialogue;

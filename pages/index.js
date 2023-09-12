@@ -8,6 +8,7 @@ import {
   finishSelectionBox,
   redoToNextState,
   resetSelectedGeometry,
+  setEnableSnaps,
   setMultiStepEnding,
   startAugmentingVirtualGeometry,
   startDrawingVirtualGeometry,
@@ -49,7 +50,8 @@ Konva.dragButtons = [2];
 import init, { derive_actual_pos, rotate_point } from "recad-wasm";
 import ToolSelection from "@/components/toolSelection";
 import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
-import ArryaCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
+import ArrayCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
+import RotationDialogue from "@/components/geometryDialogues/rotationDialogue";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -66,10 +68,12 @@ export default function Home() {
     const category = "drawing";
 
     const stage = "start";
+    dispatch(setEnableSnaps(true));
     dispatch(setCurrentInstruction({ category, tool, stage }));
   };
   const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(2); // Needs to be verbose
   const activateAugmentationTool = (tool) => {
+    dispatch(setEnableSnaps(true));
     setActivatedDrawingTool("none");
     setActivatedAugmentationTool(tool);
     setLastCommand(tool);
@@ -249,10 +253,15 @@ export default function Home() {
             dispatch(endAugment(geometry));
           } else {
             // rotate
-            const angle = Math.atan2(
-              geometryAugment.current.offsetY - geometryAugment.start.offsetY,
-              geometryAugment.current.offsetX - geometryAugment.start.offsetX
-            );
+            let angle;
+            if (geometryAugment.angle === 0) {
+              angle = Math.atan2(
+                geometryAugment.current.offsetY - geometryAugment.start.offsetY,
+                geometryAugment.current.offsetX - geometryAugment.start.offsetX
+              );
+            } else {
+              angle = geometryAugment.angle * (Math.PI / 180);
+            }
 
             const geometry = selectedGeometry.map((geo) => {
               if (geo.gType === "rect") {
@@ -509,9 +518,9 @@ export default function Home() {
         }
       } else if (e.keyCode === 27) {
         // escape
-        dispatch(cancelVirtualGeometryDrawing());
-        setActivatedDrawingTool(0);
         setActivatedAugmentationTool(0);
+        setActivatedDrawingTool("none");
+        dispatch(cancelVirtualGeometryDrawing());
       } else if (e.keyCode === 76) {
         // L
         if (activatedDrawingTool === "none") {
@@ -602,6 +611,7 @@ export default function Home() {
           activateAugmentationTool={activateAugmentationTool}
           length={selectedGeometry.length}
           activeDrawingTool={activatedDrawingTool}
+          activeAugmentationTool={activatedAugmentationTool}
         />
       </div>
       {activatedDrawingTool === "line" && (
@@ -626,13 +636,20 @@ export default function Home() {
       )}
       {activatedAugmentationTool === 1 && (
         <div className='flex gap-2 flex-col'>
-          <ArryaCopyDialogue ref={ldRef} />
+          <ArrayCopyDialogue ref={ldRef} />
+        </div>
+      )}
+      {activatedAugmentationTool === 1 && (
+        <div className='flex gap-2 flex-col'>
+          Angle
+          <RotationDialogue ref={ldRef} />
         </div>
       )}
       <div className='flex gap-2 flex-col'>
         <p>
           <UserInstruction />
-          {fps}
+          {activatedAugmentationTool}
+          {activatedDrawingTool}
         </p>
       </div>
     </div>

@@ -585,10 +585,15 @@ export default function VirtualGeometry() {
       );
     }
     if (geometryAugment.type === "rotate") {
-      const angle = Math.atan2(
-        geometryAugment.current.offsetY - geometryAugment.start.offsetY,
-        geometryAugment.current.offsetX - geometryAugment.start.offsetX
-      );
+      let angle;
+      if (geometryAugment.angle === 0) {
+        angle = Math.atan2(
+          geometryAugment.current.offsetY - geometryAugment.start.offsetY,
+          geometryAugment.current.offsetX - geometryAugment.start.offsetX
+        );
+      } else {
+        angle = geometryAugment.angle * (Math.PI / 180);
+      }
 
       return (
         <>

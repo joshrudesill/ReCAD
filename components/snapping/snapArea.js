@@ -12,6 +12,7 @@ export default function SnapArea({
   dispatch,
   stageZoomScaleInverse,
   showSnapPoints,
+  enableSnaps,
 }) {
   const [snapAreaActive, setSnapAreaActive] = useState(false);
 
@@ -28,11 +29,6 @@ export default function SnapArea({
     dispatch(unlockCursor());
     setSnapAreaActive(false);
   };
-  const handleClick = () => {
-    if (!virtualGeometryBeingAltered && !virtualGeometryBeingDrawn) {
-      //dispatch(addSelectedGeometry(geometry));
-    }
-  };
 
   return (
     <>
@@ -42,10 +38,9 @@ export default function SnapArea({
         y={py}
         stroke='purple'
         strokeEnabled={showSnapPoints}
-        fillEnabled={true}
+        fillEnabled={enableSnaps}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
       />
       <Rect
         x={px - 0.5 * (10 * stageZoomScaleInverse)}

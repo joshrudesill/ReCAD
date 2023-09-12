@@ -15,7 +15,8 @@ export default React.memo(function SnapPoints({
   gType,
   vg = 0,
   sides = 0,
-  virtualGeometryBeingDrawn = false,
+  virtualGeometryBeingDrawn,
+  enableSnaps,
   stageZoomScaleInverse,
   showSnapPoints,
   quadraticCurveAnchorX = 0,
@@ -207,6 +208,7 @@ export default React.memo(function SnapPoints({
           virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
           stageZoomScaleInverse={stageZoomScaleInverse}
           showSnapPoints={showSnapPoints}
+          enableSnaps={enableSnaps}
         />
       ))}
       {tempSnapPoints?.map((snap, j) => (
@@ -216,6 +218,7 @@ export default React.memo(function SnapPoints({
           key={j + snapPoints.length}
           dispatch={dispatch}
           virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+          enableSnaps={enableSnaps}
           stageZoomScaleInverse={stageZoomScaleInverse}
           showSnapPoints={showSnapPoints}
         />

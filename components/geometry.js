@@ -12,6 +12,7 @@ export default function Geometry() {
     virtualGeometryBeingDrawn,
     virtualGeometry,
     showSnapPoints,
+    enableSnaps,
   } = useSelector((state) => state.drawingControl);
   const dispatch = useDispatch();
   return (
@@ -35,6 +36,7 @@ export default function Geometry() {
         selectedGeometry={selectedGeometry}
         virtualGeometry={virtualGeometry}
         virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
+        enableSnaps={enableSnaps}
         dispatch={dispatch}
       />
     ))
@@ -60,6 +62,7 @@ const GeoWithKey = React.memo(
     rotation,
     dispatch,
     showSnapPoints,
+    enableSnaps,
   }) {
     if (gType === "line") {
       return (
@@ -88,6 +91,7 @@ const GeoWithKey = React.memo(
             endingY={endingY}
             gType={"line"}
             showSnapPoints={showSnapPoints}
+            enableSnaps={enableSnaps}
             stageZoomScaleInverse={stageZoomScaleInverse}
           />
         </>
@@ -124,6 +128,7 @@ const GeoWithKey = React.memo(
             originalDimensions={originalDimensions}
             rotation={rotation}
             gType={"rect"}
+            enableSnaps={enableSnaps}
             showSnapPoints={showSnapPoints}
             stageZoomScaleInverse={stageZoomScaleInverse}
           />
@@ -156,6 +161,7 @@ const GeoWithKey = React.memo(
             endingX={endingX}
             endingY={endingY}
             gType={"circle"}
+            enableSnaps={enableSnaps}
             vg={virtualGeometry}
             virtualGeometryBeingDrawn={virtualGeometryBeingDrawn}
             showSnapPoints={showSnapPoints}
@@ -197,6 +203,7 @@ const GeoWithKey = React.memo(
             endingX={endingX}
             endingY={endingY}
             gType={"polygon"}
+            enableSnaps={enableSnaps}
             sides={sides}
             showSnapPoints={showSnapPoints}
             stageZoomScaleInverse={stageZoomScaleInverse}
@@ -238,6 +245,7 @@ const GeoWithKey = React.memo(
             quadraticCurveAnchorX={quadraticCurveAnchorX}
             quadraticCurveAnchorY={quadraticCurveAnchorY}
             endingX={endingX}
+            enableSnaps={enableSnaps}
             endingY={endingY}
             gType={"curve"}
             showSnapPoints={showSnapPoints}
@@ -279,6 +287,7 @@ const GeoWithKey = React.memo(
             startingY={startingY}
             endingX={endingX}
             endingY={endingY}
+            enableSnaps={enableSnaps}
             gType={"cap"}
             showSnapPoints={showSnapPoints}
             stageZoomScaleInverse={stageZoomScaleInverse}
@@ -290,6 +299,7 @@ const GeoWithKey = React.memo(
   (prev, next) => {
     return (
       prev.showSnapPoints === next.showSnapPoints &&
+      prev.enableSnaps === next.enableSnaps &&
       prev.startingX === next.startingX &&
       prev.selectedGeometry.length === next.selectedGeometry.length &&
       prev.virtualGeometry.startingX === next.virtualGeometry.startingX
