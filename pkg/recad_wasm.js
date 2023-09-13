@@ -215,7 +215,25 @@ export function rotate_point(ptr_x, ptr_y, center_x, center_y, angle) {
     return takeObject(ret);
 }
 
-function __wbg_adapter_22(arg0, arg1, arg2, arg3, arg4) {
+/**
+* @param {number} bsx
+* @param {number} bsy
+* @param {number} bex
+* @param {number} bey
+* @param {number} c_sx
+* @param {number} c_sy
+* @param {number} c_mx
+* @param {number} c_my
+* @param {number} c_ex
+* @param {number} c_ey
+* @returns {boolean}
+*/
+export function check_quadratic_curve_intersect(bsx, bsy, bex, bey, c_sx, c_sy, c_mx, c_my, c_ex, c_ey) {
+    const ret = wasm.check_quadratic_curve_intersect(bsx, bsy, bex, bey, c_sx, c_sy, c_mx, c_my, c_ex, c_ey);
+    return ret !== 0;
+}
+
+function __wbg_adapter_23(arg0, arg1, arg2, arg3, arg4) {
     wasm.wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6(arg0, arg1, addHeapObject(arg2), arg3, addHeapObject(arg4));
 }
 
@@ -314,7 +332,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_22(a, state0.b, arg0, arg1, arg2);
+                    return __wbg_adapter_23(a, state0.b, arg0, arg1, arg2);
                 } finally {
                     state0.a = a;
                 }

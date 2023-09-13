@@ -52,6 +52,7 @@ import ToolSelection from "@/components/toolSelection";
 import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
 import ArrayCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
 import RotationDialogue from "@/components/geometryDialogues/rotationDialogue";
+import { calcQLintersects } from "@/features/util/collisionDetection";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -613,6 +614,21 @@ export default function Home() {
           activeDrawingTool={activatedDrawingTool}
           activeAugmentationTool={activatedAugmentationTool}
         />
+        <button
+          onClick={() =>
+            console.log(
+              calcQLintersects(
+                { x: 20, y: -111 },
+                { x: 471, y: -227 },
+                { x: 404, y: -16 },
+                { x: 112, y: -294 },
+                { x: 241, y: -83 }
+              )
+            )
+          }
+        >
+          test
+        </button>
       </div>
       {activatedDrawingTool === "line" && (
         <div className='flex gap-2 flex-col'>

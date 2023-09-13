@@ -13,4 +13,5 @@ export function check_circle_collision(a: number, b: number, c: number, d: numbe
 export function check_polygon_collision(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number): number;
 export function find_circle_tan_points(a: number, b: number, c: number, d: number, e: number): number;
 export function rotate_point(a: number, b: number, c: number, d: number, e: number): number;
+export function check_quadratic_curve_intersect(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number): number;
 export function wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6(a: number, b: number, c: number, d: number, e: number): void;

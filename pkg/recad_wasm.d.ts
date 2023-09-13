@@ -93,6 +93,20 @@ export function find_circle_tan_points(circle_center_x: number, circle_center_y:
 */
 export function rotate_point(ptr_x: number, ptr_y: number, center_x: number, center_y: number, angle: number): Array<any>;
 /**
+* @param {number} bsx
+* @param {number} bsy
+* @param {number} bex
+* @param {number} bey
+* @param {number} c_sx
+* @param {number} c_sy
+* @param {number} c_mx
+* @param {number} c_my
+* @param {number} c_ex
+* @param {number} c_ey
+* @returns {boolean}
+*/
+export function check_quadratic_curve_intersect(bsx: number, bsy: number, bex: number, bey: number, c_sx: number, c_sy: number, c_mx: number, c_my: number, c_ex: number, c_ey: number): boolean;
+/**
 */
 export class Geometry {
   free(): void;
@@ -119,6 +133,7 @@ export interface InitOutput {
   readonly check_polygon_collision: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
   readonly find_circle_tan_points: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly rotate_point: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly check_quadratic_curve_intersect: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => number;
   readonly wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6: (a: number, b: number, c: number, d: number, e: number) => void;
 }
 

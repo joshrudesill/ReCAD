@@ -3,6 +3,7 @@ import {
   check_rect_collision,
   check_circle_collision,
   check_polygon_collision,
+  check_quadratic_curve_intersect,
 } from "recad-wasm/recad_wasm";
 
 /**
@@ -53,7 +54,81 @@ export function rustTemp(sx, sy, ex, ey) {
   // Calc angle in radians
   return Math.atan2(ey - sy, ex - sx);
 }
+var lerp = function (a, b, x) {
+  return a + x * (b - a);
+};
+export function calcQLintersects(p1, p2, p3, a1, a2) {
+  var intersections = [];
 
+  // inverse line normal
+  var normal = {
+    x: a1.y - a2.y,
+    y: a2.x - a1.x,
+  };
+
+  // Q-coefficients
+  var c2 = {
+    x: p1.x + p2.x * -2 + p3.x,
+    y: p1.y + p2.y * -2 + p3.y,
+  };
+
+  var c1 = {
+    x: p1.x * -2 + p2.x * 2,
+    y: p1.y * -2 + p2.y * 2,
+  };
+
+  var c0 = {
+    x: p1.x,
+    y: p1.y,
+  };
+
+  // Transform to line
+  var coefficient = a1.x * a2.y - a2.x * a1.y;
+  var a = normal.x * c2.x + normal.y * c2.y;
+  var b = (normal.x * c1.x + normal.y * c1.y) / a;
+  var c = (normal.x * c0.x + normal.y * c0.y + coefficient) / a;
+
+  // solve the roots
+  var roots = [];
+  var d = b * b - 4 * c;
+  if (d > 0) {
+    var e = Math.sqrt(d);
+    roots.push((-b + Math.sqrt(d)) / 2);
+    roots.push((-b - Math.sqrt(d)) / 2);
+  } else if (d == 0) {
+    roots.push(-b / 2);
+  }
+
+  // calc the solution points
+  for (var i = 0; i < roots.length; i++) {
+    var minX = Math.min(a1.x, a2.x);
+    var minY = Math.min(a1.y, a2.y);
+    var maxX = Math.max(a1.x, a2.x);
+    var maxY = Math.max(a1.y, a2.y);
+    var t = roots[i];
+    if (t >= 0 && t <= 1) {
+      // possible point -- pending bounds check
+      var point = {
+        x: lerp(lerp(p1.x, p2.x, t), lerp(p2.x, p3.x, t), t),
+        y: lerp(lerp(p1.y, p2.y, t), lerp(p2.y, p3.y, t), t),
+      };
+      var x = point.x;
+      var y = point.y;
+      // bounds checks
+      if (a1.x == a2.x && y >= minY && y <= maxY) {
+        // vertical line
+        intersections.push(point);
+      } else if (a1.y == a2.y && x >= minX && x <= maxX) {
+        // horizontal line
+        intersections.push(point);
+      } else if (x >= minX && y >= minY && x <= maxX && y <= maxY) {
+        // line passed bounds check
+        intersections.push(point);
+      }
+    }
+  }
+  return intersections;
+}
 /**
  * Checks to see if any starting or ending points of `geometry` fall inside of the selection box
  * @param {object} normalizedPoints Normalized selection box
@@ -319,6 +394,27 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           endingX,
           endingY,
           geometry[i].sides
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+        continue;
+      }
+    }
+    if (gType === "curve") {
+      const { quadraticCurveAnchor } = geometry[i];
+      if (
+        // rust
+        check_quadratic_curve_intersect(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
+          quadraticCurveAnchor.x,
+          quadraticCurveAnchor.y,
+          endingX,
+          endingY
         )
       ) {
         foundKeys.push(geometry[i].key);
