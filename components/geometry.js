@@ -266,8 +266,8 @@ const GeoWithKey = React.memo(
                 (endingX + startingX) * 0.5,
                 (endingY + startingY) * 0.5,
                 get_distance_4p(startingX, startingY, endingX, endingY) * 0.5,
-                Math.atan2(endingY - startingY, endingX - startingX),
                 Math.atan2(endingY - startingY, endingX - startingX) + Math.PI,
+                Math.atan2(endingY - startingY, endingX - startingX),
                 false
               );
               context.fillStrokeShape(shape);

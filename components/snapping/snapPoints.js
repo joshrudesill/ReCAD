@@ -148,8 +148,8 @@ export default React.memo(function SnapPoints({
     };
 
     snaps.push({
-      x: -quadrantVector.y + centerSnap.x,
-      y: quadrantVector.x + centerSnap.y,
+      x: quadrantVector.y + centerSnap.x,
+      y: -quadrantVector.x + centerSnap.y,
     });
 
     snaps.push(centerSnap);

@@ -185,11 +185,11 @@ export default function VirtualGeometry() {
                 Math.atan2(
                   virtualGeometry.currentY - virtualGeometry.startingY,
                   virtualGeometry.currentX - virtualGeometry.startingX
-                ),
+                ) + Math.PI,
                 Math.atan2(
                   virtualGeometry.currentY - virtualGeometry.startingY,
                   virtualGeometry.currentX - virtualGeometry.startingX
-                ) + Math.PI,
+                ),
                 false
               );
               context.stroke();
@@ -370,11 +370,11 @@ export default function VirtualGeometry() {
                         Math.atan2(
                           geo.endingY - geo.startingY,
                           geo.endingX - geo.startingX
-                        ),
+                        ) + Math.PI,
                         Math.atan2(
                           geo.endingY - geo.startingY,
                           geo.endingX - geo.startingX
-                        ) + Math.PI,
+                        ),
                         false
                       );
                       context.fillStrokeShape(shape);
@@ -556,11 +556,11 @@ export default function VirtualGeometry() {
                             Math.atan2(
                               geo.endingY - geo.startingY,
                               geo.endingX - geo.startingX
-                            ),
+                            ) + Math.PI,
                             Math.atan2(
                               geo.endingY - geo.startingY,
                               geo.endingX - geo.startingX
-                            ) + Math.PI,
+                            ),
                             false
                           );
                           context.fillStrokeShape(shape);
@@ -739,9 +739,9 @@ export default function VirtualGeometry() {
                         (end[1] + start[1]) * 0.5,
                         get_distance_4p(start[0], start[1], end[0], end[1]) *
                           0.5,
-                        Math.atan2(end[1] - start[1], end[0] - start[0]),
                         Math.atan2(end[1] - start[1], end[0] - start[0]) +
                           Math.PI,
+                        Math.atan2(end[1] - start[1], end[0] - start[0]),
                         false
                       );
                       context.fillStrokeShape(shape);

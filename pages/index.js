@@ -202,7 +202,7 @@ export default function Home() {
                 (offsetY + stageOffset.y) *
                 stageZoomScaleInverse
               ).toFixed(3),
-              type: "rotate",
+              type: "move",
               copies: 5,
             })
           );
