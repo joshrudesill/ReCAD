@@ -588,7 +588,7 @@ export default function Home() {
           <Rect
             height={10000}
             width={10000}
-            fill='#e8e8bb'
+            fill='#e8e8aa'
             x={-5000}
             y={-5000}
           />

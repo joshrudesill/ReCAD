@@ -4,6 +4,7 @@ import {
   check_circle_collision,
   check_polygon_collision,
   check_quadratic_curve_intersect,
+  check_cap_collision,
 } from "recad-wasm/recad_wasm";
 
 /**
@@ -413,6 +414,24 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           startingY,
           quadraticCurveAnchor.x,
           quadraticCurveAnchor.y,
+          endingX,
+          endingY
+        )
+      ) {
+        foundKeys.push(geometry[i].key);
+        continue;
+      }
+    }
+    if (gType === "cap") {
+      if (
+        // rust
+        check_cap_collision(
+          bL.x,
+          bL.y,
+          tR.x,
+          tR.y,
+          startingX,
+          startingY,
           endingX,
           endingY
         )

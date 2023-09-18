@@ -6,28 +6,6 @@ heap.push(undefined, null, true, false);
 
 function getObject(idx) { return heap[idx]; }
 
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-let cachedFloat64Memory0 = null;
-
-function getFloat64Memory0() {
-    if (cachedFloat64Memory0 === null || cachedFloat64Memory0.byteLength === 0) {
-        cachedFloat64Memory0 = new Float64Array(wasm.memory.buffer);
-    }
-    return cachedFloat64Memory0;
-}
-
-let cachedInt32Memory0 = null;
-
-function getInt32Memory0() {
-    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
-        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32Memory0;
-}
-
 let heap_next = heap.length;
 
 function dropObject(idx) {
@@ -107,19 +85,6 @@ export function return_jsarr(arr) {
         const ret = wasm.return_jsarr(addBorrowedObject(arr));
         return takeObject(ret);
     } finally {
-        heap[stack_pointer++] = undefined;
-    }
-}
-
-/**
-* @param {Float32Array} sel_box
-* @param {Array<any>} real_geo
-*/
-export function check_geo_collision(sel_box, real_geo) {
-    try {
-        wasm.check_geo_collision(addBorrowedObject(sel_box), addBorrowedObject(real_geo));
-    } finally {
-        heap[stack_pointer++] = undefined;
         heap[stack_pointer++] = undefined;
     }
 }
@@ -233,8 +198,20 @@ export function check_quadratic_curve_intersect(bsx, bsy, bex, bey, c_sx, c_sy, 
     return ret !== 0;
 }
 
-function __wbg_adapter_23(arg0, arg1, arg2, arg3, arg4) {
-    wasm.wasm_bindgen__convert__closures__invoke3_mut__hc8af6d59e1c521d6(arg0, arg1, addHeapObject(arg2), arg3, addHeapObject(arg4));
+/**
+* @param {number} bsx
+* @param {number} bsy
+* @param {number} bex
+* @param {number} bey
+* @param {number} gsx
+* @param {number} gsy
+* @param {number} gex
+* @param {number} gey
+* @returns {boolean}
+*/
+export function check_cap_collision(bsx, bsy, bex, bey, gsx, gsy, gex, gey) {
+    const ret = wasm.check_cap_collision(bsx, bsy, bex, bey, gsx, gsy, gex, gey);
+    return ret !== 0;
 }
 
 /**
@@ -304,12 +281,6 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbindgen_number_get = function(arg0, arg1) {
-        const obj = getObject(arg1);
-        const ret = typeof(obj) === 'number' ? obj : undefined;
-        getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
-        getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
-    };
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
@@ -317,30 +288,12 @@ function __wbg_get_imports() {
         const ret = arg0;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_length_fff51ee6522a1a18 = function(arg0) {
-        const ret = getObject(arg0).length;
-        return ret;
+    imports.wbg.__wbg_log_d8f770d99bfae179 = function(arg0, arg1) {
+        console.log(getStringFromWasm0(arg0, arg1));
     };
     imports.wbg.__wbg_new_898a68150f225f2e = function() {
         const ret = new Array();
         return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_forEach_c4a9c2a1e9a630ba = function(arg0, arg1, arg2) {
-        try {
-            var state0 = {a: arg1, b: arg2};
-            var cb0 = (arg0, arg1, arg2) => {
-                const a = state0.a;
-                state0.a = 0;
-                try {
-                    return __wbg_adapter_23(a, state0.b, arg0, arg1, arg2);
-                } finally {
-                    state0.a = a;
-                }
-            };
-            getObject(arg0).forEach(cb0);
-        } finally {
-            state0.a = state0.b = 0;
-        }
     };
     imports.wbg.__wbg_push_ca1c26067ef907ac = function(arg0, arg1) {
         const ret = getObject(arg0).push(getObject(arg1));
@@ -383,8 +336,6 @@ function __wbg_init_memory(imports, maybe_memory) {
 function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
-    cachedFloat64Memory0 = null;
-    cachedInt32Memory0 = null;
     cachedUint8Memory0 = null;
 
 
