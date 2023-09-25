@@ -553,11 +553,19 @@ export default function Home() {
     activatedAugmentationTool,
   ]);
   const ldRef = useRef(null);
+  const divRef = useRef(null);
   return (
-    <div className='flex-row flex m-3 gap-2 '>
+    <div className='flex-col flex' ref={divRef}>
+      <ToolSelection
+        activateDrawingTool={activateDrawingTool}
+        activateAugmentationTool={activateAugmentationTool}
+        length={selectedGeometry.length}
+        activeDrawingTool={activatedDrawingTool}
+        activeAugmentationTool={activatedAugmentationTool}
+      />
       <Stage
-        width={1500}
-        height={900}
+        width={divRef.current?.offsetWidth || window.screen.availWidth * 0.96}
+        height={window.innerHeight * 0.9}
         x={100}
         y={800}
         ref={stageRef}
@@ -606,30 +614,7 @@ export default function Home() {
           <BoxSelection />
         </Layer>
       </Stage>
-      <div className='flex gap-2 flex-col'>
-        <ToolSelection
-          activateDrawingTool={activateDrawingTool}
-          activateAugmentationTool={activateAugmentationTool}
-          length={selectedGeometry.length}
-          activeDrawingTool={activatedDrawingTool}
-          activeAugmentationTool={activatedAugmentationTool}
-        />
-        <button
-          onClick={() =>
-            console.log(
-              calcQLintersects(
-                { x: 20, y: -111 },
-                { x: 471, y: -227 },
-                { x: 404, y: -16 },
-                { x: 112, y: -294 },
-                { x: 241, y: -83 }
-              )
-            )
-          }
-        >
-          test
-        </button>
-      </div>
+      <div className='flex gap-2 flex-col'></div>
       {activatedDrawingTool === "line" && (
         <div className='flex gap-2 flex-col'>
           <LineDialogue ref={ldRef} />
@@ -657,15 +642,12 @@ export default function Home() {
       )}
       {activatedAugmentationTool === 1 && (
         <div className='flex gap-2 flex-col'>
-          Angle
           <RotationDialogue ref={ldRef} />
         </div>
       )}
       <div className='flex gap-2 flex-col'>
         <p>
           <UserInstruction />
-          {activatedAugmentationTool}
-          {activatedDrawingTool}
         </p>
       </div>
     </div>
