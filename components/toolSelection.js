@@ -43,23 +43,23 @@ export default function ToolSelection({
         <img src='/polygon-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-slate-400 ml-2 hover:bg-orange-500 rounded-md'
+        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
         onClick={() => activateDrawingTool("curve")}
       >
-        Curve
+        <img src='/curve-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-slate-400 ml-2 hover:bg-orange-500 rounded-md'
+        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
         onClick={() => activateDrawingTool("cap")}
       >
-        Cap
+        <img src='/cap-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-red-400 ml-2 hover:bg-orange-500 disabled:bg-slate-500 rounded-md'
+        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
         onClick={() => activateAugmentationTool(1)}
         disabled={length === 0}
       >
-        Move
+        <img src='/move-icon.svg' alt='line' className='w-8' />
       </button>
       <button
         className='p-1 bg-teal-400 ml-2 hover:bg-orange-500 rounded-md'
