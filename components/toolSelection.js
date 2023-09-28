@@ -13,77 +13,77 @@ export default function ToolSelection({
 }) {
   const dispatch = useDispatch();
   return (
-    <div className='p-3 bg-amber-300'>
+    <div className='flex flex-row bg-gray-400'>
       <button
         className={
           activeDrawingTool === "line"
-            ? `p-1 bg-green-400 ml-2 hover:bg-orange-500 rounded-md`
-            : `p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500`
+            ? `p-2 py-2 bg-green-400  hover:bg-slate-400 `
+            : `  p-2 py-2 hover:bg-slate-400 `
         }
         onClick={() => activateDrawingTool("line")}
       >
         <img src='/line-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className=' p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className='  p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateDrawingTool("rect")}
       >
         <img src='/rect-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateDrawingTool("circle")}
       >
         <img src='/circle-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateDrawingTool("polygon")}
       >
         <img src='/polygon-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateDrawingTool("curve")}
       >
         <img src='/curve-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className=' p-2 py-2 hover:bg-slate-400  border-r-2 border-r-slate-500'
         onClick={() => activateDrawingTool("cap")}
       >
         <img src='/cap-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-0.5 bg-slate-300 ml-2 hover:bg-orange-500 rounded-md border-2 border-slate-500'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateAugmentationTool(1)}
         disabled={length === 0}
       >
         <img src='/move-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-teal-400 ml-2 hover:bg-orange-500 rounded-md'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => activateAugmentationTool(2)}
       >
-        Select
+        <img src='/select-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-teal-400 ml-2 hover:bg-orange-500 rounded-md'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => dispatch(toggleSnapPoints())}
       >
-        Show Points
+        <img src='/showpoints-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-teal-400 ml-2 hover:bg-orange-500 rounded-md'
+        className=' p-2 py-2 hover:bg-slate-400 '
         onClick={() => dispatch(undoToPreviousState())}
       >
-        Undo
+        <img src='/undo-icon.svg' alt='line' className='w-8' />
       </button>
       <button
-        className='p-1 bg-teal-400 ml-2 hover:bg-orange-500 rounded-md'
+        className=' p-2 py-2 hover:bg-slate-400  '
         onClick={() => dispatch(redoToNextState())}
       >
-        Redo
+        <img src='/redo-icon.svg' alt='line' className='w-8' />
       </button>
     </div>
   );
