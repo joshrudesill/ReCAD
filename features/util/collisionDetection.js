@@ -1,4 +1,4 @@
-import { get_distance_4p } from "recad-wasm";
+import { get_distance_4p, rotate_point } from "recad-wasm";
 import {
   check_line_collision,
   check_rect_collision,
@@ -424,10 +424,73 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
       }
     }
     if (gType === "cap") {
-      if (
-        true
-        // rust
-        /*check_cap_collision(
+      if (startingX >= bL.x && startingX <= bR.x) {
+        // X in bounds
+        if (startingY >= bL.y && startingY <= tR.y) {
+          // Y in bounds, one point inside box
+          foundKeys.push(geometry[i].key);
+          continue;
+        }
+      }
+      // Do same for end point
+      if (endingX >= bL.x && endingX <= bR.x) {
+        // X in bounds
+        if (endingY >= bL.y && endingY <= tR.y) {
+          // Y in bounds, one point inside box
+          foundKeys.push(geometry[i].key);
+          continue;
+        }
+      }
+
+      const circle = {
+        radius: get_distance_4p(startingX, startingY, endingX, endingY) / 2,
+        center: {
+          x: (startingX + endingX) / 2,
+          y: (startingY + endingY) / 2,
+        },
+      };
+      const lines = [
+        { p1: bL, p2: tL },
+        { p1: bL, p2: bR },
+        { p1: bR, p2: tR },
+        { p1: tR, p2: tL },
+      ];
+      let hits = [];
+      for (const line of lines) {
+        let hit = inteceptCircleLineSeg(circle, line);
+        if (hit.length > 0) hits.push(...hit);
+      }
+
+      //Rotate points around center, then check if their angle is within 2PI and PI
+      if (hits.length > 0) {
+        const rotatedHits = hits.map((hit) => {
+          const p = rotate_point(
+            hit.x,
+            hit.y,
+            circle.center.x,
+            circle.center.y,
+            2 * Math.PI -
+              (Math.atan2(startingY - endingY, startingX - endingX) + Math.PI)
+          );
+          return {
+            x: p[0],
+            y: p[1],
+          };
+        });
+
+        for (const hit of rotatedHits) {
+          const angle =
+            Math.atan2(circle.center.y - hit.y, circle.center.x - hit.x) +
+            Math.PI;
+          if (angle <= 2 * Math.PI && angle >= Math.PI) {
+            foundKeys.push(geometry[i].key);
+            continue;
+          }
+        }
+      }
+
+      // rust
+      /*check_cap_collision(
           bL.x,
           bL.y,
           tR.x,
@@ -436,36 +499,31 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           startingY,
           endingX,
           endingY
-        )*/
-      ) {
-        console.log(
-          "angle: ",
-          Math.atan2(startingY - endingY, startingX - endingX) + Math.PI
-        );
-        console.log(
-          "center: ",
-          (startingX + endingX) / 2,
-          (startingY + endingY) / 2
-        );
-        console.log(
-          inteceptCircleLineSeg(
-            {
-              radius:
-                get_distance_4p(startingX, startingY, endingX, endingY) / 2,
-              center: {
-                x: (startingX + endingX) / 2,
-                y: (startingY + endingY) / 2,
+          console.log(
+            "angle: ",
+            Math.atan2(startingY - endingY, startingX - endingX) + Math.PI
+          );
+          console.log(
+            "center: ",
+            (startingX + endingX) / 2,
+            (startingY + endingY) / 2
+          );
+          console.log(
+            inteceptCircleLineSeg(
+              {
+                radius:
+                  get_distance_4p(startingX, startingY, endingX, endingY) / 2,
+                center: {
+                  x: (startingX + endingX) / 2,
+                  y: (startingY + endingY) / 2,
+                },
               },
-            },
-            {
-              p1: { x: bL.x, y: bL.y },
-              p2: { x: tL.x, y: tL.y },
-            }
-          )
-        );
-        foundKeys.push(geometry[i].key);
-        continue;
-      }
+              {
+                p1: { x: bL.x, y: bL.y },
+                p2: { x: tL.x, y: tL.y },
+              }
+            )
+        )*/
     }
   }
   return foundKeys;
