@@ -612,6 +612,14 @@ export default function Home() {
             <></>
           )}
           <BoxSelection />
+          <Rect
+            height={50 * stageZoomScaleInverse}
+            width={700 * stageZoomScaleInverse}
+            fill='teal'
+            x={(stageOffset.x + 10) * stageZoomScaleInverse}
+            y={(stageOffset.y + 10) * stageZoomScaleInverse}
+            cornerRadius={10 * stageZoomScaleInverse}
+          />
         </Layer>
       </Stage>
       <div className='flex gap-2 flex-col'></div>
