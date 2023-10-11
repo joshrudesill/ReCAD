@@ -424,6 +424,9 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
       }
     }
     if (gType === "cap") {
+      // First check if starting or ending point inside box
+      // If so we can exit here and avoid unecessary complexity
+
       if (startingX >= bL.x && startingX <= bR.x) {
         // X in bounds
         if (startingY >= bL.y && startingY <= tR.y) {
@@ -441,6 +444,12 @@ export function checkGeometryCollision(normalizedPoints, geometry) {
           continue;
         }
       }
+
+      // No point inside box, now what will happen is we will detect collision between the 4 box sides and a CIRCLE, not a semicircle
+      // I couldnt find any semicircle algorithms so I check a full circle
+      // If any hits I rotate the point so that I can detect if its angle from the center point of the circle is between 2 pi and pi
+      // The reason for this is the unit circle.. I rotate the point the amount of degrees the halfcircle is away from a horizontal halfcircle so I can have nice bounds to test it
+      // This could be done rotated 180 degrees as well in which case I would check 0 and pi
 
       const circle = {
         radius: get_distance_4p(startingX, startingY, endingX, endingY) / 2,

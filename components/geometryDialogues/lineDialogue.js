@@ -1,8 +1,12 @@
 import {
+  addGeometryFields,
+  updateGeometryField,
+} from "@/features/UIControlSlice";
+import {
   lockVirtualGeometry,
   updateVirtualGeometryWithInput,
 } from "@/features/drawingControlSlice";
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -12,6 +16,43 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
   );
   const dispatch = useDispatch();
   const [controlType, setControlType] = useState("start-length");
+  useEffect(() => {
+    dispatch(
+      addGeometryFields([
+        {
+          fieldName: "Starting X",
+          fieldValue: virtualGeometry.startingX,
+          defaultValue: 0,
+        },
+        {
+          fieldName: "Starting Y",
+          fieldValue: virtualGeometry.startingY,
+          defaultValue: 0,
+        },
+        {
+          fieldName: "Length",
+          fieldValue: virtualGeometry.startingY,
+          defaultValue: 0,
+        },
+      ])
+    );
+  }, []);
+  useEffect(() => {
+    dispatch(
+      updateGeometryField({
+        field: "Starting X",
+        value: virtualGeometry.startingX,
+      })
+    );
+  }, [virtualGeometry.startingX]);
+  useEffect(() => {
+    dispatch(
+      updateGeometryField({
+        field: "Starting Y",
+        value: virtualGeometry.startingY,
+      })
+    );
+  }, [virtualGeometry.startingY]);
   const updateLine = (typeOfUpdate, value, geoType) => {
     dispatch(updateVirtualGeometryWithInput({ typeOfUpdate, value, geoType }));
   };
@@ -67,7 +108,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
     //then focus length input
     //if new typing occurs, set input locks and let math be handled by updatevirtualgeo action
     return (
-      <>
+      <div className=''>
         <input
           placeholder={`${virtualGeometry.startingX || "0"}`}
           className='border'
@@ -93,7 +134,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
           onChange={handleLengthInputChange}
           ref={lengthRef}
         />
-      </>
+      </div>
     );
   }
 

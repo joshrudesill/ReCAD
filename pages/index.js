@@ -44,7 +44,10 @@ import LineDialogue from "@/components/geometryDialogues/lineDialogue";
 import CircleDialogue from "@/components/geometryDialogues/circleDialogue";
 import RectDialogue from "@/components/geometryDialogues/rectDialogue";
 import UserInstruction from "@/components/userInstruction/userInstruction";
-import { setCurrentInstruction } from "@/features/UIControlSlice";
+import {
+  setCurrentInstruction,
+  toggleGeoInput,
+} from "@/features/UIControlSlice";
 import BoxSelection from "@/components/boxSelection";
 Konva.dragButtons = [2];
 import init, { derive_actual_pos, rotate_point } from "recad-wasm";
@@ -52,7 +55,7 @@ import ToolSelection from "@/components/toolSelection";
 import PolygonDialogue from "@/components/geometryDialogues/polygonDialogue";
 import ArrayCopyDialogue from "@/components/geometryDialogues/arrayCopyDialogue";
 import RotationDialogue from "@/components/geometryDialogues/rotationDialogue";
-import { calcQLintersects } from "@/features/util/collisionDetection";
+import GeometryInput from "@/components/geometryDialogues/geometryInput";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -71,6 +74,7 @@ export default function Home() {
     const stage = "start";
     dispatch(setEnableSnaps(true));
     dispatch(setCurrentInstruction({ category, tool, stage }));
+    dispatch(toggleGeoInput(true));
   };
   const [activatedAugmentationTool, setActivatedAugmentationTool] = useState(2); // Needs to be verbose
   const activateAugmentationTool = (tool) => {
@@ -157,6 +161,7 @@ export default function Home() {
             geometry.endingY = virtualGeometry.endingY;
           }
           setActivatedDrawingTool("none");
+          dispatch(toggleGeoInput(false));
           dispatch(addRealGeometry(geometry));
         }
         // add real geo
@@ -509,6 +514,7 @@ export default function Home() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.keyCode === 32) {
+        e.preventDefault();
         // space
         if (lastCommand !== 0) {
           if (lastCommandType === "d") {
@@ -518,26 +524,31 @@ export default function Home() {
           }
         }
       } else if (e.keyCode === 27) {
+        e.preventDefault();
         // escape
         setActivatedAugmentationTool(0);
         setActivatedDrawingTool("none");
         dispatch(cancelVirtualGeometryDrawing());
       } else if (e.keyCode === 76) {
+        e.preventDefault();
         // L
         if (activatedDrawingTool === "none") {
           activateDrawingTool("line");
         }
       } else if (e.keyCode === 67) {
+        e.preventDefault();
         // C
         if (activatedDrawingTool === "none") {
           activateDrawingTool("circle");
         }
       } else if (e.keyCode === 82) {
+        e.preventDefault();
         // R
         if (activatedDrawingTool === "none") {
           activateDrawingTool("rect");
         }
       } else if (e.keyCode === 46) {
+        e.preventDefault();
         //delete
         dispatch(deleteSelectedItems());
       }
@@ -612,14 +623,7 @@ export default function Home() {
             <></>
           )}
           <BoxSelection />
-          <Rect
-            height={50 * stageZoomScaleInverse}
-            width={700 * stageZoomScaleInverse}
-            fill='teal'
-            x={(stageOffset.x + 10) * stageZoomScaleInverse}
-            y={(stageOffset.y + 10) * stageZoomScaleInverse}
-            cornerRadius={10 * stageZoomScaleInverse}
-          />
+          <GeometryInput />
         </Layer>
       </Stage>
       <div className='flex gap-2 flex-col'></div>
