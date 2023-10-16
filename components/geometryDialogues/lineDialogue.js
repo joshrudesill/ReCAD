@@ -31,8 +31,8 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
         },
         {
           fieldName: "Length",
-          fieldValue: virtualGeometry.startingY,
-          defaultValue: 0,
+          fieldValue: virtualGeometryInputLocks?.length?.value || "Not set",
+          defaultValue: "Not set",
         },
       ])
     );
@@ -53,9 +53,22 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       })
     );
   }, [virtualGeometry.startingY]);
+  useEffect(() => {
+    dispatch(
+      updateGeometryField({
+        field: "Length",
+        value: virtualGeometryInputLocks.length.value,
+      })
+    );
+  }, [virtualGeometryInputLocks.length.value]);
+
   const updateLine = (typeOfUpdate, value, geoType) => {
     dispatch(updateVirtualGeometryWithInput({ typeOfUpdate, value, geoType }));
+    if (typeOfUpdate === "x") {
+      dispatch(updateGeometryField({ field: "StartingX", value }));
+    }
   };
+
   const handleLengthInputChange = (e) => {
     if (e.target.value !== "") {
       dispatch(
@@ -65,6 +78,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       dispatch(lockVirtualGeometry({ lockType: "lengthUnlock", value: 0 }));
     }
   };
+
   const handleStartPointInputChange = (e, type) => {
     if (e.target.value !== "") {
       updateLine(`s${type}`, e.target.value, "line");
@@ -72,6 +86,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       updateLine(`s${type}`, 0, "line");
     }
   };
+
   const handleEndPointInputChange = (e, type) => {
     if (e.target.value !== "") {
       dispatch(
@@ -82,6 +97,7 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       updateLine(`e${type}`, 0, "line");
     }
   };
+
   const sxRef = useRef(null);
   const syRef = useRef(null);
   const lengthRef = useRef(null);
@@ -108,20 +124,20 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
     //then focus length input
     //if new typing occurs, set input locks and let math be handled by updatevirtualgeo action
     return (
-      <div className=''>
+      <div className='opacity-0' style={{ width: "0px", height: "0px" }}>
         <input
           placeholder={`${virtualGeometry.startingX || "0"}`}
-          className='border'
           type='number'
           onChange={(e) => handleStartPointInputChange(e, "x")}
           ref={sxRef}
+          style={{ width: "0px", height: "0px" }}
         />
         <input
           placeholder={`${virtualGeometry.startingY || "0"}`}
-          className='border'
           type='number'
           onChange={(e) => handleStartPointInputChange(e, "y")}
           ref={syRef}
+          style={{ width: "0px", height: "0px" }}
         />
         <input
           placeholder={`${
@@ -129,10 +145,10 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
               ? virtualGeometryInputLocks.length.value
               : "0"
           }`}
-          className='border'
           type='number'
           onChange={handleLengthInputChange}
           ref={lengthRef}
+          style={{ width: "0px", height: "0px" }}
         />
       </div>
     );

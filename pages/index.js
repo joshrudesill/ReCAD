@@ -478,6 +478,12 @@ export default function Home() {
   const [o, setO] = useState(0);
   const [z, setZ] = useState("n");
 
+  const [mouseOverInstructionArea, setMouseInstruction] = useState(false);
+
+  const handleInputFocusRequest = (focusType) => {
+    ldRef.current.focus(focusType);
+  };
+
   const stageRef = useRef(null);
 
   const handleWheel = (e) => {
@@ -565,6 +571,7 @@ export default function Home() {
   ]);
   const ldRef = useRef(null);
   const divRef = useRef(null);
+
   return (
     <div className='flex-col flex' ref={divRef}>
       <ToolSelection
@@ -581,7 +588,11 @@ export default function Home() {
         y={800}
         ref={stageRef}
         onWheel={handleWheel}
-        onMouseDown={handleClickInteractionWithStage}
+        onMouseDown={(e) => {
+          if (!mouseOverInstructionArea) {
+            handleClickInteractionWithStage(e);
+          }
+        }}
         onMouseMove={handleDragInteractionWithStage}
         onMouseUp={() => {
           if (selectionBox !== null) {
@@ -614,7 +625,6 @@ export default function Home() {
         </Layer>
         <Layer name='realgeo'>
           <Geometry />
-          <Ellipse />
         </Layer>
         <Layer name='virtualgeo' listening={false}>
           {virtualGeometryBeingDrawn || virtualGeometryBeingAltered ? (
@@ -623,10 +633,14 @@ export default function Home() {
             <></>
           )}
           <BoxSelection />
-          <GeometryInput />
+        </Layer>
+        <Layer name='instruction'>
+          <GeometryInput
+            inputRefFocus={handleInputFocusRequest}
+            setMouseInstruction={setMouseInstruction}
+          />
         </Layer>
       </Stage>
-      <div className='flex gap-2 flex-col'></div>
       {activatedDrawingTool === "line" && (
         <div className='flex gap-2 flex-col'>
           <LineDialogue ref={ldRef} />

@@ -1,7 +1,7 @@
-import { Rect, Text } from "react-konva";
+import { Rect, Text, Group } from "react-konva";
 import { useSelector } from "react-redux";
 
-export default function GeometryInput() {
+export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
   const stageOffset = useSelector((state) => state.drawingControl.stageOffset);
   const stageZoomScaleInverse = useSelector(
     (state) => state.drawingControl.stageZoomScaleInverse
@@ -9,27 +9,56 @@ export default function GeometryInput() {
   const { showGeometryInput, geometryInputDataFields } = useSelector(
     (state) => state.UIControl
   );
+  const handleClick = (fieldName) => {
+    console.log("clicked");
+    var focusType = "";
+    switch (fieldName) {
+      case "StartingX":
+        focusType = "sx";
+        break;
+      case "StartingY":
+        focusType = "sy";
+        break;
+      case "Length":
+        focusType = "length";
+        break;
+    }
+    inputRefFocus(focusType);
+  };
 
   if (showGeometryInput) {
     return (
       <>
-        <Rect
-          height={50 * stageZoomScaleInverse}
-          width={700 * stageZoomScaleInverse}
-          fill='teal'
-          x={(stageOffset.x + 10) * stageZoomScaleInverse}
-          y={(stageOffset.y + 10) * stageZoomScaleInverse}
-          cornerRadius={10 * stageZoomScaleInverse}
-        />
         {geometryInputDataFields.map((field, i) => {
           return (
-            <Text
-              text={`${field.fieldName}: ${
-                field.fieldValue || field.defaultValue
-              }`}
-              x={(stageOffset.x + 15 * (i + 1)) * stageZoomScaleInverse}
-              y={(stageOffset.y + 15 * (i + 1)) * stageZoomScaleInverse}
-            />
+            <Group
+              onMouseEnter={() => setMouseInstruction(true)}
+              onMouseLeave={() => setMouseInstruction(false)}
+              x={(stageOffset.x + 10) * stageZoomScaleInverse}
+              y={(15 + stageOffset.y + 55 * i) * stageZoomScaleInverse}
+            >
+              <Rect
+                height={40 * stageZoomScaleInverse}
+                width={
+                  geometryInputDataFields.length * 100 * stageZoomScaleInverse
+                }
+                fill='teal'
+                cornerRadius={10 * stageZoomScaleInverse}
+              />
+              <Text
+                verticalAlign='middle'
+                fontSize={14 * stageZoomScaleInverse}
+                text={`${field.fieldName}: ${
+                  field.fieldValue !== 0
+                    ? parseFloat(field.fieldValue).toFixed(2)
+                    : field.defaultValue
+                }`}
+                x={10 * stageZoomScaleInverse}
+                y={10 * stageZoomScaleInverse}
+                width={160 * stageZoomScaleInverse}
+                onClick={() => handleClick(field.fieldName)}
+              />
+            </Group>
           );
         })}
       </>
