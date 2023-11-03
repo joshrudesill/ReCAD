@@ -128,6 +128,9 @@ export default function Home() {
     if (e.evt.button !== 0) {
       return;
     }
+    if (mouseOverInstructionArea) {
+      return;
+    }
     const { offsetX, offsetY } = e.evt;
     if (activatedDrawingTool !== "none") {
       if (virtualGeometryBeingDrawn) {
@@ -185,6 +188,7 @@ export default function Home() {
         };
         dispatch(startDrawingVirtualGeometry(geometry));
         if (activatedDrawingTool === "line") {
+          setCurrentFocus("length");
           ldRef.current.focus("length");
         } else if (activatedDrawingTool === "polygon") {
           ldRef.current.focus("sides");
@@ -479,8 +483,11 @@ export default function Home() {
   const [z, setZ] = useState("n");
 
   const [mouseOverInstructionArea, setMouseInstruction] = useState(false);
+  const [currentFocus, setCurrentFocus] = useState("");
 
   const handleInputFocusRequest = (focusType) => {
+    console.log("focusinputreq");
+    setCurrentFocus(focusType);
     ldRef.current.focus(focusType);
   };
 
@@ -623,6 +630,15 @@ export default function Home() {
             y={-5000}
           />
         </Layer>
+        <Layer name='instruction'>
+          {virtualGeometryBeingDrawn && (
+            <GeometryInput
+              inputRefFocus={handleInputFocusRequest}
+              setMouseInstruction={setMouseInstruction}
+              currentFocus={currentFocus}
+            />
+          )}
+        </Layer>
         <Layer name='realgeo'>
           <Geometry />
         </Layer>
@@ -633,12 +649,6 @@ export default function Home() {
             <></>
           )}
           <BoxSelection />
-        </Layer>
-        <Layer name='instruction'>
-          <GeometryInput
-            inputRefFocus={handleInputFocusRequest}
-            setMouseInstruction={setMouseInstruction}
-          />
         </Layer>
       </Stage>
       {activatedDrawingTool === "line" && (

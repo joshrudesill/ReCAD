@@ -10,7 +10,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const LineDialogue = forwardRef(function LineDialogue(props, ref) {
+const LineDialogue = forwardRef(function LineDialogue(_, ref) {
   const { virtualGeometry, virtualGeometryInputLocks } = useSelector(
     (state) => state.drawingControl
   );
@@ -21,12 +21,12 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
       addGeometryFields([
         {
           fieldName: "Starting X",
-          fieldValue: virtualGeometry.startingX,
+          fieldValue: virtualGeometry?.startingX || 0,
           defaultValue: 0,
         },
         {
           fieldName: "Starting Y",
-          fieldValue: virtualGeometry.startingY,
+          fieldValue: -virtualGeometry?.startingY || 0,
           defaultValue: 0,
         },
         {
@@ -38,20 +38,24 @@ const LineDialogue = forwardRef(function LineDialogue(props, ref) {
     );
   }, []);
   useEffect(() => {
-    dispatch(
-      updateGeometryField({
-        field: "Starting X",
-        value: virtualGeometry.startingX,
-      })
-    );
+    if (virtualGeometry.startingX) {
+      dispatch(
+        updateGeometryField({
+          field: "Starting X",
+          value: virtualGeometry.startingX,
+        })
+      );
+    }
   }, [virtualGeometry.startingX]);
   useEffect(() => {
-    dispatch(
-      updateGeometryField({
-        field: "Starting Y",
-        value: virtualGeometry.startingY,
-      })
-    );
+    if (virtualGeometry.startingY) {
+      dispatch(
+        updateGeometryField({
+          field: "Starting Y",
+          value: -virtualGeometry.startingY,
+        })
+      );
+    }
   }, [virtualGeometry.startingY]);
   useEffect(() => {
     dispatch(

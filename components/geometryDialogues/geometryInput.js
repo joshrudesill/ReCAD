@@ -1,7 +1,12 @@
+import { useEffect, useState } from "react";
 import { Rect, Text, Group } from "react-konva";
 import { useSelector } from "react-redux";
 
-export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
+export default function GeometryInput({
+  inputRefFocus,
+  setMouseInstruction,
+  currentFocus,
+}) {
   const stageOffset = useSelector((state) => state.drawingControl.stageOffset);
   const stageZoomScaleInverse = useSelector(
     (state) => state.drawingControl.stageZoomScaleInverse
@@ -9,14 +14,35 @@ export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
   const { showGeometryInput, geometryInputDataFields } = useSelector(
     (state) => state.UIControl
   );
+  const [convertedFocus, setCF] = useState("");
+  useEffect(() => {
+    // Gross code but oh well
+    if (currentFocus !== "") {
+      console.log(currentFocus);
+      var focusType = "";
+      switch (currentFocus) {
+        case "sx":
+          focusType = "Starting X";
+          break;
+        case "sy":
+          focusType = "Starting Y";
+          break;
+        case "length":
+          focusType = "Length";
+          break;
+      }
+      console.log("run");
+      setCF(focusType);
+    }
+  }, [currentFocus]);
+
   const handleClick = (fieldName) => {
-    console.log("clicked");
     var focusType = "";
     switch (fieldName) {
-      case "StartingX":
+      case "Starting X":
         focusType = "sx";
         break;
-      case "StartingY":
+      case "Starting Y":
         focusType = "sy";
         break;
       case "Length":
@@ -36,6 +62,7 @@ export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
               onMouseLeave={() => setMouseInstruction(false)}
               x={(stageOffset.x + 10) * stageZoomScaleInverse}
               y={(15 + stageOffset.y + 55 * i) * stageZoomScaleInverse}
+              onClick={() => handleClick(field.fieldName)}
             >
               <Rect
                 height={40 * stageZoomScaleInverse}
@@ -43,6 +70,9 @@ export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
                   geometryInputDataFields.length * 100 * stageZoomScaleInverse
                 }
                 fill='teal'
+                stroke={"black"}
+                strokeWidth={2 * stageZoomScaleInverse}
+                strokeEnabled={convertedFocus === field.fieldName}
                 cornerRadius={10 * stageZoomScaleInverse}
               />
               <Text
@@ -56,7 +86,6 @@ export default function GeometryInput({ inputRefFocus, setMouseInstruction }) {
                 x={10 * stageZoomScaleInverse}
                 y={10 * stageZoomScaleInverse}
                 width={160 * stageZoomScaleInverse}
-                onClick={() => handleClick(field.fieldName)}
               />
             </Group>
           );
