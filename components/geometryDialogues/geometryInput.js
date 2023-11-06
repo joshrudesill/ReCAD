@@ -17,8 +17,8 @@ export default function GeometryInput({
   const [convertedFocus, setCF] = useState("");
   useEffect(() => {
     // Gross code but oh well
+    console.log(currentFocus);
     if (currentFocus !== "") {
-      console.log(currentFocus);
       var focusType = "";
       switch (currentFocus) {
         case "sx":
@@ -30,8 +30,14 @@ export default function GeometryInput({
         case "length":
           focusType = "Length";
           break;
+        case "width":
+          focusType = "Width";
+          break;
+        case "height":
+          focusType = "Height";
+          break;
       }
-      console.log("run");
+      console.log("asdfasdf:", focusType);
       setCF(focusType);
     }
   }, [currentFocus]);
@@ -47,6 +53,12 @@ export default function GeometryInput({
         break;
       case "Length":
         focusType = "length";
+        break;
+      case "Width":
+        focusType = "width";
+        break;
+      case "Height":
+        focusType = "height";
         break;
     }
     inputRefFocus(focusType);

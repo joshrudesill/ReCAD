@@ -195,7 +195,8 @@ export default function Home() {
         } else if (activatedDrawingTool === "circle") {
           ldRef.current.focus("length");
         } else if (activatedDrawingTool === "rect") {
-          ldRef.current.focus("length");
+          setCurrentFocus("width");
+          ldRef.current.focus("width");
         }
       }
     } else if (activatedAugmentationTool !== 0) {
@@ -486,7 +487,6 @@ export default function Home() {
   const [currentFocus, setCurrentFocus] = useState("");
 
   const handleInputFocusRequest = (focusType) => {
-    console.log("focusinputreq");
     setCurrentFocus(focusType);
     ldRef.current.focus(focusType);
   };
